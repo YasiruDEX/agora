@@ -1,0 +1,498 @@
+<title>Agent Manager Demo Blueprint — Riverside County</title>
+<style>
+  :root {
+    --paper: #F4F7F6;
+    --surface: #FFFFFF;
+    --surface-2: #EAF0EE;
+    --ink: #16242A;
+    --ink-soft: #45565D;
+    --ink-faint: #6C7B81;
+    --border: #D7E0DD;
+    --border-strong: #C3D0CC;
+    --accent: #0D9488;
+    --accent-strong: #0F766E;
+    --accent-soft: rgba(13,148,136,0.10);
+    --attention: #B45309;
+    --attention-soft: rgba(180,83,9,0.10);
+    --shadow: 0 1px 2px rgba(22,36,42,0.04), 0 8px 24px -12px rgba(22,36,42,0.14);
+
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
+
+    --measure: 68ch;
+    --wrap: 1140px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0D1418;
+      --surface: #131E22;
+      --surface-2: #1A272C;
+      --ink: #E7ECEA;
+      --ink-soft: #A8B6B8;
+      --ink-faint: #7C8C8E;
+      --border: #25333A;
+      --border-strong: #33454C;
+      --accent: #2DD4BF;
+      --accent-strong: #5EEAD4;
+      --accent-soft: rgba(45,212,191,0.13);
+      --attention: #E8A33D;
+      --attention-soft: rgba(232,163,61,0.14);
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F4F7F6; --surface: #FFFFFF; --surface-2: #EAF0EE;
+    --ink: #16242A; --ink-soft: #45565D; --ink-faint: #6C7B81;
+    --border: #D7E0DD; --border-strong: #C3D0CC;
+    --accent: #0D9488; --accent-strong: #0F766E; --accent-soft: rgba(13,148,136,0.10);
+    --attention: #B45309; --attention-soft: rgba(180,83,9,0.10);
+    --shadow: 0 1px 2px rgba(22,36,42,0.04), 0 8px 24px -12px rgba(22,36,42,0.14);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1418; --surface: #131E22; --surface-2: #1A272C;
+    --ink: #E7ECEA; --ink-soft: #A8B6B8; --ink-faint: #7C8C8E;
+    --border: #25333A; --border-strong: #33454C;
+    --accent: #2DD4BF; --accent-strong: #5EEAD4; --accent-soft: rgba(45,212,191,0.13);
+    --attention: #E8A33D; --attention-soft: rgba(232,163,61,0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px -16px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 clamp(20px, 5vw, 56px); }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding: clamp(40px, 7vw, 76px) 0 clamp(28px, 4vw, 44px);
+    background:
+      radial-gradient(120% 140% at 100% 0%, var(--accent-soft), transparent 60%);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 0 22px;
+  }
+  .eyebrow::before {
+    content: ""; width: 26px; height: 2px; background: var(--accent); display: inline-block;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5.4vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0 0 18px;
+    max-width: 20ch;
+  }
+  .lede {
+    font-size: clamp(1.05rem, 1.6vw, 1.22rem);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+    margin: 0 0 26px;
+  }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .tag {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
+    padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border-strong);
+    color: var(--ink-soft); background: var(--surface);
+  }
+  .tag.live { color: var(--accent-strong); border-color: var(--accent); }
+  .tag.live::before {
+    content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); margin-right: 7px; vertical-align: middle;
+  }
+
+  /* ---------- Stat strip ---------- */
+  .stats {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 1px; background: var(--border); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin: 36px 0 0; box-shadow: var(--shadow);
+  }
+  .stat { background: var(--surface); padding: 20px 18px; }
+  .stat .n {
+    font-family: var(--serif); font-weight: 600; font-size: 2rem; line-height: 1;
+    color: var(--accent-strong); font-variant-numeric: tabular-nums;
+  }
+  .stat .l {
+    font-size: 12.5px; color: var(--ink-faint); margin-top: 8px; line-height: 1.35;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  @media (max-width: 860px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 460px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- Contents ---------- */
+  .toc {
+    margin: 40px 0 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .toc a {
+    display: flex; gap: 12px; align-items: baseline; text-decoration: none;
+    padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface); color: var(--ink); transition: border-color .15s, transform .15s;
+  }
+  .toc a:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .toc a .num { font-family: var(--mono); font-size: 12px; color: var(--accent-strong); }
+  .toc a .t { font-size: 14px; color: var(--ink-soft); }
+  @media (max-width: 760px) { .toc { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 460px) { .toc { grid-template-columns: 1fr; } }
+
+  /* ---------- Sections ---------- */
+  section { padding: clamp(34px, 5vw, 56px) 0; border-top: 1px solid var(--border); }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; margin: 0 0 20px; }
+  .sec-num {
+    font-family: var(--mono); font-size: 13px; color: var(--accent-strong);
+    letter-spacing: 0.1em; padding-top: 6px; min-width: 2.4ch;
+  }
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.12; letter-spacing: -0.01em; text-wrap: balance; margin: 0;
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 650; font-size: 1rem;
+    letter-spacing: 0.01em; margin: 26px 0 10px; color: var(--ink);
+  }
+  p { max-width: var(--measure); color: var(--ink-soft); margin: 0 0 14px; }
+  p strong, li strong { color: var(--ink); font-weight: 640; }
+  .sec-body { padding-left: calc(2.4ch + 16px); }
+  @media (max-width: 620px) { .sec-body { padding-left: 0; } .sec-head { gap: 10px; } }
+
+  a.inline { color: var(--accent-strong); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ---------- Tables ---------- */
+  .scroll { overflow-x: auto; margin: 6px 0 8px; border-radius: 12px; }
+  table {
+    border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14.5px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden;
+  }
+  thead th {
+    text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-faint); font-weight: 600; padding: 12px 14px;
+    background: var(--surface-2); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-soft); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td:first-child { color: var(--ink); font-weight: 600; }
+  tbody tr:hover td { background: var(--accent-soft); }
+
+  /* ---------- Chips ---------- */
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: 11.5px; line-height: 1;
+    padding: 5px 9px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.02em;
+  }
+  .chip.cloud { background: var(--accent-soft); color: var(--accent-strong); border: 1px solid transparent; }
+  .chip.onprem { background: var(--attention-soft); color: var(--attention); border: 1px solid transparent; font-weight: 600; }
+  .chip.role { background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--border-strong); }
+
+  /* ---------- Callout ---------- */
+  .callout {
+    border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    background: var(--surface); border-radius: 0 12px 12px 0;
+    padding: 18px 20px; margin: 20px 0; box-shadow: var(--shadow);
+  }
+  .callout.attn { border-left-color: var(--attention); }
+  .callout .k {
+    font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent-strong); margin: 0 0 8px;
+  }
+  .callout.attn .k { color: var(--attention); }
+  .callout p { margin: 0; max-width: none; }
+
+  /* ---------- Lists ---------- */
+  ul.clean { list-style: none; padding: 0; margin: 8px 0 4px; display: grid; gap: 10px; }
+  ul.clean li {
+    position: relative; padding-left: 24px; max-width: var(--measure); color: var(--ink-soft);
+  }
+  ul.clean li::before {
+    content: ""; position: absolute; left: 4px; top: 10px; width: 7px; height: 7px;
+    border-radius: 2px; background: var(--accent); transform: rotate(45deg);
+  }
+
+  /* ---------- Narrative flow ---------- */
+  .flow { display: grid; gap: 0; margin: 8px 0; counter-reset: step; }
+  .step {
+    display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start;
+    padding: 4px 0 24px; position: relative;
+  }
+  .step:not(:last-child)::before {
+    content: ""; position: absolute; left: 15px; top: 34px; bottom: 0; width: 2px;
+    background: linear-gradient(var(--accent), var(--border));
+  }
+  .step .dot {
+    counter-increment: step; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); color: var(--accent-strong);
+    display: grid; place-items: center; font-family: var(--mono); font-size: 13px; font-weight: 600;
+    z-index: 1; position: relative;
+  }
+  .step .dot::before { content: counter(step); }
+  .step .body { padding-top: 3px; }
+  .step .body strong { color: var(--ink); }
+  .step .body .cap {
+    display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent-strong); margin-left: 8px;
+  }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 30px 0 60px; color: var(--ink-faint);
+    font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
+  }
+  footer .mono { font-family: var(--mono); }
+
+  a:focus-visible, .toc a:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">WSO2 Agent Manager · Demo Blueprint</p>
+    <h1>An instantiable workforce for Riverside County</h1>
+    <p class="lede">A pre-populated demo environment modeled on a mid-size county government that has been running Agent Manager in production for roughly six months — built to show the Agent Catalog as a workforce departments staff for themselves, under strict identity and governance controls.</p>
+    <div class="meta-row">
+      <span class="tag live">Configured &amp; seeded</span>
+      <span class="tag">Fictional organization</span>
+      <span class="tag">Dept. of Citizen Services</span>
+      <span class="tag">Public sector</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">6</div><div class="l">Agent kinds</div></div>
+      <div class="stat"><div class="n">~10</div><div class="l">Running instances</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">Departments</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">Environments</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">User roles</div></div>
+      <div class="stat"><div class="n">6mo</div><div class="l">Seeded history</div></div>
+    </div>
+
+    <nav class="toc" aria-label="Contents">
+      <a href="#org"><span class="num">01</span><span class="t">The organization</span></a>
+      <a href="#structure"><span class="num">02</span><span class="t">Departments &amp; environments</span></a>
+      <a href="#people"><span class="num">03</span><span class="t">People &amp; roles</span></a>
+      <a href="#catalog"><span class="num">04</span><span class="t">The catalog</span></a>
+      <a href="#instances"><span class="num">05</span><span class="t">Instantiation</span></a>
+      <a href="#mcp"><span class="num">06</span><span class="t">Tools &amp; MCP governance</span></a>
+      <a href="#identity"><span class="num">07</span><span class="t">Identity &amp; on-behalf-of</span></a>
+      <a href="#llm"><span class="num">08</span><span class="t">LLM providers</span></a>
+      <a href="#guardrails"><span class="num">09</span><span class="t">Guardrails</span></a>
+      <a href="#observability"><span class="num">10</span><span class="t">Observability &amp; eval</span></a>
+      <a href="#sandbox"><span class="num">11</span><span class="t">Sandboxing</span></a>
+      <a href="#narrative"><span class="num">12</span><span class="t">Demo narrative</span></a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="org">
+    <div class="sec-head"><span class="sec-num">01</span><h2>The organization</h2></div>
+    <div class="sec-body">
+      <p>Riverside County consolidated its citizen-facing services under a single <strong>Department of Citizen Services</strong>. A small central <strong>AI Platform Team</strong> (three people) builds and governs agents; the people who actually <em>use</em> them are non-technical caseworkers, clerks, and program officers spread across five departments.</p>
+      <p>Leadership set three non-negotiables, and those mandates are exactly what put the identity and governance capabilities on stage:</p>
+      <ul class="clean">
+        <li><strong>No citizen PII leaves the county boundary</strong> — sensitive workloads run on on-prem models.</li>
+        <li><strong>Every agent action is audited</strong> — a complete, reviewable trail for compliance.</li>
+        <li><strong>Agents touch only what their role allows</strong> — access is scoped by agent identity, not blanket credentials.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="structure">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Departments &amp; environments</h2></div>
+    <div class="sec-body">
+      <p>Five departments plus the central platform team drive both RBAC and the instantiation story. Three environments carry deployments, traces, and evaluations independently.</p>
+      <h3>Departments</h3>
+      <div class="meta-row" style="gap:8px;margin-bottom:8px">
+        <span class="tag">Social Services</span>
+        <span class="tag">Permits &amp; Licensing</span>
+        <span class="tag">Tax &amp; Revenue</span>
+        <span class="tag">Records &amp; Compliance</span>
+        <span class="tag">Contact Center</span>
+        <span class="tag live">AI Platform Team</span>
+      </div>
+      <h3>Environments</h3>
+      <p>Sensitive departments deploy the <em>same</em> agent to Production pinned to an on-prem model while Development runs on cloud — a clean, env-aware governance contrast you can point at directly.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Environment</th><th>Purpose</th><th>Model policy</th></tr></thead>
+          <tbody>
+            <tr><td>Development</td><td>Build &amp; iterate on new instances</td><td><span class="chip cloud">Cloud OK</span></td></tr>
+            <tr><td>Staging</td><td>Pre-production validation &amp; evaluation</td><td><span class="chip cloud">Cloud OK</span></td></tr>
+            <tr><td>Production</td><td>Live citizen-facing workloads</td><td><span class="chip onprem">On-prem for PII</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="people">
+    <div class="sec-head"><span class="sec-num">03</span><h2>People &amp; roles</h2></div>
+    <div class="sec-body">
+      <p>Pre-created users span the full RBAC model — from the admin who publishes the catalog to the read-only auditor who never touches configuration.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Persona</th><th>Department</th><th>Role</th><th>What they can do</th></tr></thead>
+          <tbody>
+            <tr><td>Dana Okafor</td><td>AI Platform Team</td><td><span class="chip role">Admin</span></td><td>Build &amp; publish catalog kinds, set org LLM providers, MCP governance &amp; guardrails</td></tr>
+            <tr><td>Marcus Lee</td><td>Social Services</td><td><span class="chip role">Developer</span></td><td>Instantiate &amp; configure agents for the department, deploy across environments</td></tr>
+            <tr><td>Priya Raman</td><td>Permits &amp; Licensing</td><td><span class="chip role">Developer</span></td><td>Same, scoped to Permits</td></tr>
+            <tr><td>Joan Ellis</td><td>Social Services</td><td><span class="chip role">Agent User</span></td><td>Use instantiated agents only — no configuration access</td></tr>
+            <tr><td>Sam Whitfield</td><td>Records &amp; Compliance</td><td><span class="chip role">Auditor</span></td><td>Read-only across traces, audit log, and evaluations</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="catalog">
+    <div class="sec-head"><span class="sec-num">04</span><h2>The catalog — the instantiable workforce</h2></div>
+    <div class="sec-body">
+      <p>Six agent <em>kinds</em> published to the catalog. Each is a reusable template a department can instantiate for itself — the pre-built workforce.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Agent kind</th><th>Purpose</th><th>Tools (via MCP)</th><th>LLM tier</th><th>Key guardrails</th></tr></thead>
+          <tbody>
+            <tr><td>Citizen Inquiry Agent</td><td>Answer general questions, route requests</td><td>Knowledge base, service directory</td><td><span class="chip cloud">Cloud</span></td><td>Tone; no promises</td></tr>
+            <tr><td>Benefits Eligibility Agent</td><td>Pre-screen benefit eligibility</td><td>Benefits Mgmt, Citizen Records</td><td><span class="chip onprem">On-prem</span></td><td>No guaranteed-approval language; PII redaction</td></tr>
+            <tr><td>Permit &amp; Licensing Agent</td><td>Guide &amp; pre-fill permit applications</td><td>Permit DB, fee schedule</td><td><span class="chip cloud">Cloud</span></td><td>No legal commitments</td></tr>
+            <tr><td>Case Management Agent</td><td>Summarize a case, draft next steps</td><td>Case system, Citizen Records</td><td><span class="chip onprem">On-prem</span></td><td>Scoped to assigned cases only</td></tr>
+            <tr><td>Records / FOIA Agent</td><td>Intake &amp; triage records requests</td><td>Records repo, redaction service</td><td><span class="chip cloud">Cloud</span></td><td>Auto-redaction; exemption checks</td></tr>
+            <tr><td>Tax Assistance Agent</td><td>Answer tax-account questions</td><td>Tax system, Citizen Records</td><td><span class="chip onprem">On-prem</span></td><td>No tax <em>advice</em>; account-scoped</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="instances">
+    <div class="sec-head"><span class="sec-num">05</span><h2>The money-shot: instantiation</h2></div>
+    <div class="sec-body">
+      <p>This is what sells the catalog — a handful of kinds fanning out into a running workforce across the county.</p>
+      <ul class="clean">
+        <li><strong>Citizen Inquiry Agent → 4 instances</strong>, one per department, each with its own knowledge base and branding. <em>Same workforce role, staffed everywhere.</em></li>
+        <li><strong>Benefits Eligibility Agent → 1 instance</strong> in Social Services, deployed to Development and Production with a different model per environment.</li>
+        <li><strong>Permit &amp; Licensing Agent → 2 instances</strong> (Building Permits and Business Licenses).</li>
+        <li><strong>One external agent registered</strong> — a legacy chatbot the county already runs — to show externally-hosted agent management alongside the native ones.</li>
+      </ul>
+      <div class="callout">
+        <p class="k">Net effect</p>
+        <p>~6 kinds become ~10 running instances. The catalog visibly <strong>scales a workforce</strong> rather than shipping one-off bots.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="mcp">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Tools &amp; MCP governance</h2></div>
+    <div class="sec-body">
+      <p>Backend systems are exposed as MCP servers: <strong>Citizen Records</strong>, <strong>Benefits Mgmt</strong>, <strong>Permit DB</strong>, <strong>Tax System</strong>, <strong>Records Repository</strong>, plus an external <strong>State ID Verification</strong> service.</p>
+      <p>Governance policies are pre-set by agent identity. For example, the Permit agent's identity <strong>cannot</strong> reach Citizen Records or the Tax system — so the demo can surface a <strong>denied tool call in the audit log</strong> on cue.</p>
+      <div class="callout attn">
+        <p class="k">Highlight</p>
+        <p>Identity-aware MCP governance: access is tied to <em>which agent</em> is calling, not a shared service credential. A blocked call is not an error — it is the policy working, and it is recorded.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="identity">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Identity &amp; on-behalf-of</h2></div>
+    <div class="sec-body">
+      <ul class="clean">
+        <li><strong>Auto-provisioned Agent ID</strong> for every instance the moment it is created.</li>
+        <li><strong>OAuth2 on-behalf-of</strong> — when caseworker Joan runs the Case Management Agent, it accesses records <em>as Joan, scoped to her assigned cases</em> — never with god-mode access.</li>
+        <li><strong>Third-party auth server integration</strong> — the county's existing IDP fronts agent ingress.</li>
+      </ul>
+      <div class="callout">
+        <p class="k">The visual that lands</p>
+        <p>Run the <em>same</em> agent as two different users and watch the data scope change with them. Same instance, two identities, two views of the record store.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="llm">
+    <div class="sec-head"><span class="sec-num">08</span><h2>LLM providers &amp; governance</h2></div>
+    <div class="sec-body">
+      <p>Providers are pre-registered at the organization level, each with rate limits and guardrail policies attached.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Provider</th><th>Used for</th><th>Bound to</th></tr></thead>
+          <tbody>
+            <tr><td>Azure OpenAI (gov region)</td><td>Non-PII workloads</td><td><span class="chip cloud">Inquiry, Permit, FOIA</span></td></tr>
+            <tr><td>On-prem Llama (vLLM)</td><td>PII workloads</td><td><span class="chip onprem">Benefits, Case, Tax</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Agent-level configuration binds the sensitive kinds to the on-prem model — the concrete proof behind "citizen data never leaves our boundary."</p>
+    </div>
+  </section>
+
+  <section id="guardrails">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Guardrails</h2></div>
+    <div class="sec-body">
+      <p>Pre-applied and visible in the trace view the moment one fires:</p>
+      <ul class="clean">
+        <li><strong>PII redaction</strong> on inputs and outputs.</li>
+        <li><strong>No eligibility, legal, or tax promises</strong> — blocks guaranteed-outcome language.</li>
+        <li><strong>Professionalism &amp; tone</strong> appropriate to a government service.</li>
+        <li><strong>Prompt-injection protection</strong> at the LLM boundary.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="observability">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Observability &amp; evaluation</h2></div>
+    <div class="sec-body">
+      <p>Roughly six months of traces are seeded so no dashboard opens empty. Per-department volume, latency, and cost trends are populated, alongside four evaluators running continuously:</p>
+      <div class="meta-row" style="gap:8px;margin:6px 0 14px">
+        <span class="tag">Groundedness</span>
+        <span class="tag">PII-leak detection</span>
+        <span class="tag">Tone</span>
+        <span class="tag">Task accuracy</span>
+      </div>
+      <p>Radar charts and time-series show the on-prem Benefits agent scoring high on PII-safety, and the auditor view is fully populated for a compliance walk-through.</p>
+    </div>
+  </section>
+
+  <section id="sandbox">
+    <div class="sec-head"><span class="sec-num">11</span><h2>Sandboxing</h2></div>
+    <div class="sec-body">
+      <p>Eligibility calculations run inside a <strong>hardened sandbox</strong> with no access to host, network, or filesystem — one clean scenario proving agent code cannot exfiltrate citizen data even if it wanted to.</p>
+    </div>
+  </section>
+
+  <section id="narrative">
+    <div class="sec-head"><span class="sec-num">12</span><h2>Suggested demo narrative</h2></div>
+    <div class="sec-body">
+      <p>A single through-line that touches every headline capability in order:</p>
+      <div class="flow">
+        <div class="step"><div class="dot"></div><div class="body"><strong>Admin publishes an agent kind</strong> to the catalog. <span class="cap">Catalog</span></div></div>
+        <div class="step"><div class="dot"></div><div class="body">A department <strong>instantiates it in minutes</strong> and deploys to an environment. <span class="cap">Instantiation</span></div></div>
+        <div class="step"><div class="dot"></div><div class="body">Two different users run it and see <strong>different data scopes</strong>. <span class="cap">Identity</span></div></div>
+        <div class="step"><div class="dot"></div><div class="body">A blocked tool call appears in the <strong>audit log</strong>. <span class="cap">Governance</span></div></div>
+        <div class="step"><div class="dot"></div><div class="body">The <strong>evaluation dashboard</strong> proves quality and PII-safety over time. <span class="cap">Observability</span></div></div>
+        <div class="step"><div class="dot"></div><div class="body">All of it running on <strong>on-prem models</strong> inside the county boundary. <span class="cap">Data residency</span></div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <span>WSO2 Agent Manager · Public Sector Demo Blueprint</span>
+  <span class="mono">Riverside County — Dept. of Citizen Services · fictional</span>
+</footer>

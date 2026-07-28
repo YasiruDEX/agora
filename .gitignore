@@ -1,0 +1,20 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Env & secrets (nothing real should ever land in this demo repo)
+.env
+.env.*
+*.local
+
+# Dependencies / build output (added as the implementation grows)
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/
+venv/
