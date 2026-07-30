@@ -65,6 +65,33 @@ def _require_env() -> None:
         raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
 
 
+def _extract_text(raw_result: Any) -> str:
+    """Normalizes output from langchain_mcp_adapters tool execution into a clean string.
+
+    Handles string, list of strings, list of objects/dicts, and TextContent blocks.
+    """
+    if isinstance(raw_result, str):
+        return raw_result
+
+    if isinstance(raw_result, list):
+        extracted = []
+        for item in raw_result:
+            if isinstance(item, str):
+                extracted.append(item)
+            elif hasattr(item, "text"):  # TextContent block
+                extracted.append(item.text)
+            elif isinstance(item, dict) and "text" in item:
+                extracted.append(item["text"])
+            else:
+                extracted.append(str(item))
+        return "\n".join(extracted)
+
+    if hasattr(raw_result, "text"):
+        return raw_result.text
+
+    return str(raw_result)
+
+
 def build_system_prompt() -> str:
     template = string.Template(PROMPT_PATH.read_text(encoding="utf-8"))
     return template.safe_substitute(
@@ -115,7 +142,8 @@ def _wrap_kb_tool_with_pinned_namespace(raw_tool, namespace: str) -> StructuredT
     """Hide `namespace` from the LLM and hard-pin it to this department's KB_NAMESPACE."""
 
     async def _search(query: str, top_k: int = 5) -> str:
-        return await raw_tool.ainvoke({"namespace": namespace, "query": query, "top_k": top_k})
+        raw_result = await raw_tool.ainvoke({"namespace": namespace, "query": query, "top_k": top_k})
+        return _extract_text(raw_result)
 
     return StructuredTool.from_function(
         coroutine=_search,
