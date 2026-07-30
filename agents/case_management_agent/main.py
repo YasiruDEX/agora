@@ -1,0 +1,100 @@
+"""FastAPI entry point for the Case Management Agent.
+
+Exposes POST /chat, satisfying the WSO2 Agent Manager deployment runtime contract:
+  Request:  {"message": "string", "session_id": "string", "context": {}}
+  Response: {"response": "string"}
+
+The caseworker's identity is taken from the `X-User-ID` request header (set by
+WSO2 Agent Manager's on-behalf-of gateway in production) and threaded into the
+LangGraph state as `user_id`, which every case tool uses to scope access to
+that caseworker's own assigned cases.
+"""
+import logging
+import os
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Any, Optional
+
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI, Header
+from langchain_core.messages import AIMessage, HumanMessage
+from pydantic import BaseModel, Field
+
+AGENT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = AGENT_DIR.parent.parent
+
+# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Agent-specific department config lives in this agent's own .env and
+# overrides anything (accidentally) duplicated at the root.
+load_dotenv(REPO_ROOT / ".env")
+load_dotenv(AGENT_DIR / ".env", override=True)
+
+from agents.case_management_agent.graph import build_graph  # noqa: E402
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("case_management_agent")
+
+PORT = int(os.environ.get("PORT", "8005"))
+DEFAULT_USER_ID = "joan.ellis"
+
+
+class ChatRequest(BaseModel):
+    message: str
+    session_id: str
+    context: Optional[dict[str, Any]] = Field(default_factory=dict)
+
+
+class ChatResponse(BaseModel):
+    response: str
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Building LangGraph runnable (LLM + Pinecone MCP + Case DB MCP + OBO tools + A2A tool)...")
+    app.state.graph = await build_graph()
+    logger.info("Case Management Agent ready.")
+    yield
+
+
+app = FastAPI(title="Case Management Agent", lifespan=lifespan)
+
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat(
+    request: ChatRequest,
+    x_user_id: str = Header(default=DEFAULT_USER_ID, alias="X-User-ID"),
+) -> ChatResponse:
+    logger.info(
+        "Received chat request: user_id=%s session_id=%s message=%r context=%s",
+        x_user_id,
+        request.session_id,
+        request.message,
+        request.context,
+    )
+
+    graph = app.state.graph
+    config = {"configurable": {"thread_id": request.session_id}}
+    result = await graph.ainvoke(
+        {
+            "messages": [HumanMessage(content=request.message)],
+            "session_id": request.session_id,
+            "user_id": x_user_id,
+        },
+        config=config,
+    )
+
+    final_message = result["messages"][-1]
+    response_text = final_message.content if isinstance(final_message, AIMessage) else str(final_message.content)
+
+    logger.info("Responding to user_id=%s session_id=%s with: %r", x_user_id, request.session_id, response_text)
+    return ChatResponse(response=response_text)
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    uvicorn.run("agents.case_management_agent.main:app", host="0.0.0.0", port=PORT)

@@ -1,0 +1,141 @@
+apiVersion: agentmanager.wso2.com/v1
+kind: AgentKind
+metadata:
+  id: kind-case-management
+  name: Case Management Agent
+  version: 1.0.0
+  description: >-
+    Internal caseworker assistant for the Department of Social Services —
+    summarizes assigned cases, reviews case notes, and drafts next steps,
+    grounded in the "social-services" knowledge base. Enforces On-Behalf-Of
+    (OBO) scoping so a caseworker can only ever see or modify their own
+    assigned cases, and forwards general municipal questions to the Citizen
+    Inquiry Agent via agent-to-agent HTTP communication. Runs on an on-prem
+    LLM tier since case data is sensitive citizen PII.
+  tags:
+    - internal
+    - caseworker-facing
+    - case-management
+    - obo
+    - agent-to-agent
+    - on-prem
+    - public-sector
+
+spec:
+  targetLlmTier: on-prem
+
+  prompt:
+    templateFile: ./prompt.md
+
+  tools:
+    mcp:
+      - server: pinecone-kb
+        expose:
+          - search_knowledge_base
+      - server: case-db-mcp
+        expose:
+          - db_read_record
+          - db_create_record
+          - db_update_record
+        note: >-
+          These raw CRUD tools are consumed internally by graph.py, which
+          wraps them into ownership-checked, OBO-scoped tools
+          (get_my_cases / get_case_notes / add_case_note / update_case_status)
+          before exposing anything to the LLM. The raw tools are never bound
+          directly to the model.
+    agentToAgent:
+      - target: citizen-inquiry-agent
+        tool: consult_citizen_inquiry_agent
+        description: >-
+          Forwards general municipal questions that fall outside case
+          management to a running Citizen Inquiry Agent instance over HTTP.
+
+  identity:
+    onBehalfOf:
+      header: X-User-ID
+      description: >-
+        Identifies the authenticated caseworker making the request. Threaded
+        into LangGraph state as `user_id` and used to scope every case tool
+        call to that caseworker's own assigned cases.
+
+  # Guardrail policies and Agent ID provisioning are managed externally by
+  # WSO2 Agent Manager at the gateway layer. Do not declare them here.
+
+  parameters:
+    - name: DEPARTMENT_NAME
+      type: string
+      required: true
+      description: Official department name.
+      example: "Department of Social Services"
+
+    - name: DEPARTMENT_CODE
+      type: string
+      required: true
+      description: Short department prefix.
+      example: "SOC_CASE"
+
+    - name: KB_NAMESPACE
+      type: string
+      required: true
+      description: Target Pinecone namespace for this department's policy knowledge base.
+      example: "social-services"
+
+    - name: WELCOME_MESSAGE
+      type: string
+      required: true
+      description: Default opening greeting shown in the chat UI.
+
+    - name: SUPPORT_EMAIL_CONTACT
+      type: string
+      required: true
+      description: Official department fallback contact email.
+      example: "cases@council.gov.lk"
+
+    - name: OFFICE_HOURS_INFO
+      type: string
+      required: true
+      description: Department physical office operating hours.
+
+    - name: INQUIRY_AGENT_URL
+      type: string
+      required: true
+      default: "http://localhost:8001/chat"
+      description: HTTP /chat endpoint of the Citizen Inquiry Agent instance to consult for out-of-scope questions.
+
+    - name: LLM_PROVIDER_KEY
+      type: string
+      required: true
+      default: "onprem-vllm"
+      description: Target LLM provider key. On-prem by policy — case data is sensitive citizen PII.
+
+    - name: LLM_MODEL_NAME
+      type: string
+      required: true
+      default: "llama-3-70b-instruct"
+      description: Target on-prem model name.
+
+    - name: LLM_BASE_URL
+      type: string
+      required: false
+      description: >-
+        OpenAI-compatible base URL for the on-prem vLLM endpoint. Required for
+        LLM_MODEL_NAME to actually resolve against the declared on-prem
+        provider rather than the public OpenAI API.
+
+    - name: MODEL_TEMPERATURE
+      type: number
+      required: false
+      default: 0.1
+      description: Execution temperature. Kept low for strict factual accuracy.
+
+    - name: MAX_TOKENS
+      type: integer
+      required: false
+      default: 1000
+      description: Response token cap.
+
+    - name: PORT
+      type: integer
+      required: false
+      default: 8005
+      description: HTTP port for the standalone runtime.

@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "case-db-mcp": {
+      "_comment": "Local Python MCP server exposing generic CRUD tools over data/case_management.db. This server itself is NOT identity-aware; on-behalf-of caseworker scoping is enforced by agents/case_management_agent/graph.py, which wraps these tools before exposing anything to the LLM. No external secrets required.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/case_db_mcp/server.py"],
+      "transport": "stdio",
+      "env": {},
+      "tools": [
+        {
+          "name": "db_read_record",
+          "description": "Fetches rows matching query_params from 'cases' or 'case_notes'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'cases' or 'case_notes'."},
+            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"case_id\": \"CASE-2026-001\"}."}
+          }
+        },
+        {
+          "name": "db_create_record",
+          "description": "Inserts a new row into 'cases' or 'case_notes'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'cases' or 'case_notes'."},
+            "record_data": {"type": "object", "required": true, "description": "Column-value pairs to insert."}
+          }
+        },
+        {
+          "name": "db_update_record",
+          "description": "Updates an existing row in 'cases' or 'case_notes'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'cases' or 'case_notes'."},
+            "key_field": {"type": "string", "required": true, "description": "Column identifying the row, e.g. 'case_id'."},
+            "key_value": {"type": "string", "required": true, "description": "Value of key_field identifying the row."},
+            "update_data": {"type": "object", "required": true, "description": "Column-value pairs to set."}
+          }
+        }
+      ]
+    }
+  }
+}
