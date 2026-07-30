@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  title: Case Management Agent
+  description: >-
+    Internal caseworker assistant for the Department of Social Services.
+    Enforces On-Behalf-Of (OBO) scoping via the X-User-ID header so a
+    caseworker can only ever see or modify their own assigned cases. Runs on
+    an on-prem LLM tier since case data is sensitive citizen PII.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8005
+    description: Local / standalone runtime (default PORT=8005)
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message to the Case Management Agent
+      parameters:
+        - name: X-User-ID
+          in: header
+          required: false
+          description: >-
+            Authenticated caseworker identity, injected by WSO2 Agent
+            Manager's on-behalf-of gateway in production. Scopes every case
+            tool call to that caseworker's own assigned cases. Falls back to
+            a default demo user if omitted.
+          schema:
+            type: string
+            example: joan.ellis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          description: Validation error (malformed request body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          example: Summarize case CASE-2026-001
+        session_id:
+          type: string
+          example: session-case-management-joan.ellis-1732900000
+        context:
+          type: object
+          default: {}
+          additionalProperties: true
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

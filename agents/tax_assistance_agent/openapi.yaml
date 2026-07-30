@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: Tax & Assessment Agent
+  description: >-
+    Answers property assessment rate, trade tax tier, and non-arrears status
+    questions, and can walk a citizen through a simulated online rate payment
+    via a mock municipal payment gateway.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8004
+    description: Local / standalone runtime (default PORT=8004)
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message to the Tax & Assessment Agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          description: Validation error (malformed request body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          example: Pay Q1 assessment rates for PROP-COL-2026-88
+        session_id:
+          type: string
+          example: session-tax-assistance-1732900000
+        context:
+          type: object
+          default: {}
+          additionalProperties: true
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

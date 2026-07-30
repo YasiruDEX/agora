@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: Permit & Licensing Agent
+  description: >-
+    Guides citizens through Building Plan Approvals, Street Line Certificates,
+    and Trade & Business Licenses. This single codebase is deployed as two
+    independent instances, each with its own isolated SQLite database
+    (PERMIT_DB_PATH) selected via AGENT_ENV_FILE.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8002
+    description: Building Permits Division instance (AGENT_ENV_FILE=.env.building_permits)
+  - url: http://localhost:8003
+    description: Business & Trade Licenses Division instance (AGENT_ENV_FILE=.env.business_licenses)
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message to the Permit & Licensing Agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          description: Validation error (malformed request body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          example: Check status for NIC 198204100V
+        session_id:
+          type: string
+          example: session-permits-1732900000
+        context:
+          type: object
+          description: 'e.g. { "division": "building" } — informational only; DB isolation is enforced by which instance/port is called, not this field.'
+          default: {}
+          additionalProperties: true
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

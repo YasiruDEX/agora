@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: Citizen Inquiry Agent
+  description: >-
+    Parameterized citizen-facing assistant, instantiated once per department.
+    Answers questions strictly from that department's knowledge base namespace
+    via the search_knowledge_base MCP tool.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8001
+    description: Contact Center instance (this repo's documented deployment)
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message to the Citizen Inquiry Agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          description: Validation error (malformed request body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          example: What are the opening hours for the Municipal Office?
+        session_id:
+          type: string
+          example: session-citizen-inquiry-1732900000
+        context:
+          type: object
+          default: {}
+          additionalProperties: true
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

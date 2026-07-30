@@ -1,0 +1,100 @@
+openapi: 3.0.3
+info:
+  title: Benefits & Eligibility Agent
+  description: >-
+    Pre-screens citizen eligibility for welfare benefits (medical low-income aid,
+    senior citizen allowance, public assistance) against department policy and
+    citizen/application records. Forwards out-of-scope general council questions
+    to the Citizen Inquiry Agent via agent-to-agent HTTP communication.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local / standalone runtime (default PORT=8000)
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message to the Benefits & Eligibility Agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          description: Validation error (malformed request body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          description: The citizen's message text.
+          example: Am I eligible for the Senior Citizen Allowance?
+        session_id:
+          type: string
+          description: Opaque conversation/session identifier, used as the LangGraph thread_id.
+          example: session-benefits-eligibility-1732900000
+        context:
+          type: object
+          description: Optional extra context passed through to the agent.
+          default: {}
+          additionalProperties: true
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+          description: The agent's final natural-language reply.
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

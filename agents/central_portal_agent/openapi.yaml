@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: Central Portal Chat Agent
+  description: >-
+    Primary AI assistant on the main Sri Lanka Government Portal home page.
+    A singleton that searches across every configured department knowledge
+    base namespace at once via search_all_government_knowledge, so citizens
+    can ask broad, cross-departmental questions from a single portal search
+    interface.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8007
+    description: Local / standalone runtime (default PORT=8007)
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message to the Central Portal Agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          description: Validation error (malformed request body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          example: What documents do I need for a building permit?
+        session_id:
+          type: string
+          example: session-central-portal-1732900000
+        language:
+          type: string
+          description: UI language hint (e.g. "en", "si", "ta").
+          default: en
+        context:
+          type: object
+          default: {}
+          additionalProperties: true
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+        contributing_namespaces:
+          type: array
+          description: Pinecone namespaces whose results cleared KB_MIN_RELEVANCE_SCORE and contributed to this answer.
+          items:
+            type: string
+          default: []
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string
