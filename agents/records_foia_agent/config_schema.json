@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agora.local/schemas/records-foia-agent-config.json",
+  "title": "Records / FOIA Agent - Instantiation Config",
+  "description": "Input form schema used by WSO2 Agent Manager to instantiate a Records / FOIA Agent for a specific department.",
+  "type": "object",
+  "properties": {
+    "DEPARTMENT_NAME": {
+      "type": "string",
+      "title": "Department Name",
+      "minLength": 1,
+      "examples": ["Department of Records & Compliance"]
+    },
+    "DEPARTMENT_CODE": {
+      "type": "string",
+      "title": "Department Code",
+      "enum": ["REC"]
+    },
+    "KB_NAMESPACE": {
+      "type": "string",
+      "title": "Knowledge Base Namespace",
+      "description": "Pinecone namespace to search for this department's policy knowledge base.",
+      "enum": [
+        "permits-licensing",
+        "tax-revenue",
+        "social-services",
+        "health-environment",
+        "records-compliance"
+      ]
+    },
+    "WELCOME_MESSAGE": {
+      "type": "string",
+      "title": "Welcome Message",
+      "minLength": 1
+    },
+    "SUPPORT_EMAIL_CONTACT": {
+      "type": "string",
+      "title": "Support Email Contact",
+      "format": "email"
+    },
+    "OFFICE_HOURS_INFO": {
+      "type": "string",
+      "title": "Office Hours",
+      "minLength": 1
+    },
+    "INQUIRY_AGENT_URL": {
+      "type": "string",
+      "title": "Citizen Inquiry Agent URL",
+      "description": "HTTP /chat endpoint of the Citizen Inquiry Agent instance to consult for out-of-scope questions.",
+      "default": "http://localhost:8001/chat",
+      "format": "uri"
+    },
+    "LLM_PROVIDER_KEY": {
+      "type": "string",
+      "title": "LLM Provider",
+      "default": "azure-openai-gov"
+    },
+    "LLM_MODEL_NAME": {
+      "type": "string",
+      "title": "LLM Model",
+      "default": "gpt-4o"
+    },
+    "MODEL_TEMPERATURE": {
+      "type": "number",
+      "title": "Model Temperature",
+      "default": 0.1,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "MAX_TOKENS": {
+      "type": "integer",
+      "title": "Max Tokens",
+      "default": 1000,
+      "minimum": 1
+    },
+    "PORT": {
+      "type": "integer",
+      "title": "HTTP Port",
+      "default": 8006,
+      "minimum": 1,
+      "maximum": 65535
+    }
+  },
+  "required": [
+    "DEPARTMENT_NAME",
+    "DEPARTMENT_CODE",
+    "KB_NAMESPACE",
+    "WELCOME_MESSAGE",
+    "SUPPORT_EMAIL_CONTACT",
+    "OFFICE_HOURS_INFO",
+    "INQUIRY_AGENT_URL",
+    "LLM_PROVIDER_KEY",
+    "LLM_MODEL_NAME"
+  ],
+  "additionalProperties": false
+}

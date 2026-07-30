@@ -1,0 +1,126 @@
+apiVersion: agentmanager.wso2.com/v1
+kind: AgentKind
+metadata:
+  id: kind-records-foia
+  name: Records / FOIA Agent
+  version: 1.0.0
+  description: >-
+    Public-facing assistant for the Department of Records & Compliance —
+    intakes and triages public records (FOIA/RTI) requests, checks statutory
+    disclosure exemptions before ever releasing content, and automatically
+    redacts PII (SSNs, phone numbers, emails) from disclosable records.
+    Forwards general municipal questions to the Citizen Inquiry Agent via
+    agent-to-agent HTTP communication.
+  tags:
+    - citizen-facing
+    - records
+    - foia
+    - rti
+    - redaction
+    - agent-to-agent
+    - public-sector
+
+spec:
+  targetLlmTier: cloud-standard
+
+  prompt:
+    templateFile: ./prompt.md
+
+  tools:
+    mcp:
+      - server: pinecone-kb
+        expose:
+          - search_knowledge_base
+      - server: records-db-mcp
+        expose:
+          - db_read_record
+          - db_create_record
+          - db_update_record
+          - redact_pii_text
+        note: >-
+          These raw tools are consumed internally by graph.py, which enforces
+          the exemption-check-before-redaction pipeline (get_public_record /
+          submit_foia_request / update_foia_request_status) before exposing
+          anything to the LLM. The raw tools are never bound directly to the
+          model — in particular, `raw_content` and `is_exempt` are never
+          visible to it directly.
+    agentToAgent:
+      - target: citizen-inquiry-agent
+        tool: consult_citizen_inquiry_agent
+        description: >-
+          Forwards general municipal questions that fall outside records/FOIA
+          to a running Citizen Inquiry Agent instance over HTTP.
+
+  # Guardrail policies and Agent ID provisioning are managed externally by
+  # WSO2 Agent Manager at the gateway layer. Do not declare them here.
+
+  parameters:
+    - name: DEPARTMENT_NAME
+      type: string
+      required: true
+      description: Official department name.
+      example: "Department of Records & Compliance"
+
+    - name: DEPARTMENT_CODE
+      type: string
+      required: true
+      description: Short department prefix.
+      example: "REC"
+
+    - name: KB_NAMESPACE
+      type: string
+      required: true
+      description: Target Pinecone namespace for this department's policy knowledge base.
+      example: "records-compliance"
+
+    - name: WELCOME_MESSAGE
+      type: string
+      required: true
+      description: Default opening greeting shown in the chat UI.
+
+    - name: SUPPORT_EMAIL_CONTACT
+      type: string
+      required: true
+      description: Official department fallback contact email.
+      example: "records@council.gov.lk"
+
+    - name: OFFICE_HOURS_INFO
+      type: string
+      required: true
+      description: Department physical office operating hours.
+
+    - name: INQUIRY_AGENT_URL
+      type: string
+      required: true
+      default: "http://localhost:8001/chat"
+      description: HTTP /chat endpoint of the Citizen Inquiry Agent instance to consult for out-of-scope questions.
+
+    - name: LLM_PROVIDER_KEY
+      type: string
+      required: true
+      default: "azure-openai-gov"
+      description: Target LLM provider key.
+
+    - name: LLM_MODEL_NAME
+      type: string
+      required: true
+      default: "gpt-4o"
+      description: Target LLM model name.
+
+    - name: MODEL_TEMPERATURE
+      type: number
+      required: false
+      default: 0.1
+      description: Execution temperature. Kept low for strict factual accuracy.
+
+    - name: MAX_TOKENS
+      type: integer
+      required: false
+      default: 1000
+      description: Response token cap.
+
+    - name: PORT
+      type: integer
+      required: false
+      default: 8006
+      description: HTTP port for the standalone runtime.

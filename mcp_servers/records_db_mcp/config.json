@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "records-db-mcp": {
+      "_comment": "Local Python MCP server exposing generic CRUD tools over data/records_compliance.db plus a redact_pii_text utility. This server is NOT exemption-aware — statutory disclosure exemption checking is enforced by agents/records_foia_agent/graph.py before any content reaches the LLM. No external secrets required.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/records_db_mcp/server.py"],
+      "transport": "stdio",
+      "env": {},
+      "tools": [
+        {
+          "name": "db_read_record",
+          "description": "Fetches rows matching query_params from 'public_records' or 'foia_requests'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'public_records' or 'foia_requests'."},
+            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"record_id\": \"REC-2026-101\"}."}
+          }
+        },
+        {
+          "name": "db_create_record",
+          "description": "Inserts a new row into 'public_records' or 'foia_requests'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'public_records' or 'foia_requests'."},
+            "record_data": {"type": "object", "required": true, "description": "Column-value pairs to insert."}
+          }
+        },
+        {
+          "name": "db_update_record",
+          "description": "Updates an existing row in 'public_records' or 'foia_requests'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'public_records' or 'foia_requests'."},
+            "key_field": {"type": "string", "required": true, "description": "Column identifying the row, e.g. 'record_id'."},
+            "key_value": {"type": "string", "required": true, "description": "Value of key_field identifying the row."},
+            "update_data": {"type": "object", "required": true, "description": "Column-value pairs to set."}
+          }
+        },
+        {
+          "name": "redact_pii_text",
+          "description": "Replaces Social Security Numbers, phone numbers, and email addresses with [REDACTED PII].",
+          "parameters": {
+            "text": {"type": "string", "required": true, "description": "Raw text to scrub."}
+          }
+        }
+      ]
+    }
+  }
+}
