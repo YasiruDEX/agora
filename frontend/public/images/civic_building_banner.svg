@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <linearGradient id="facade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#dbe2ea"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="960" height="320" fill="url(#sky)"/>
+
+  <!-- ground -->
+  <rect x="0" y="270" width="960" height="50" fill="#94a3b8" opacity="0.35"/>
+
+  <!-- steps -->
+  <rect x="230" y="258" width="500" height="12" fill="#94a3b8"/>
+  <rect x="250" y="246" width="460" height="12" fill="#a3b1c2"/>
+  <rect x="270" y="234" width="420" height="12" fill="#aeb9c8"/>
+
+  <!-- main facade -->
+  <rect x="280" y="120" width="400" height="114" fill="url(#facade)" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- pediment -->
+  <polygon points="270,120 480,55 690,120" fill="#e8edf3" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- columns -->
+  <g fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5">
+    <rect x="300" y="120" width="16" height="112"/>
+    <rect x="345" y="120" width="16" height="112"/>
+    <rect x="390" y="120" width="16" height="112"/>
+    <rect x="435" y="120" width="16" height="112"/>
+    <rect x="480" y="120" width="16" height="112"/>
+    <rect x="525" y="120" width="16" height="112"/>
+    <rect x="570" y="120" width="16" height="112"/>
+    <rect x="615" y="120" width="16" height="112"/>
+    <rect x="660" y="120" width="16" height="112"/>
+  </g>
+
+  <!-- central dome -->
+  <circle cx="480" cy="70" r="26" fill="#e8edf3" stroke="#94a3b8" stroke-width="2"/>
+  <rect x="474" y="34" width="12" height="20" fill="#e8edf3" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <!-- side wings, low blocks -->
+  <rect x="150" y="170" width="130" height="64" fill="url(#facade)" stroke="#94a3b8" stroke-width="2"/>
+  <rect x="680" y="170" width="130" height="64" fill="url(#facade)" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- flag pole accent -->
+  <line x1="480" y1="34" x2="480" y2="6" stroke="#64748b" stroke-width="2"/>
+</svg>

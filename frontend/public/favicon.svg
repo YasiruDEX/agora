@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="56" fill="#8D1B3D" stroke="#FFC72C" stroke-width="4"/>
+  <circle cx="60" cy="60" r="44" fill="none" stroke="#FFC72C" stroke-width="1.5" opacity="0.6"/>
+  <!-- simplified dharmachakra motif -->
+  <g stroke="#FFC72C" stroke-width="1.4" opacity="0.85">
+    <line x1="60" y1="24" x2="60" y2="96"/>
+    <line x1="24" y1="60" x2="96" y2="60"/>
+    <line x1="34.5" y1="34.5" x2="85.5" y2="85.5"/>
+    <line x1="85.5" y1="34.5" x2="34.5" y2="85.5"/>
+    <line x1="60" y1="18" x2="60" y2="30" stroke-width="2.2"/>
+    <line x1="60" y1="90" x2="60" y2="102" stroke-width="2.2"/>
+    <line x1="18" y1="60" x2="30" y2="60" stroke-width="2.2"/>
+    <line x1="90" y1="60" x2="102" y2="60" stroke-width="2.2"/>
+  </g>
+  <circle cx="60" cy="60" r="9" fill="#FFC72C"/>
+  <!-- simplified lion silhouette (stylized, non-literal) -->
+  <g fill="#FFC72C">
+    <path d="M60 44c6 0 11 4 12.5 9.5 1.2 4.3 0.2 7-1.5 9.3 2.6 1 4.4 3 4.4 6.3 0 4.7-4.4 8.4-9.7 8.4h-11.4c-5.3 0-9.7-3.7-9.7-8.4 0-3.3 1.8-5.3 4.4-6.3-1.7-2.3-2.7-5-1.5-9.3C49 48 54 44 60 44z"/>
+  </g>
+</svg>

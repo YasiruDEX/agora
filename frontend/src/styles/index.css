@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gov-maroon: #8d1b3d;
+  --gov-gold: #ffc72c;
+  --gov-slate: #1e293b;
+  --gov-surface: #f8fafc;
+  --gov-green: #064e3b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--gov-surface);
+  color: var(--gov-slate);
+}
+
+::selection {
+  background-color: var(--gov-gold);
+  color: var(--gov-slate);
+}
+
+/* Simple fade/slide utilities used by chat bubbles and dropdowns */
+@keyframes gov-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-gov-fade-in {
+  animation: gov-fade-in 0.18s ease-out;
+}
+
+@keyframes gov-bounce-dot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.gov-typing-dot {
+  animation: gov-bounce-dot 1.2s infinite ease-in-out both;
+}
+
+/* Minimal markdown styling for chat bubbles (no typography plugin needed) */
+.prose-chat p {
+  margin: 0 0 0.5em 0;
+}
+.prose-chat p:last-child {
+  margin-bottom: 0;
+}
+.prose-chat ul,
+.prose-chat ol {
+  margin: 0.25em 0 0.5em 1.1em;
+}
+.prose-chat ul {
+  list-style: disc;
+}
+.prose-chat ol {
+  list-style: decimal;
+}
+.prose-chat li {
+  margin-bottom: 0.2em;
+}
+.prose-chat strong {
+  font-weight: 700;
+}
+.prose-chat a {
+  color: var(--gov-maroon);
+  text-decoration: underline;
+}
