@@ -24,7 +24,15 @@ REPO_ROOT = AGENT_DIR.parent.parent
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
 
-from agents.benefits_eligibility_agent.graph import build_graph  # noqa: E402
+# This absolute import only resolves when the full monorepo layout is present
+# (agents/ as an importable package alongside mcp_servers/, data/, etc). Some
+# deployment platforms instead package this agent's own directory in
+# isolation as the process's working directory — in that case `agents` never
+# exists, but `graph.py` sits right next to this file and imports directly.
+try:
+    from agents.benefits_eligibility_agent.graph import build_graph  # noqa: E402
+except ModuleNotFoundError:
+    from graph import build_graph  # type: ignore[no-redef]  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("benefits_eligibility_agent")
