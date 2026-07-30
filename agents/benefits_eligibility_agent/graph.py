@@ -1,0 +1,188 @@
+"""LangGraph runnable for the Benefits & Eligibility Agent.
+
+Dynamically discovers tools from two MCP servers (pinecone-kb, sqlite-db-mcp),
+pins the Pinecone tool's namespace to this department's KB_NAMESPACE, and binds
+an agent-to-agent tool that forwards out-of-scope questions to a running
+Citizen Inquiry Agent instance over HTTP.
+"""
+import logging
+import os
+import string
+import sys
+from pathlib import Path
+from typing import Annotated, Any
+
+from dotenv import load_dotenv
+from langchain_core.messages import SystemMessage
+from langchain_core.tools import StructuredTool
+from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, MessagesState, StateGraph
+from langgraph.prebuilt import InjectedState, ToolNode, tools_condition
+from pydantic import BaseModel, Field
+
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+from agents.benefits_eligibility_agent.tools import consult_citizen_inquiry_agent
+
+logger = logging.getLogger("benefits_eligibility_agent.graph")
+
+AGENT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = AGENT_DIR.parent.parent
+PROMPT_PATH = AGENT_DIR / "prompt.md"
+PINECONE_MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "pinecone_kb_mcp" / "server.py"
+SQLITE_MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "sqlite_db_mcp" / "server.py"
+
+# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Agent-specific department config lives in this agent's own .env and takes
+# precedence over anything (accidentally) duplicated at the root.
+load_dotenv(REPO_ROOT / ".env")
+load_dotenv(AGENT_DIR / ".env", override=True)
+
+REQUIRED_ENV = [
+    "OPENAI_API_KEY",
+    "DEPARTMENT_NAME",
+    "KB_NAMESPACE",
+    "WELCOME_MESSAGE",
+    "SUPPORT_EMAIL_CONTACT",
+    "OFFICE_HOURS_INFO",
+    "MAX_MONTHLY_INCOME_THRESHOLD",
+    "MIN_SENIOR_CITIZEN_AGE",
+    "PINECONE_API_KEY",
+    "PINECONE_INDEX_NAME",
+]
+
+
+class BenefitsAgentState(MessagesState):
+    """Extends MessagesState with session_id so tools can access it via InjectedState."""
+
+    session_id: str
+
+
+def _require_env() -> None:
+    missing = [k for k in REQUIRED_ENV if not os.getenv(k)]
+    if missing:
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
+
+
+def build_system_prompt() -> str:
+    template = string.Template(PROMPT_PATH.read_text(encoding="utf-8"))
+    return template.safe_substitute(
+        DEPARTMENT_NAME=os.environ["DEPARTMENT_NAME"],
+        DEPARTMENT_CODE=os.environ.get("DEPARTMENT_CODE", ""),
+        KB_NAMESPACE=os.environ["KB_NAMESPACE"],
+        WELCOME_MESSAGE=os.environ["WELCOME_MESSAGE"],
+        SUPPORT_EMAIL_CONTACT=os.environ["SUPPORT_EMAIL_CONTACT"],
+        OFFICE_HOURS_INFO=os.environ["OFFICE_HOURS_INFO"],
+        MAX_MONTHLY_INCOME_THRESHOLD=os.environ["MAX_MONTHLY_INCOME_THRESHOLD"],
+        MIN_SENIOR_CITIZEN_AGE=os.environ["MIN_SENIOR_CITIZEN_AGE"],
+    )
+
+
+class SearchKnowledgeBaseArgs(BaseModel):
+    query: str = Field(description="Natural language citizen question to search for.")
+    top_k: int = Field(default=5, description="Number of matching chunks to return.")
+
+
+class ConsultInquiryAgentArgs(BaseModel):
+    user_query: str = Field(description="The citizen's out-of-scope question, forwarded as-is.")
+
+
+async def _discover_mcp_tools() -> list:
+    """Connect to both MCP servers and dynamically discover their tools."""
+    client = MultiServerMCPClient(
+        {
+            "pinecone-kb": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [str(PINECONE_MCP_SERVER_PATH)],
+                "env": dict(os.environ),
+            },
+            "sqlite-db-mcp": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [str(SQLITE_MCP_SERVER_PATH)],
+                "env": dict(os.environ),
+            },
+        }
+    )
+    tools = await client.get_tools()
+    logger.info("Discovered %d MCP tool(s): %s", len(tools), [t.name for t in tools])
+    return tools
+
+
+def _wrap_kb_tool_with_pinned_namespace(raw_tool, namespace: str) -> StructuredTool:
+    """Hide `namespace` from the LLM and hard-pin it to this department's KB_NAMESPACE."""
+
+    async def _search(query: str, top_k: int = 5) -> str:
+        return await raw_tool.ainvoke({"namespace": namespace, "query": query, "top_k": top_k})
+
+    return StructuredTool.from_function(
+        coroutine=_search,
+        name="search_knowledge_base",
+        description=(
+            f"Semantic search over the '{namespace}' department policy knowledge base. "
+            "Use this for benefit types, required documents, and eligibility policy questions."
+        ),
+        args_schema=SearchKnowledgeBaseArgs,
+    )
+
+
+def _build_consult_inquiry_agent_tool() -> StructuredTool:
+    """Bind consult_citizen_inquiry_agent, injecting session_id from graph state."""
+
+    async def _consult(user_query: str, state: Annotated[dict, InjectedState]) -> str:
+        session_id = state.get("session_id", "unknown-session")
+        return await consult_citizen_inquiry_agent(user_query=user_query, session_id=session_id)
+
+    return StructuredTool.from_function(
+        coroutine=_consult,
+        name="consult_citizen_inquiry_agent",
+        description=(
+            "Forwards a general municipal question that is OUTSIDE benefits and eligibility "
+            "(e.g. street line certificates, building plans, business licenses, tax payments) "
+            "to the Citizen Inquiry Agent and returns its answer."
+        ),
+        args_schema=ConsultInquiryAgentArgs,
+    )
+
+
+async def build_graph():
+    """Build and compile the LangGraph runnable. Call once per process."""
+    _require_env()
+
+    system_prompt = build_system_prompt()
+    namespace = os.environ["KB_NAMESPACE"]
+
+    mcp_tools = await _discover_mcp_tools()
+    kb_tool = next(t for t in mcp_tools if t.name == "search_knowledge_base")
+    db_tools = [t for t in mcp_tools if t.name.startswith("db_")]
+
+    tools = [
+        _wrap_kb_tool_with_pinned_namespace(kb_tool, namespace),
+        *db_tools,
+        _build_consult_inquiry_agent_tool(),
+    ]
+    logger.info("Bound %d tool(s) to the agent: %s", len(tools), [t.name for t in tools])
+
+    llm = ChatOpenAI(
+        model=os.environ.get("LLM_MODEL_NAME", "gpt-4o"),
+        temperature=float(os.environ.get("MODEL_TEMPERATURE", "0.1")),
+        max_tokens=int(os.environ.get("MAX_TOKENS", "1000")),
+        api_key=os.environ["OPENAI_API_KEY"],
+    ).bind_tools(tools)
+
+    async def call_model(state: BenefitsAgentState):
+        messages = [SystemMessage(content=system_prompt)] + state["messages"]
+        response = await llm.ainvoke(messages)
+        return {"messages": [response]}
+
+    graph = StateGraph(BenefitsAgentState)
+    graph.add_node("agent", call_model)
+    graph.add_node("tools", ToolNode(tools))
+    graph.set_entry_point("agent")
+    graph.add_conditional_edges("agent", tools_condition, {"tools": "tools", END: END})
+    graph.add_edge("tools", "agent")
+
+    checkpointer = MemorySaver()
+    return graph.compile(checkpointer=checkpointer)

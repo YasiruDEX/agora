@@ -19,3 +19,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Generated local data (fully reproducible from mcp_servers/*/server.py init/seed logic)
+data/*.db
+data/*.sqlite
+data/*.sqlite3

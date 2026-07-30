@@ -1,0 +1,123 @@
+apiVersion: agentmanager.wso2.com/v1
+kind: AgentKind
+metadata:
+  id: kind-benefits-eligibility
+  name: Benefits & Eligibility Agent
+  version: 1.0.0
+  description: >-
+    Pre-screens citizen eligibility for welfare benefits (medical low-income aid,
+    senior citizen allowance, public assistance) against department policy in the
+    "social-services" knowledge base and citizen/application records in SQLite.
+    Forwards out-of-scope general council questions to the Citizen Inquiry Agent
+    via agent-to-agent HTTP communication.
+  tags:
+    - citizen-facing
+    - benefits
+    - eligibility
+    - agent-to-agent
+    - public-sector
+
+spec:
+  targetLlmTier: cloud-standard
+
+  prompt:
+    templateFile: ./prompt.md
+
+  tools:
+    mcp:
+      - server: pinecone-kb
+        expose:
+          - search_knowledge_base
+      - server: sqlite-db-mcp
+        expose:
+          - db_create_record
+          - db_read_record
+          - db_update_record
+          - db_delete_record
+    agentToAgent:
+      - target: citizen-inquiry-agent
+        tool: consult_citizen_inquiry_agent
+        description: >-
+          Forwards general municipal questions that fall outside benefits and
+          eligibility (e.g. street line certificates, tax office hours) to a
+          running Citizen Inquiry Agent instance over HTTP.
+
+  # Guardrail policies and Agent ID provisioning are managed externally by
+  # WSO2 Agent Manager at the gateway layer. Do not declare them here.
+
+  parameters:
+    - name: DEPARTMENT_NAME
+      type: string
+      required: true
+      description: Official department name.
+      example: "Social Services Department"
+
+    - name: DEPARTMENT_CODE
+      type: string
+      required: true
+      description: Short department prefix.
+      example: "SOC"
+
+    - name: KB_NAMESPACE
+      type: string
+      required: true
+      description: Target Pinecone namespace for this department's policy knowledge base.
+      example: "social-services"
+
+    - name: WELCOME_MESSAGE
+      type: string
+      required: true
+      description: Default opening greeting shown in the chat UI.
+
+    - name: SUPPORT_EMAIL_CONTACT
+      type: string
+      required: true
+      description: Official department fallback contact email.
+      example: "socialservices@council.gov.lk"
+
+    - name: OFFICE_HOURS_INFO
+      type: string
+      required: true
+      description: Department physical office operating hours.
+
+    - name: MAX_MONTHLY_INCOME_THRESHOLD
+      type: number
+      required: true
+      default: 15000
+      description: Maximum monthly household income (LKR) to pre-qualify for income-based benefits.
+
+    - name: MIN_SENIOR_CITIZEN_AGE
+      type: integer
+      required: true
+      default: 60
+      description: Minimum age to pre-qualify for the senior citizen allowance.
+
+    - name: INQUIRY_AGENT_URL
+      type: string
+      required: true
+      default: "http://localhost:8001/chat"
+      description: HTTP /chat endpoint of the Citizen Inquiry Agent instance to consult for out-of-scope questions.
+
+    - name: LLM_PROVIDER_KEY
+      type: string
+      required: true
+      default: "azure-openai-gov"
+      description: Target LLM provider key.
+
+    - name: LLM_MODEL_NAME
+      type: string
+      required: true
+      default: "gpt-4o"
+      description: Target LLM model name.
+
+    - name: MODEL_TEMPERATURE
+      type: number
+      required: false
+      default: 0.1
+      description: Execution temperature. Kept low for strict factual accuracy.
+
+    - name: MAX_TOKENS
+      type: integer
+      required: false
+      default: 1000
+      description: Response token cap.
