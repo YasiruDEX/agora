@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agora.local/schemas/citizen-inquiry-agent-config.json",
+  "title": "Citizen Inquiry Agent - Instantiation Config",
+  "description": "Input form schema used by WSO2 Agent Manager to instantiate a Citizen Inquiry Agent for a specific department.",
+  "type": "object",
+  "properties": {
+    "DEPARTMENT_NAME": {
+      "type": "string",
+      "title": "Department Name",
+      "description": "Official department name shown to citizens.",
+      "minLength": 1,
+      "examples": ["Permits & Licensing Department"]
+    },
+    "DEPARTMENT_CODE": {
+      "type": "string",
+      "title": "Department Code",
+      "description": "Short department prefix used for identifiers and instance naming.",
+      "enum": ["PL", "TAX", "SOC", "HEALTH", "REC"]
+    },
+    "KB_NAMESPACE": {
+      "type": "string",
+      "title": "Knowledge Base Namespace",
+      "description": "Pinecone namespace to search for this department's knowledge base.",
+      "enum": [
+        "permits-licensing",
+        "tax-revenue",
+        "social-services",
+        "health-environment",
+        "records-compliance"
+      ]
+    },
+    "WELCOME_MESSAGE": {
+      "type": "string",
+      "title": "Welcome Message",
+      "description": "Default opening greeting shown in the chat UI.",
+      "minLength": 1,
+      "examples": ["Hello, I'm the Permits & Licensing virtual assistant. How can I help you today?"]
+    },
+    "SUPPORT_EMAIL_CONTACT": {
+      "type": "string",
+      "title": "Support Email Contact",
+      "description": "Official department fallback contact email.",
+      "format": "email"
+    },
+    "OFFICE_HOURS_INFO": {
+      "type": "string",
+      "title": "Office Hours",
+      "description": "Department physical office operating hours.",
+      "minLength": 1,
+      "examples": ["Monday to Friday, 8:30 AM to 4:15 PM (excluding public holidays)"]
+    },
+    "LLM_PROVIDER_KEY": {
+      "type": "string",
+      "title": "LLM Provider",
+      "description": "Target LLM provider key.",
+      "default": "azure-openai-gov"
+    },
+    "LLM_MODEL_NAME": {
+      "type": "string",
+      "title": "LLM Model",
+      "description": "Target LLM model name.",
+      "default": "gpt-4o"
+    },
+    "MODEL_TEMPERATURE": {
+      "type": "number",
+      "title": "Model Temperature",
+      "description": "Execution temperature. Kept low for strict factual accuracy.",
+      "default": 0.1,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "MAX_TOKENS": {
+      "type": "integer",
+      "title": "Max Tokens",
+      "description": "Response token cap.",
+      "default": 1000,
+      "minimum": 1
+    }
+  },
+  "required": [
+    "DEPARTMENT_NAME",
+    "DEPARTMENT_CODE",
+    "KB_NAMESPACE",
+    "WELCOME_MESSAGE",
+    "SUPPORT_EMAIL_CONTACT",
+    "OFFICE_HOURS_INFO",
+    "LLM_PROVIDER_KEY",
+    "LLM_MODEL_NAME"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "pinecone-kb": {
+      "_comment": "@pinecone-database/mcp-server does not exist on npm, and the real @pinecone-database/mcp package only supports Pinecone indexes with integrated inference. Our index uses externally-generated OpenAI embeddings, so this binds to a local Python MCP server (mcp_servers/pinecone_kb_mcp/server.py) that queries it directly.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/pinecone_kb_mcp/server.py"],
+      "transport": "stdio",
+      "env": {
+        "PINECONE_API_KEY": "${env:PINECONE_API_KEY}",
+        "PINECONE_INDEX_NAME": "${env:PINECONE_INDEX_NAME}",
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+      },
+      "tools": [
+        {
+          "name": "search_knowledge_base",
+          "description": "Semantic search over the department knowledge base stored in Pinecone. Requires a namespace parameter to scope results to a single department.",
+          "parameters": {
+            "namespace": {
+              "type": "string",
+              "required": true,
+              "description": "Pinecone namespace to search, e.g. 'permits-licensing', 'tax-revenue', 'social-services', 'health-environment', 'records-compliance'."
+            },
+            "query": {
+              "type": "string",
+              "required": true,
+              "description": "Natural language citizen question to search for."
+            },
+            "top_k": {
+              "type": "integer",
+              "required": false,
+              "default": 5,
+              "description": "Number of matching chunks to return."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

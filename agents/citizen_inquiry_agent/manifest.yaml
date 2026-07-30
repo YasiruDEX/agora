@@ -1,0 +1,92 @@
+apiVersion: agentmanager.wso2.com/v1
+kind: AgentKind
+metadata:
+  id: kind-citizen-inquiry
+  name: Citizen Inquiry Agent
+  version: 1.0.0
+  description: >-
+    Parameterized template for a department-facing citizen inquiry assistant.
+    Answers citizen questions strictly from the department's knowledge base
+    via the search_knowledge_base MCP tool. Instantiated once per department
+    (Permits & Licensing, Tax & Revenue, Social Services, Health & Environment,
+    Records & Compliance).
+  tags:
+    - citizen-facing
+    - knowledge-base
+    - public-sector
+
+spec:
+  targetLlmTier: cloud-standard
+
+  prompt:
+    templateFile: ./prompt.md
+
+  tools:
+    mcp:
+      - server: pinecone-kb
+        expose:
+          - search_knowledge_base
+
+  # Guardrail policies and Agent ID provisioning are managed externally by
+  # WSO2 Agent Manager at the gateway layer. Do not declare them here.
+
+  parameters:
+    - name: DEPARTMENT_NAME
+      type: string
+      required: true
+      description: Official department name.
+      example: "Permits & Licensing Department"
+
+    - name: DEPARTMENT_CODE
+      type: string
+      required: true
+      description: Short department prefix.
+      example: "PL"
+
+    - name: KB_NAMESPACE
+      type: string
+      required: true
+      description: Target Pinecone namespace for this department's knowledge base.
+      example: "permits-licensing"
+
+    - name: WELCOME_MESSAGE
+      type: string
+      required: true
+      description: Default opening greeting shown in the chat UI.
+      example: "Hello, I'm the Permits & Licensing virtual assistant. How can I help you today?"
+
+    - name: SUPPORT_EMAIL_CONTACT
+      type: string
+      required: true
+      description: Official department fallback contact email.
+      example: "permits.licensing@localauthority.gov.lk"
+
+    - name: OFFICE_HOURS_INFO
+      type: string
+      required: true
+      description: Department physical office operating hours.
+      example: "Monday to Friday, 8:30 AM to 4:15 PM (excluding public holidays)"
+
+    - name: LLM_PROVIDER_KEY
+      type: string
+      required: true
+      description: Target LLM provider key.
+      default: "azure-openai-gov"
+
+    - name: LLM_MODEL_NAME
+      type: string
+      required: true
+      description: Target LLM model name.
+      default: "gpt-4o"
+
+    - name: MODEL_TEMPERATURE
+      type: number
+      required: false
+      default: 0.1
+      description: Execution temperature. Kept low for strict factual accuracy.
+
+    - name: MAX_TOKENS
+      type: integer
+      required: false
+      default: 1000
+      description: Response token cap.
