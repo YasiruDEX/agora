@@ -5,15 +5,27 @@ Exposes POST /chat, satisfying the WSO2 Agent Manager deployment runtime contrac
   Response: {"response": "string"}
 """
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Optional
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, Field
 
-from agents.citizen_inquiry_agent.graph import build_graph
+AGENT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = AGENT_DIR.parent.parent
+
+# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Agent-specific department config lives in this agent's own .env and
+# overrides anything (accidentally) duplicated at the root.
+load_dotenv(REPO_ROOT / ".env")
+load_dotenv(AGENT_DIR / ".env", override=True)
+
+from agents.citizen_inquiry_agent.graph import build_graph  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("citizen_inquiry_agent")

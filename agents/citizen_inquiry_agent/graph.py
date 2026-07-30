@@ -22,12 +22,16 @@ from pydantic import BaseModel, Field
 
 from langchain_mcp_adapters.client import MultiServerMCPClient  # noqa: E402
 
-load_dotenv()
-
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
 MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "pinecone_kb_mcp" / "server.py"
+
+# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Agent-specific department config lives in this agent's own .env and takes
+# precedence over anything (accidentally) duplicated at the root.
+load_dotenv(REPO_ROOT / ".env")
+load_dotenv(AGENT_DIR / ".env", override=True)
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
