@@ -1,0 +1,135 @@
+apiVersion: agentmanager.wso2.com/v1
+kind: AgentKind
+metadata:
+  id: kind-tax-assistance
+  name: Tax & Assessment Agent
+  version: 1.0.0
+  description: >-
+    Answers property assessment rate, trade tax tier, and non-arrears status
+    questions for the Tax & Revenue Department from the "tax-revenue"
+    knowledge base and the property/payment ledger in SQLite, and can walk a
+    citizen through a simulated online rate payment via a mock municipal
+    payment gateway. Forwards out-of-scope general council questions to the
+    Citizen Inquiry Agent via agent-to-agent HTTP communication.
+  tags:
+    - citizen-facing
+    - tax
+    - revenue
+    - payments
+    - agent-to-agent
+    - public-sector
+
+spec:
+  targetLlmTier: cloud-standard
+
+  prompt:
+    templateFile: ./prompt.md
+
+  tools:
+    mcp:
+      - server: pinecone-kb
+        expose:
+          - search_knowledge_base
+      - server: tax-db-mcp
+        expose:
+          - db_create_record
+          - db_read_record
+          - db_update_record
+          - db_delete_record
+      - server: payment-mcp
+        expose:
+          - create_payment_link
+          - verify_and_settle_payment
+    agentToAgent:
+      - target: citizen-inquiry-agent
+        tool: consult_citizen_inquiry_agent
+        description: >-
+          Forwards general municipal questions that fall outside tax and
+          assessment (e.g. permits, welfare benefits) to a running Citizen
+          Inquiry Agent instance over HTTP.
+
+  # Guardrail policies and Agent ID provisioning are managed externally by
+  # WSO2 Agent Manager at the gateway layer. Do not declare them here.
+
+  parameters:
+    - name: DEPARTMENT_NAME
+      type: string
+      required: true
+      description: Official department name.
+      example: "Tax & Revenue Department"
+
+    - name: DEPARTMENT_CODE
+      type: string
+      required: true
+      description: Short department prefix.
+      example: "TR"
+
+    - name: KB_NAMESPACE
+      type: string
+      required: true
+      description: Target Pinecone namespace for this department's policy knowledge base.
+      example: "tax-revenue"
+
+    - name: WELCOME_MESSAGE
+      type: string
+      required: true
+      description: Default opening greeting shown in the chat UI.
+
+    - name: SUPPORT_EMAIL_CONTACT
+      type: string
+      required: true
+      description: Official department fallback contact email.
+      example: "tax@council.gov.lk"
+
+    - name: OFFICE_HOURS_INFO
+      type: string
+      required: true
+      description: Department physical office operating hours.
+
+    - name: INQUIRY_AGENT_URL
+      type: string
+      required: true
+      default: "http://localhost:8001/chat"
+      description: HTTP /chat endpoint of the Citizen Inquiry Agent instance to consult for out-of-scope questions.
+
+    - name: PROMPT_PAYMENT_DISCOUNT_PCT
+      type: number
+      required: true
+      default: 10
+      description: Percentage discount applied for early ("prompt") payment of assessment rates.
+
+    - name: LATE_PAYMENT_SURCHARGE_PCT
+      type: number
+      required: true
+      default: 1.5
+      description: Percentage surcharge applied to overdue/arrears assessment rate payments.
+
+    - name: LLM_PROVIDER_KEY
+      type: string
+      required: true
+      default: "azure-openai-gov"
+      description: Target LLM provider key.
+
+    - name: LLM_MODEL_NAME
+      type: string
+      required: true
+      default: "gpt-4o"
+      description: Target LLM model name.
+
+    - name: MODEL_TEMPERATURE
+      type: number
+      required: false
+      default: 0.1
+      description: Execution temperature. Kept low for strict factual accuracy.
+
+    - name: MAX_TOKENS
+      type: integer
+      required: false
+      default: 1000
+      description: Response token cap.
+
+    - name: PORT
+      type: integer
+      required: false
+      default: 8004
+      description: HTTP port for the standalone runtime.

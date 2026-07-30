@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "tax-db-mcp": {
+      "_comment": "Local Python MCP server exposing CRUD tools over data/tax_revenue.db. Shared with payment-mcp. No external secrets required.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/tax_db_mcp/server.py"],
+      "transport": "stdio",
+      "env": {},
+      "tools": [
+        {
+          "name": "db_create_record",
+          "description": "Inserts a new row into 'properties' or 'tax_payments'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'properties' or 'tax_payments'."},
+            "record_data": {"type": "object", "required": true, "description": "Column-value pairs to insert."}
+          }
+        },
+        {
+          "name": "db_read_record",
+          "description": "Fetches rows matching query_params from 'properties' or 'tax_payments'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'properties' or 'tax_payments'."},
+            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"assessment_no\": \"PROP-COL-2026-88\"}."}
+          }
+        },
+        {
+          "name": "db_update_record",
+          "description": "Updates an existing row in 'properties' or 'tax_payments'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'properties' or 'tax_payments'."},
+            "key_field": {"type": "string", "required": true, "description": "Column identifying the row, e.g. 'assessment_no'."},
+            "key_value": {"type": "string", "required": true, "description": "Value of key_field identifying the row."},
+            "update_data": {"type": "object", "required": true, "description": "Column-value pairs to set."}
+          }
+        },
+        {
+          "name": "db_delete_record",
+          "description": "Deletes a row from 'properties' or 'tax_payments'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'properties' or 'tax_payments'."},
+            "key_field": {"type": "string", "required": true, "description": "Column identifying the row, e.g. 'assessment_no'."},
+            "key_value": {"type": "string", "required": true, "description": "Value of key_field identifying the row."}
+          }
+        }
+      ]
+    }
+  }
+}

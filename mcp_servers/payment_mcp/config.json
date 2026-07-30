@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "payment-mcp": {
+      "_comment": "Simulated municipal online payment gateway. Writes to the same data/tax_revenue.db as tax-db-mcp. No real payment processor is contacted — this is a demo simulation only.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/payment_mcp/server.py"],
+      "transport": "stdio",
+      "env": {},
+      "tools": [
+        {
+          "name": "create_payment_link",
+          "description": "Generates a mock checkout URL for a tax quarter and marks it PENDING_GATEWAY.",
+          "parameters": {
+            "assessment_no": {"type": "string", "required": true, "description": "The property's assessment number."},
+            "quarter": {"type": "string", "required": true, "description": "Quarter being paid, e.g. 'Q1'."},
+            "amount_lkr": {"type": "number", "required": true, "description": "Final amount in LKR to collect."}
+          }
+        },
+        {
+          "name": "verify_and_settle_payment",
+          "description": "Simulates bank settlement of a pending payment and issues a digital receipt.",
+          "parameters": {
+            "transaction_id": {"type": "string", "required": true, "description": "Transaction ID returned by create_payment_link."}
+          }
+        }
+      ]
+    }
+  }
+}
