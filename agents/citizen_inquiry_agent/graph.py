@@ -25,7 +25,29 @@ from langchain_mcp_adapters.client import MultiServerMCPClient  # noqa: E402
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
-MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "pinecone_kb_mcp" / "server.py"
+
+
+def _resolve_mcp_server(relative_path: str) -> Path:
+    """Resolve an MCP server script's path.
+
+    Prefers the full-monorepo layout (REPO_ROOT/mcp_servers/...). Falls back
+    to a copy bundled alongside this agent (./mcp_servers/...) for standalone
+    deployments that only package this agent's own directory, without the
+    rest of the repo.
+    """
+    monorepo_path = REPO_ROOT / relative_path
+    if monorepo_path.exists():
+        return monorepo_path
+    bundled_path = AGENT_DIR / relative_path
+    if bundled_path.exists():
+        return bundled_path
+    raise FileNotFoundError(
+        f"MCP server script '{relative_path}' not found at monorepo path {monorepo_path} "
+        f"or bundled path {bundled_path}."
+    )
+
+
+MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/pinecone_kb_mcp/server.py")
 
 # Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes

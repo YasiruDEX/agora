@@ -31,15 +31,54 @@ from pydantic import BaseModel, Field
 
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-from agents.case_management_agent.tools import consult_citizen_inquiry_agent
+# This absolute import only resolves when the full monorepo layout is present
+# (agents/ as an importable package alongside mcp_servers/, data/, etc). Some
+# deployment platforms instead package this agent's own directory in
+# isolation as the process's working directory — in that case `agents` never
+# exists, but `tools.py` sits right next to this file and imports directly.
+try:
+    from agents.case_management_agent.tools import consult_citizen_inquiry_agent
+except ModuleNotFoundError:
+    from tools import consult_citizen_inquiry_agent  # type: ignore[no-redef]
 
 logger = logging.getLogger("case_management_agent.graph")
 
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
+
+
+def _resolve_mcp_server(relative_path: str) -> Path:
+    """Resolve an MCP server script's path.
+
+    Prefers the full-monorepo layout (REPO_ROOT/mcp_servers/...). Falls back
+    to a copy bundled alongside this agent (./mcp_servers/...) for standalone
+    deployments that only package this agent's own directory, without the
+    rest of the repo.
+    """
+    monorepo_path = REPO_ROOT / relative_path
+    if monorepo_path.exists():
+        return monorepo_path
+    bundled_path = AGENT_DIR / relative_path
+    if bundled_path.exists():
+        return bundled_path
+    raise FileNotFoundError(
+        f"MCP server script '{relative_path}' not found at monorepo path {monorepo_path} "
+        f"or bundled path {bundled_path}."
+    )
+
+
 PROMPT_PATH = AGENT_DIR / "prompt.md"
-PINECONE_MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "pinecone_kb_mcp" / "server.py"
-CASE_DB_MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "case_db_mcp" / "server.py"
+PINECONE_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/pinecone_kb_mcp/server.py")
+CASE_DB_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/case_db_mcp/server.py")
+
+# When running standalone (no monorepo data/ directory available), point the
+# case-db-mcp subprocess at a writable path next to this agent instead — its
+# server.py auto-creates and seeds the schema on first run.
+_CASE_DB_PATH = (
+    REPO_ROOT / "data" / "case_management.db"
+    if (REPO_ROOT / "data").exists()
+    else AGENT_DIR / "data" / "case_management.db"
+)
 
 # Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes
@@ -103,7 +142,7 @@ async def _discover_mcp_tools() -> list:
                 "transport": "stdio",
                 "command": sys.executable,
                 "args": [str(CASE_DB_MCP_SERVER_PATH)],
-                "env": dict(os.environ),
+                "env": {**os.environ, "CASE_DB_PATH": str(_CASE_DB_PATH)},
             },
         }
     )

@@ -25,7 +25,10 @@ REPO_ROOT = AGENT_DIR.parent.parent
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
 
-from agents.records_foia_agent.graph import build_graph  # noqa: E402
+try:
+    from agents.records_foia_agent.graph import build_graph  # noqa: E402
+except ModuleNotFoundError:
+    from graph import build_graph  # type: ignore[no-redef]  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("records_foia_agent")
@@ -86,4 +89,4 @@ async def health() -> dict[str, str]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("agents.records_foia_agent.main:app", host="0.0.0.0", port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)

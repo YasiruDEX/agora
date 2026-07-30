@@ -23,15 +23,45 @@ from pydantic import BaseModel, Field
 
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-from agents.permit_licensing_agent.tools import consult_citizen_inquiry_agent
+# This absolute import only resolves when the full monorepo layout is present
+# (agents/ as an importable package alongside mcp_servers/, data/, etc). Some
+# deployment platforms instead package this agent's own directory in
+# isolation as the process's working directory — in that case `agents` never
+# exists, but `tools.py` sits right next to this file and imports directly.
+try:
+    from agents.permit_licensing_agent.tools import consult_citizen_inquiry_agent
+except ModuleNotFoundError:
+    from tools import consult_citizen_inquiry_agent  # type: ignore[no-redef]
 
 logger = logging.getLogger("permit_licensing_agent.graph")
 
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
+
+
+def _resolve_mcp_server(relative_path: str) -> Path:
+    """Resolve an MCP server script's path.
+
+    Prefers the full-monorepo layout (REPO_ROOT/mcp_servers/...). Falls back
+    to a copy bundled alongside this agent (./mcp_servers/...) for standalone
+    deployments that only package this agent's own directory, without the
+    rest of the repo.
+    """
+    monorepo_path = REPO_ROOT / relative_path
+    if monorepo_path.exists():
+        return monorepo_path
+    bundled_path = AGENT_DIR / relative_path
+    if bundled_path.exists():
+        return bundled_path
+    raise FileNotFoundError(
+        f"MCP server script '{relative_path}' not found at monorepo path {monorepo_path} "
+        f"or bundled path {bundled_path}."
+    )
+
+
 PROMPT_PATH = AGENT_DIR / "prompt.md"
-PINECONE_MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "pinecone_kb_mcp" / "server.py"
-PERMIT_DB_MCP_SERVER_PATH = REPO_ROOT / "mcp_servers" / "permit_db_mcp" / "server.py"
+PINECONE_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/pinecone_kb_mcp/server.py")
+PERMIT_DB_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/permit_db_mcp/server.py")
 
 # Which agent-local env file to load. Defaults to ".env" (single-instance mode).
 # Set AGENT_ENV_FILE=".env.building_permits" (etc.) in the process environment

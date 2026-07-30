@@ -25,7 +25,15 @@ REPO_ROOT = AGENT_DIR.parent.parent
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
 
-from agents.citizen_inquiry_agent.graph import build_graph  # noqa: E402
+# This absolute import only resolves when the full monorepo layout is present
+# (agents/ as an importable package alongside mcp_servers/, data/, etc). Some
+# deployment platforms instead package this agent's own directory in
+# isolation as the process's working directory — in that case `agents` never
+# exists, but `graph.py` sits right next to this file and imports directly.
+try:
+    from agents.citizen_inquiry_agent.graph import build_graph  # noqa: E402
+except ModuleNotFoundError:
+    from graph import build_graph  # type: ignore[no-redef]  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("citizen_inquiry_agent")
@@ -78,4 +86,10 @@ async def health() -> dict[str, str]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("agents.citizen_inquiry_agent.main:app", host="0.0.0.0", port=8000)
+    # Pass the already-constructed `app` object directly rather than the
+    # dotted-string form — that form makes uvicorn re-import this module
+    # fresh by absolute path, which fails with ModuleNotFoundError: No
+    # module named 'agents' in any deployment that doesn't have the full
+    # monorepo layout (e.g. a platform that packages just this agent's own
+    # directory as /workspace).
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8000")))

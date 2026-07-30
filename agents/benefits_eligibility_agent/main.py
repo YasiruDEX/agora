@@ -91,4 +91,12 @@ async def health() -> dict[str, str]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("agents.benefits_eligibility_agent.main:app", host="0.0.0.0", port=8000)
+    import os
+
+    # Pass the already-constructed `app` object directly rather than the
+    # dotted-string form ("agents.benefits_eligibility_agent.main:app") —
+    # that form makes uvicorn re-import this module fresh by absolute path,
+    # which fails with ModuleNotFoundError: No module named 'agents' in any
+    # deployment that doesn't have the full monorepo layout (e.g. a platform
+    # that packages just this agent's own directory as /workspace).
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8000")))

@@ -26,8 +26,12 @@ REPO_ROOT = AGENT_DIR.parent.parent
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
 
-from agents.central_portal_agent.graph import build_graph  # noqa: E402
-from agents.central_portal_agent.tools import NAMESPACE_TAG_RE  # noqa: E402
+try:
+    from agents.central_portal_agent.graph import build_graph  # noqa: E402
+    from agents.central_portal_agent.tools import NAMESPACE_TAG_RE  # noqa: E402
+except ModuleNotFoundError:
+    from graph import build_graph  # type: ignore[no-redef]  # noqa: E402
+    from tools import NAMESPACE_TAG_RE  # type: ignore[no-redef]  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("central_portal_agent")
@@ -117,4 +121,4 @@ async def health() -> dict[str, str]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("agents.central_portal_agent.main:app", host="0.0.0.0", port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
