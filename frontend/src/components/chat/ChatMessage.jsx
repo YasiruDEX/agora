@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import { CheckCircle, ShieldAlert, FileText, Wallet, Receipt, ClipboardList, Loader2 } from 'lucide-react'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 const BADGE_STYLES = {
   emerald: 'bg-emerald-50 border-emerald-300 text-emerald-800',
@@ -25,6 +26,7 @@ const CARD_ICONS = {
 }
 
 function AgentCard({ card, onAction, actionLoading }) {
+  const { t } = useLanguage()
   const palette = BADGE_STYLES[card.badgeColor] || BADGE_STYLES.emerald
   const pill = STATUS_PILL[card.badgeColor] || STATUS_PILL.emerald
   const Icon = CARD_ICONS[card.type] || FileText
@@ -56,7 +58,7 @@ function AgentCard({ card, onAction, actionLoading }) {
               className="inline-flex items-center gap-1.5 bg-maroon hover:bg-maroon-600 disabled:opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
             >
               {actionLoading && <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2.5} />}
-              {actionLoading ? 'Processing' : action.label}
+              {actionLoading ? t('chat.processing') : action.label}
             </button>
           ))}
         </div>

@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Send, X, MessageCircle, RefreshCw } from 'lucide-react'
 import ChatMessage from './ChatMessage'
 import DepartmentBadge from './DepartmentBadge'
+import OfficerBadge from './OfficerBadge'
 import { AGENTS } from '../../mock/departmentData'
+import { assignOfficer } from '../../mock/officerPersonas'
 import { sendAgentMessage, sendCardAction, usingMockAgents } from '../../services/agentApi'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 let idCounter = 0
 const uid = () => `msg-${Date.now()}-${idCounter++}`
@@ -40,18 +43,36 @@ function TypingBubble({ steps }) {
  * @param {object} [props.context] - extra context passed to the agent (e.g. { division: 'building' })
  * @param {string} [props.welcomeText] - override the default greeting
  * @param {boolean} [props.startOpen] - only applies to floating mode
+ * @param {string} [props.seal] - department seal image path, shown next to the officer persona
+ * @param {string} [props.brandI18nKey] - override the displayed name/department (e.g. for the
+ *   roaming floating assistant, which stays functionally agentKey="citizen-inquiry" everywhere
+ *   but re-brands itself per department route — see App.jsx's ROUTE_BRANDING).
  */
-export default function ChatWidget({ agentKey, mode = 'floating', userId, context = {}, welcomeText, startOpen = false }) {
+export default function ChatWidget({
+  agentKey,
+  mode = 'floating',
+  userId,
+  context = {},
+  welcomeText,
+  startOpen = false,
+  seal,
+  brandI18nKey,
+}) {
+  const { t, lang } = useLanguage()
   const agent = AGENTS[agentKey]
+  const i18nKey = brandI18nKey || agent?.i18nKey
+  const localizedName = (agent && t(`agents.${i18nKey}.name`)) || agent?.name
+  const localizedDepartment = (agent && t(`agents.${i18nKey}.department`)) || agent?.department
   const sessionIdRef = useRef(`session-${agentKey}-${Date.now()}`)
   const scrollRef = useRef(null)
 
   const [open, setOpen] = useState(mode === 'embedded' || startOpen)
+  const [officer, setOfficer] = useState(() => assignOfficer(agentKey, sessionIdRef.current, userId))
   const [messages, setMessages] = useState(() => [
     {
       id: uid(),
       role: 'agent',
-      text: welcomeText || `Hello! I'm the ${agent?.name || 'Assistant'}. How can I help you today?`,
+      text: welcomeText || t('chat.greeting')(localizedName || 'Assistant'),
       card: null,
     },
   ])
@@ -61,28 +82,30 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
   const [checkout, setCheckout] = useState(null) // { messageId, actionId, card } | null
 
   // Reset the conversation whenever we switch to a different agent/persona
-  // (e.g. toggling Benefits vs Case Management, or Joan vs Marcus).
+  // (e.g. toggling Benefits vs Case Management, or Joan vs Marcus) — this
+  // also assigns a fresh human-officer persona for the new session.
   useEffect(() => {
     sessionIdRef.current = `session-${agentKey}-${userId || 'anon'}-${Date.now()}`
+    setOfficer(assignOfficer(agentKey, sessionIdRef.current, userId))
     setMessages([
       {
         id: uid(),
         role: 'agent',
-        text: welcomeText || `Hello! I'm the ${agent?.name || 'Assistant'}. How can I help you today?`,
+        text: welcomeText || t('chat.greeting')(localizedName || 'Assistant'),
         card: null,
       },
     ])
     setPending(null)
     setActionLoadingId(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentKey, userId])
+  }, [agentKey, userId, lang])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, pending])
 
   if (!agent) {
-    return <div className="text-sm text-maroon">Unknown agent: {agentKey}</div>
+    return <div className="text-sm text-maroon">{t('chat.unknownAgent')}: {agentKey}</div>
   }
 
   async function handleSend(text) {
@@ -99,6 +122,7 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
       sessionId: sessionIdRef.current,
       userId,
       context,
+      lang,
       onStep: (step) => setPending((prev) => ({ steps: [...(prev?.steps || []), step] })),
     })
 
@@ -125,6 +149,7 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
     const result = await sendCardAction({
       agentKey,
       actionId,
+      lang,
       onStep: (step) => setPending((prev) => ({ steps: [...(prev?.steps || []), step] })),
     })
 
@@ -144,11 +169,12 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
   }
 
   function clearChat() {
+    setOfficer(assignOfficer(agentKey, sessionIdRef.current, userId))
     setMessages([
       {
         id: uid(),
         role: 'agent',
-        text: welcomeText || `Hello! I'm the ${agent.name}. How can I help you today?`,
+        text: welcomeText || t('chat.greeting')(localizedName),
         card: null,
       },
     ])
@@ -164,31 +190,34 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
       }
     >
       {/* Header */}
-      <div className="bg-maroon px-3.5 py-3 flex items-center gap-2">
-        <DepartmentBadge department={agent.department} agentName={agent.name} tier={agent.tier} />
-        <div className="ml-auto flex items-center gap-1">
-          <button
-            onClick={clearChat}
-            title="Clear chat"
-            className="text-white/80 hover:text-white p-1.5 rounded hover:bg-white/10"
-          >
-            <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
-          </button>
-          {mode === 'floating' && (
+      <div className="bg-maroon px-3.5 py-3 flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <DepartmentBadge department={localizedDepartment} agentName={localizedName} tier={agent.tier} />
+          <div className="ml-auto flex items-center gap-1">
             <button
-              onClick={() => setOpen(false)}
-              title="Close"
+              onClick={clearChat}
+              title={t('chat.clearChat')}
               className="text-white/80 hover:text-white p-1.5 rounded hover:bg-white/10"
             >
-              <X className="w-4 h-4" strokeWidth={2} />
+              <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
-          )}
+            {mode === 'floating' && (
+              <button
+                onClick={() => setOpen(false)}
+                title={t('chat.close')}
+                className="text-white/80 hover:text-white p-1.5 rounded hover:bg-white/10"
+              >
+                <X className="w-4 h-4" strokeWidth={2} />
+              </button>
+            )}
+          </div>
         </div>
+        <OfficerBadge persona={officer} seal={seal} department={localizedDepartment} />
       </div>
 
       {!usingMockAgents && (
         <div className="bg-gold-100 text-gold-800 text-[11px] text-center py-1">
-          Live mode — sending real requests to localhost:{agent.port}
+          {t('chat.liveModeNotice')}:{agent.port}
         </div>
       )}
 
@@ -217,7 +246,7 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
               disabled={!!pending}
               className="text-[11px] font-medium bg-surface hover:bg-slate-100 border border-slate-300 text-slateink px-2.5 py-1 rounded-full disabled:opacity-50"
             >
-              {q}
+              {t(`quickReplyLabels.${q}`) || q}
             </button>
           ))}
         </div>
@@ -234,7 +263,7 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
+          placeholder={t('chat.typePlaceholder')}
           disabled={!!pending}
           className="flex-1 text-sm rounded-full border border-slate-300 px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-gold focus:border-maroon disabled:bg-slate-100"
         />
@@ -242,7 +271,7 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
           type="submit"
           disabled={!!pending || !input.trim()}
           className="w-9 h-9 shrink-0 rounded-full bg-maroon disabled:opacity-50 text-white flex items-center justify-center"
-          aria-label="Send"
+          aria-label={t('chat.send')}
         >
           <Send className="w-4 h-4" strokeWidth={2} />
         </button>
@@ -254,10 +283,10 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
     <div className="fixed inset-0 z-[60] bg-slateink/50 flex items-center justify-center p-4 animate-gov-fade-in">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
         <div className="bg-maroon text-white px-4 py-3">
-          <p className="font-bold text-sm">Municipal Portal Checkout</p>
-          <p className="text-white/70 text-xs">Simulated payment gateway — no real transaction occurs</p>
+          <p className="font-bold text-sm">{t('chat.checkoutTitle')}</p>
+          <p className="text-white/70 text-xs">{t('chat.checkoutSubtitle')}</p>
         </div>
-        <div className="p-4 space-y-1.5 text-sm">
+        <div className="p-4 space-y-1.5 text-sm border-b border-slate-100">
           {checkout.card?.fields?.map((f) => (
             <div key={f.label} className="flex justify-between gap-3">
               <span className="text-slate-500">{f.label}</span>
@@ -265,18 +294,38 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
             </div>
           ))}
         </div>
+        <div className="p-4 space-y-2.5">
+          <label className="block">
+            <span className="block text-xs font-medium text-slate-500 mb-1">{t('chat.cardNumberLabel')}</span>
+            <input
+              readOnly
+              value="4111 1111 1111 1111"
+              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-surface text-slate-500"
+            />
+          </label>
+          <div className="flex gap-2.5">
+            <label className="block flex-1">
+              <span className="block text-xs font-medium text-slate-500 mb-1">{t('chat.expiryLabel')}</span>
+              <input readOnly value="12/29" className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-surface text-slate-500" />
+            </label>
+            <label className="block flex-1">
+              <span className="block text-xs font-medium text-slate-500 mb-1">{t('chat.cvvLabel')}</span>
+              <input readOnly value="•••" className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-surface text-slate-500" />
+            </label>
+          </div>
+        </div>
         <div className="px-4 pb-4 flex gap-2">
           <button
             onClick={() => setCheckout(null)}
             className="flex-1 border border-slate-300 text-slateink text-sm font-semibold py-2 rounded-full hover:bg-surface"
           >
-            Cancel
+            {t('chat.cancel')}
           </button>
           <button
             onClick={confirmCheckout}
             className="flex-1 bg-gold hover:bg-gold-500 text-slateink text-sm font-bold py-2 rounded-full"
           >
-            Confirm Payment
+            {t('chat.confirmPayment')}
           </button>
         </div>
       </div>
@@ -299,7 +348,7 @@ export default function ChatWidget({ agentKey, mode = 'floating', userId, contex
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-14 h-14 rounded-full bg-maroon text-white shadow-2xl flex items-center justify-center hover:bg-maroon-600 transition-colors"
-        aria-label={open ? 'Close chat' : 'Open chat'}
+        aria-label={open ? t('chat.close') : t('chat.openChat')}
       >
         {open ? (
           <X className="w-6 h-6" strokeWidth={2} />

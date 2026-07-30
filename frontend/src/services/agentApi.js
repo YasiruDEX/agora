@@ -21,12 +21,13 @@ const AGENT_URLS = Object.fromEntries(
  * @param {string} params.sessionId
  * @param {string} [params.userId] - caseworker identity for OBO (X-User-ID header in real mode)
  * @param {object} [params.context] - extra context (e.g. { division: 'building' })
+ * @param {string} [params.lang] - active UI language ('en' | 'si' | 'ta'), mock mode only
  * @param {(step: string) => void} [params.onStep] - called with each simulated tool-step label (mock mode only)
  * @returns {Promise<{ text: string, card: object|null }>}
  */
-export async function sendAgentMessage({ agentKey, message, sessionId, userId, context = {}, onStep }) {
+export async function sendAgentMessage({ agentKey, message, sessionId, userId, context = {}, lang = 'en', onStep }) {
   if (USE_MOCK) {
-    return runMockAgent({ agentKey, message, context: { ...context, userId }, onStep })
+    return runMockAgent({ agentKey, message, context: { ...context, userId }, lang, onStep })
   }
 
   const url = AGENT_URLS[agentKey]
@@ -54,9 +55,9 @@ export async function sendAgentMessage({ agentKey, message, sessionId, userId, c
  * has no direct equivalent yet — actions are demo-only until a dedicated
  * endpoint exists, so it degrades to a client-side notice.
  */
-export async function sendCardAction({ agentKey, actionId, onStep }) {
+export async function sendCardAction({ agentKey, actionId, lang = 'en', onStep }) {
   if (USE_MOCK) {
-    return runMockCardAction({ agentKey, actionId, onStep })
+    return runMockCardAction({ agentKey, actionId, lang, onStep })
   }
   return {
     text: 'Interactive actions are only available in mock mode in this demo build.',

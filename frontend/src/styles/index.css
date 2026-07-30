@@ -59,6 +59,20 @@ body {
   animation: gov-bounce-dot 1.2s infinite ease-in-out both;
 }
 
+/* Ticker banner: track holds the item list duplicated x2, scrolled by -50% */
+@keyframes gov-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.gov-ticker-track {
+  animation: gov-ticker 32s linear infinite;
+}
+
 /* Minimal markdown styling for chat bubbles (no typography plugin needed) */
 .prose-chat p {
   margin: 0 0 0.5em 0;

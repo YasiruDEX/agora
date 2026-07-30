@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky-tr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c98a06"/>
+      <stop offset="100%" stop-color="#6f4a04"/>
+    </linearGradient>
+    <linearGradient id="facade-tr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf6ec"/>
+      <stop offset="100%" stop-color="#e6d7bf"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="500" fill="url(#sky-tr)"/>
+  <rect x="0" y="420" width="1200" height="80" fill="#4a3103" opacity="0.55"/>
+  <!-- broad plinth / steps -->
+  <rect x="220" y="360" width="760" height="18" fill="#b98e4a"/>
+  <rect x="250" y="342" width="700" height="18" fill="#c39a57"/>
+  <rect x="280" y="324" width="640" height="18" fill="#cca464"/>
+  <!-- main facade -->
+  <rect x="300" y="150" width="600" height="174" fill="url(#facade-tr)"/>
+  <polygon points="290,150 600,60 910,150" fill="#f4e8d2"/>
+  <!-- clock/emblem roundel on pediment -->
+  <circle cx="600" cy="118" r="22" fill="#c98a06" opacity="0.85"/>
+  <!-- columns -->
+  <g fill="#fffaf0" stroke="#d9c19a" stroke-width="1.5">
+    <rect x="322" y="150" width="20" height="174"/>
+    <rect x="368" y="150" width="20" height="174"/>
+    <rect x="414" y="150" width="20" height="174"/>
+    <rect x="460" y="150" width="20" height="174"/>
+    <rect x="506" y="150" width="20" height="174"/>
+    <rect x="552" y="150" width="20" height="174"/>
+    <rect x="598" y="150" width="20" height="174"/>
+    <rect x="644" y="150" width="20" height="174"/>
+    <rect x="690" y="150" width="20" height="174"/>
+    <rect x="736" y="150" width="20" height="174"/>
+    <rect x="782" y="150" width="20" height="174"/>
+    <rect x="828" y="150" width="20" height="174"/>
+    <rect x="864" y="150" width="20" height="174"/>
+  </g>
+  <text x="600" y="470" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#3c2a05" opacity="0.6">Illustrative artwork — Treasury / Municipal Finance building (stylized, demo)</text>
+</svg>

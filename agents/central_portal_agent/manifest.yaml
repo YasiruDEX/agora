@@ -1,0 +1,111 @@
+apiVersion: agentmanager.wso2.com/v1
+kind: AgentKind
+metadata:
+  id: kind-central-portal
+  name: Central Portal Chat Agent
+  version: 1.0.0
+  description: >-
+    Primary AI assistant on the main Sri Lanka Government Portal (gov.lk /
+    gic.gov.lk) home page. Unlike the department-scoped Citizen Inquiry Agent
+    template, this is a singleton that searches across every configured
+    department knowledge base namespace at once via search_all_government_knowledge,
+    so citizens can ask broad, cross-departmental questions from a single
+    portal search interface.
+  tags:
+    - citizen-facing
+    - knowledge-base
+    - public-sector
+    - cross-department
+
+spec:
+  targetLlmTier: cloud-standard
+
+  prompt:
+    templateFile: ./prompt.md
+
+  tools:
+    mcp:
+      - server: pinecone-kb
+        expose:
+          - search_knowledge_base
+
+  # Guardrail policies and Agent ID provisioning are managed externally by
+  # WSO2 Agent Manager at the gateway layer. Do not declare them here.
+
+  parameters:
+    - name: PORT
+      type: integer
+      required: false
+      default: 8007
+      description: HTTP port the FastAPI server listens on.
+
+    - name: DEPARTMENT_NAME
+      type: string
+      required: true
+      description: Display name for the central portal assistant persona.
+      example: "Government Information Center (GIC 1919)"
+
+    - name: DEPARTMENT_CODE
+      type: string
+      required: true
+      description: Short code for this instance.
+      example: "GIC"
+
+    - name: ALL_NAMESPACES
+      type: string
+      required: true
+      description: >-
+        Comma-separated list of Pinecone namespaces this agent searches
+        across when a citizen's question isn't scoped to one department.
+      example: "tax-revenue,social-services,permits-licensing,records-compliance,health-environment"
+
+    - name: KB_MIN_RELEVANCE_SCORE
+      type: number
+      required: false
+      default: 0.4
+      description: >-
+        Minimum Pinecone cosine-similarity score for a result to be kept when
+        fanning a query out across every namespace. Not applied when a
+        single department namespace is explicitly targeted.
+
+    - name: WELCOME_MESSAGE
+      type: string
+      required: true
+      description: Default opening greeting shown in the chat UI.
+      example: "Ayubowan! I am your Central Government Information Assistant."
+
+    - name: SUPPORT_EMAIL_CONTACT
+      type: string
+      required: true
+      description: Fallback contact email when no knowledge base answer is found.
+      example: "info@gic.gov.lk"
+
+    - name: OFFICE_HOURS_INFO
+      type: string
+      required: true
+      description: Hotline / office hours shown alongside the fallback contact.
+      example: "24/7 Government Hotline 1919"
+
+    - name: LLM_PROVIDER_KEY
+      type: string
+      required: true
+      description: Target LLM provider key.
+      default: "azure-openai-gov"
+
+    - name: LLM_MODEL_NAME
+      type: string
+      required: true
+      description: Target LLM model name.
+      default: "gpt-4o"
+
+    - name: MODEL_TEMPERATURE
+      type: number
+      required: false
+      default: 0.1
+      description: Execution temperature. Kept low for strict factual accuracy.
+
+    - name: MAX_TOKENS
+      type: integer
+      required: false
+      default: 1000
+      description: Response token cap.

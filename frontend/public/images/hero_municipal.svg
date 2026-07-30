@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky-mun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="facade-mun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="500" fill="url(#sky-mun)"/>
+  <rect x="0" y="420" width="1200" height="80" fill="#0f172a" opacity="0.6"/>
+  <!-- clock tower -->
+  <rect x="560" y="60" width="80" height="340" fill="url(#facade-mun)"/>
+  <polygon points="550,60 600,10 650,60" fill="#e2e8f0"/>
+  <circle cx="600" cy="110" r="26" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+  <line x1="600" y1="110" x2="600" y2="94" stroke="#1E293B" stroke-width="3"/>
+  <line x1="600" y1="110" x2="612" y2="110" stroke="#1E293B" stroke-width="3"/>
+  <!-- flanking blocks -->
+  <rect x="260" y="220" width="300" height="180" fill="url(#facade-mun)" opacity="0.92"/>
+  <rect x="640" y="220" width="300" height="180" fill="url(#facade-mun)" opacity="0.92"/>
+  <g fill="#f8fafc" opacity="0.9">
+    <rect x="290" y="240" width="18" height="160"/>
+    <rect x="340" y="240" width="18" height="160"/>
+    <rect x="390" y="240" width="18" height="160"/>
+    <rect x="440" y="240" width="18" height="160"/>
+    <rect x="490" y="240" width="18" height="160"/>
+    <rect x="670" y="240" width="18" height="160"/>
+    <rect x="720" y="240" width="18" height="160"/>
+    <rect x="770" y="240" width="18" height="160"/>
+    <rect x="820" y="240" width="18" height="160"/>
+    <rect x="870" y="240" width="18" height="160"/>
+  </g>
+  <line x1="600" y1="10" x2="600" y2="-10" stroke="#94a3b8" stroke-width="3"/>
+  <text x="600" y="470" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#e2e8f0" opacity="0.55">Illustrative artwork — Municipal Council building (stylized, demo)</text>
+</svg>

@@ -17,6 +17,7 @@ export const LLM_TIERS = {
 export const AGENTS = {
   'citizen-inquiry': {
     key: 'citizen-inquiry',
+    i18nKey: 'citizenInquiry',
     name: 'Citizen Inquiry Agent',
     department: 'Contact Center',
     port: 8001,
@@ -29,6 +30,7 @@ export const AGENTS = {
   },
   'benefits-eligibility': {
     key: 'benefits-eligibility',
+    i18nKey: 'benefitsEligibility',
     name: 'Benefits Eligibility Agent',
     department: 'Department of Social Services',
     port: 8000,
@@ -41,6 +43,7 @@ export const AGENTS = {
   },
   'case-management': {
     key: 'case-management',
+    i18nKey: 'caseManagement',
     name: 'Case Management Agent',
     department: 'Department of Social Services (Caseworker)',
     port: 8005,
@@ -49,6 +52,7 @@ export const AGENTS = {
   },
   'permits-building': {
     key: 'permits-building',
+    i18nKey: 'permitsBuilding',
     name: 'Permit & Licensing Agent — Building Permits',
     department: 'Permits & Licensing Department',
     port: 8002,
@@ -57,6 +61,7 @@ export const AGENTS = {
   },
   'permits-business': {
     key: 'permits-business',
+    i18nKey: 'permitsBusiness',
     name: 'Permit & Licensing Agent — Business & Trade Licenses',
     department: 'Permits & Licensing Department',
     port: 8003,
@@ -65,6 +70,7 @@ export const AGENTS = {
   },
   'tax-assistance': {
     key: 'tax-assistance',
+    i18nKey: 'taxAssistance',
     name: 'Tax & Assessment Agent',
     department: 'Tax & Revenue Department',
     port: 8004,
@@ -73,6 +79,7 @@ export const AGENTS = {
   },
   'records-foia': {
     key: 'records-foia',
+    i18nKey: 'recordsFoia',
     name: 'Records / FOIA Agent',
     department: 'Department of Records & Compliance',
     port: 8006,
@@ -90,6 +97,7 @@ export const DEPARTMENTS = [
     color: 'maroon',
     description: 'General inquiries, service directory, and SLA information for all departments.',
     hotline: '1919',
+    seal: '/images/department_seals/contact_center_seal.svg',
     agentKey: 'citizen-inquiry',
     services: [
       { id: 'general-faq', title: 'General FAQs', description: 'Common questions about municipal services.' },
@@ -105,6 +113,7 @@ export const DEPARTMENTS = [
     color: 'govgreen',
     description: 'Welfare benefits, senior citizen allowances, medical aid, and caseworker case management.',
     hotline: '1919',
+    seal: '/images/department_seals/social_services_seal.svg',
     agentKey: 'benefits-eligibility',
     caseworkerAgentKey: 'case-management',
     services: [
@@ -121,6 +130,7 @@ export const DEPARTMENTS = [
     color: 'gold',
     description: 'Building plan approvals, street line certificates, and trade/business licenses.',
     hotline: '1919',
+    seal: '/images/department_seals/permits_seal.svg',
     divisions: [
       { id: 'building', label: 'Building Permits Division', agentKey: 'permits-building' },
       { id: 'business', label: 'Business & Trade Licenses Division', agentKey: 'permits-business' },
@@ -139,6 +149,7 @@ export const DEPARTMENTS = [
     color: 'maroon',
     description: 'Property assessment rates, trade tax tiers, and online rate payments.',
     hotline: '1919',
+    seal: '/images/department_seals/tax_revenue_seal.svg',
     agentKey: 'tax-assistance',
     services: [
       { id: 'assessment-rates', title: 'Assessment Rates Payment', description: 'Pay quarterly property assessment rates online.' },
@@ -154,6 +165,7 @@ export const DEPARTMENTS = [
     color: 'govgreen',
     description: 'Public records (RTI/FOIA) requests, disclosure exemption checks, and civil registration extracts.',
     hotline: '1919',
+    seal: '/images/department_seals/records_seal.svg',
     agentKey: 'records-foia',
     services: [
       { id: 'foia-request', title: 'Public Records Request', description: 'Submit a Right to Information (RTI) request.' },

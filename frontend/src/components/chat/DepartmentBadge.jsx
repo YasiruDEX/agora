@@ -1,6 +1,8 @@
 import { CheckCircle, ShieldAlert } from 'lucide-react'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 export default function DepartmentBadge({ department, agentName, tier }) {
+  const { t } = useLanguage()
   const TierIcon = tier?.key === 'onprem' ? ShieldAlert : CheckCircle
 
   return (
@@ -19,7 +21,7 @@ export default function DepartmentBadge({ department, agentName, tier }) {
           }
         >
           <TierIcon className="w-3 h-3" strokeWidth={2.5} />
-          {tier.label}
+          {tier.key === 'onprem' ? t('chat.onPremBadge') : t('chat.cloudBadge')}
         </span>
       )}
     </div>

@@ -1,43 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Phone, Search } from 'lucide-react'
-
-const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'si', label: 'සිංහල' },
-  { code: 'ta', label: 'தமிழ்' },
-]
-
-const STRINGS = {
-  en: {
-    portalName: 'Government of Sri Lanka',
-    portalSub: 'Official Citizen Services Portal (Demo)',
-    searchPlaceholder: 'Search for a service, department, or form...',
-    hotlineLabel: 'Government Info Hotline',
-  },
-  si: {
-    portalName: 'ශ්‍රී ලංකා ආණ්ඩුව',
-    portalSub: 'නිල පුරවැසි සේවා ද්වාරය (නිරූපණය)',
-    searchPlaceholder: 'සේවාවක්, දෙපාර්තමේන්තුවක් හෝ ආකෘතියක් සොයන්න...',
-    hotlineLabel: 'රජයේ තොරතුරු දුරකථන අංකය',
-  },
-  ta: {
-    portalName: 'இலங்கை அரசாங்கம்',
-    portalSub: 'அதிகாரப்பூர்வ குடிமக்கள் சேவை போர்டல் (டெமோ)',
-    searchPlaceholder: 'சேவை, திணைக்களம் அல்லது படிவத்தைத் தேடுங்கள்...',
-    hotlineLabel: 'அரசாங்க தகவல் தொடர்பு எண்',
-  },
-}
+import { useLanguage } from '../../i18n/LanguageContext'
 
 export default function Header() {
-  const [lang, setLang] = useState(() => localStorage.getItem('gov_lang') || 'en')
+  const { t, lang, setLang, languages } = useLanguage()
   const [search, setSearch] = useState('')
-
-  useEffect(() => {
-    localStorage.setItem('gov_lang', lang)
-  }, [lang])
-
-  const t = STRINGS[lang]
 
   return (
     <header className="sticky top-0 z-40 shadow-gov">
@@ -45,7 +13,7 @@ export default function Header() {
       <div className="bg-slateink text-white text-xs">
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between h-9">
           <div className="flex items-center gap-1.5">
-            {LANGUAGES.map((l) => (
+            {languages.map((l) => (
               <button
                 key={l.code}
                 onClick={() => setLang(l.code)}
@@ -59,7 +27,7 @@ export default function Header() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline text-slate-300">{t.hotlineLabel}</span>
+            <span className="hidden sm:inline text-slate-300">{t('header.hotlineLabel')}</span>
             <a
               href="tel:1919"
               className="inline-flex items-center gap-1.5 bg-maroon text-white font-bold px-2.5 py-0.5 rounded-full"
@@ -77,8 +45,8 @@ export default function Header() {
           <Link to="/" className="flex items-center gap-3 shrink-0">
             <img src="/images/emblem_sri_lanka.svg" alt="National Emblem of Sri Lanka (stylized, demo)" className="w-12 h-12" />
             <div className="leading-tight">
-              <p className="font-bold text-slateink text-base sm:text-lg">{t.portalName}</p>
-              <p className="text-[11px] sm:text-xs text-maroon font-medium">{t.portalSub}</p>
+              <p className="font-bold text-slateink text-base sm:text-lg">{t('header.portalName')}</p>
+              <p className="text-[11px] sm:text-xs text-maroon font-medium">{t('header.portalSub')}</p>
             </div>
           </Link>
 
@@ -92,7 +60,7 @@ export default function Header() {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t.searchPlaceholder}
+                placeholder={t('header.searchPlaceholder')}
                 className="w-full rounded-full border border-slate-300 bg-surface pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-maroon"
               />
               <button

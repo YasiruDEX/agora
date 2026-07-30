@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agora.local/schemas/central-portal-agent-config.json",
+  "title": "Central Portal Chat Agent - Instantiation Config",
+  "description": "Input form schema used by WSO2 Agent Manager to instantiate the singleton Central Portal Chat Agent for the gov.lk / gic.gov.lk home page.",
+  "type": "object",
+  "properties": {
+    "PORT": {
+      "type": "integer",
+      "title": "Port",
+      "description": "HTTP port the FastAPI server listens on.",
+      "default": 8007,
+      "minimum": 1,
+      "maximum": 65535
+    },
+    "DEPARTMENT_NAME": {
+      "type": "string",
+      "title": "Display Name",
+      "description": "Display name for the central portal assistant persona.",
+      "minLength": 1,
+      "examples": ["Government Information Center (GIC 1919)"]
+    },
+    "DEPARTMENT_CODE": {
+      "type": "string",
+      "title": "Instance Code",
+      "description": "Short code for this instance.",
+      "minLength": 1,
+      "examples": ["GIC"]
+    },
+    "ALL_NAMESPACES": {
+      "type": "string",
+      "title": "All Department Namespaces",
+      "description": "Comma-separated list of Pinecone namespaces searched across when a question isn't scoped to one department.",
+      "pattern": "^[a-z0-9-]+(,[a-z0-9-]+)*$",
+      "examples": ["tax-revenue,social-services,permits-licensing,records-compliance,health-environment"]
+    },
+    "KB_MIN_RELEVANCE_SCORE": {
+      "type": "number",
+      "title": "Minimum KB Relevance Score",
+      "description": "Minimum Pinecone cosine-similarity score kept when fanning a query out across every namespace. Not applied to an explicitly-targeted single namespace.",
+      "default": 0.4,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "WELCOME_MESSAGE": {
+      "type": "string",
+      "title": "Welcome Message",
+      "description": "Default opening greeting shown in the chat UI.",
+      "minLength": 1
+    },
+    "SUPPORT_EMAIL_CONTACT": {
+      "type": "string",
+      "title": "Support Email Contact",
+      "description": "Fallback contact email when no knowledge base answer is found.",
+      "format": "email"
+    },
+    "OFFICE_HOURS_INFO": {
+      "type": "string",
+      "title": "Office Hours / Hotline",
+      "description": "Hotline / office hours shown alongside the fallback contact.",
+      "minLength": 1
+    },
+    "LLM_PROVIDER_KEY": {
+      "type": "string",
+      "title": "LLM Provider",
+      "description": "Target LLM provider key.",
+      "default": "azure-openai-gov"
+    },
+    "LLM_MODEL_NAME": {
+      "type": "string",
+      "title": "LLM Model",
+      "description": "Target LLM model name.",
+      "default": "gpt-4o"
+    },
+    "MODEL_TEMPERATURE": {
+      "type": "number",
+      "title": "Model Temperature",
+      "description": "Execution temperature. Kept low for strict factual accuracy.",
+      "default": 0.1,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "MAX_TOKENS": {
+      "type": "integer",
+      "title": "Max Tokens",
+      "description": "Response token cap.",
+      "default": 1000,
+      "minimum": 1
+    }
+  },
+  "required": [
+    "DEPARTMENT_NAME",
+    "DEPARTMENT_CODE",
+    "ALL_NAMESPACES",
+    "WELCOME_MESSAGE",
+    "SUPPORT_EMAIL_CONTACT",
+    "OFFICE_HOURS_INFO",
+    "LLM_PROVIDER_KEY",
+    "LLM_MODEL_NAME"
+  ],
+  "additionalProperties": false
+}
