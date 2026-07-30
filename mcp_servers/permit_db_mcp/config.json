@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "permit-db-mcp": {
+      "_comment": "Local Python MCP server exposing CRUD tools over data/permits.db. No external secrets required.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/permit_db_mcp/server.py"],
+      "transport": "stdio",
+      "env": {},
+      "tools": [
+        {
+          "name": "db_create_record",
+          "description": "Inserts a new row into 'applicants' or 'permit_applications'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'applicants' or 'permit_applications'."},
+            "record_data": {"type": "object", "required": true, "description": "Column-value pairs to insert."}
+          }
+        },
+        {
+          "name": "db_read_record",
+          "description": "Fetches rows matching query_params from 'applicants' or 'permit_applications'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'applicants' or 'permit_applications'."},
+            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"app_id\": \"APP-BP-1001\"}."}
+          }
+        },
+        {
+          "name": "db_update_record",
+          "description": "Updates an existing row in 'applicants' or 'permit_applications'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'applicants' or 'permit_applications'."},
+            "key_field": {"type": "string", "required": true, "description": "Column identifying the row, e.g. 'app_id'."},
+            "key_value": {"type": "string", "required": true, "description": "Value of key_field identifying the row."},
+            "update_data": {"type": "object", "required": true, "description": "Column-value pairs to set."}
+          }
+        },
+        {
+          "name": "db_delete_record",
+          "description": "Deletes a row from 'applicants' or 'permit_applications'.",
+          "parameters": {
+            "table_name": {"type": "string", "required": true, "description": "'applicants' or 'permit_applications'."},
+            "key_field": {"type": "string", "required": true, "description": "Column identifying the row, e.g. 'app_id'."},
+            "key_value": {"type": "string", "required": true, "description": "Value of key_field identifying the row."}
+          }
+        }
+      ]
+    }
+  }
+}
