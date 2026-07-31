@@ -1,14 +1,18 @@
 """LangGraph runnable for the Benefits & Eligibility Agent.
 
-Dynamically discovers tools from two MCP servers (pinecone-kb, sqlite-db-mcp),
-pins the Pinecone tool's namespace to this department's KB_NAMESPACE, and binds
-an agent-to-agent tool that forwards out-of-scope questions to a running
-Citizen Inquiry Agent instance over HTTP.
+Dynamically discovers tools from two remote MCP servers (pinecone-kb,
+sqlite-db-mcp) over SSE, pins the Pinecone tool's namespace to this
+department's KB_NAMESPACE, and binds an agent-to-agent tool that forwards
+out-of-scope questions to a running Citizen Inquiry Agent instance over HTTP.
+
+This agent container does not run the MCP servers itself — it only holds
+their network addresses (PINECONE_MCP_URL, SQLITE_MCP_URL), configured via
+environment variables. The MCP servers and their databases are deployed and
+scaled independently (see mcp_servers/*/server.py, run with MCP_TRANSPORT=sse).
 """
 import logging
 import os
 import string
-import sys
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -37,46 +41,21 @@ logger = logging.getLogger("benefits_eligibility_agent.graph")
 
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
-
-
-def _resolve_mcp_server(relative_path: str) -> Path:
-    """Resolve an MCP server script's path.
-
-    Prefers the full-monorepo layout (REPO_ROOT/mcp_servers/...). Falls back
-    to a copy bundled alongside this agent (./mcp_servers/...) for standalone
-    deployments that only package this agent's own directory, without the
-    rest of the repo.
-    """
-    monorepo_path = REPO_ROOT / relative_path
-    if monorepo_path.exists():
-        return monorepo_path
-    bundled_path = AGENT_DIR / relative_path
-    if bundled_path.exists():
-        return bundled_path
-    raise FileNotFoundError(
-        f"MCP server script '{relative_path}' not found at monorepo path {monorepo_path} "
-        f"or bundled path {bundled_path}."
-    )
-
-
 PROMPT_PATH = AGENT_DIR / "prompt.md"
-PINECONE_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/pinecone_kb_mcp/server.py")
-SQLITE_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/sqlite_db_mcp/server.py")
-
-# When running standalone (no monorepo data/ directory available), point the
-# sqlite-db-mcp subprocess at a writable path next to this agent instead —
-# its server.py auto-creates and seeds the schema on first run.
-_SQLITE_DB_PATH = (
-    REPO_ROOT / "data" / "social_services.db"
-    if (REPO_ROOT / "data").exists()
-    else AGENT_DIR / "data" / "social_services.db"
-)
 
 # Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes
 # precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
+
+# Remote MCP server endpoints. Read AFTER load_dotenv() so a URL set in
+# either .env file actually takes effect. Defaults assume each server is
+# running locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/*/server.py);
+# in a real deployment these are injected by the platform (e.g. pointed at an
+# Agent Manager MCP proxy in front of each server).
+PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+SQLITE_MCP_URL = os.environ.get("SQLITE_MCP_URL", "http://localhost:9002/sse")
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -155,20 +134,16 @@ class ConsultInquiryAgentArgs(BaseModel):
 
 
 async def _discover_mcp_tools() -> list:
-    """Connect to both MCP servers and dynamically discover their tools."""
+    """Connect to both remote MCP servers over SSE and dynamically discover their tools."""
     client = MultiServerMCPClient(
         {
             "pinecone-kb": {
-                "transport": "stdio",
-                "command": sys.executable,
-                "args": [str(PINECONE_MCP_SERVER_PATH)],
-                "env": dict(os.environ),
+                "url": PINECONE_MCP_URL,
+                "transport": "sse",
             },
             "sqlite-db-mcp": {
-                "transport": "stdio",
-                "command": sys.executable,
-                "args": [str(SQLITE_MCP_SERVER_PATH)],
-                "env": {**os.environ, "SQLITE_DB_PATH": str(_SQLITE_DB_PATH)},
+                "url": SQLITE_MCP_URL,
+                "transport": "sse",
             },
         }
     )

@@ -1,13 +1,16 @@
 """LangGraph runnable for the Citizen Inquiry Agent.
 
 Builds a StateGraph over `messages` that calls an LLM bound to the
-`search_knowledge_base` MCP tool (served by mcp_servers/pinecone_kb_mcp/server.py),
-grounded in this department's KB_NAMESPACE, with MemorySaver checkpointing keyed
-by session_id.
+`search_knowledge_base` MCP tool, served remotely over SSE by a standalone
+pinecone-kb MCP server (see mcp_servers/pinecone_kb_mcp/server.py, run with
+MCP_TRANSPORT=sse), grounded in this department's KB_NAMESPACE, with
+MemorySaver checkpointing keyed by session_id.
+
+This agent container does not run the MCP server itself — it only holds its
+network address (PINECONE_MCP_URL), configured via an environment variable.
 """
 import os
 import string
-import sys
 from pathlib import Path
 from typing import Any, Optional
 
@@ -26,34 +29,18 @@ AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
 
-
-def _resolve_mcp_server(relative_path: str) -> Path:
-    """Resolve an MCP server script's path.
-
-    Prefers the full-monorepo layout (REPO_ROOT/mcp_servers/...). Falls back
-    to a copy bundled alongside this agent (./mcp_servers/...) for standalone
-    deployments that only package this agent's own directory, without the
-    rest of the repo.
-    """
-    monorepo_path = REPO_ROOT / relative_path
-    if monorepo_path.exists():
-        return monorepo_path
-    bundled_path = AGENT_DIR / relative_path
-    if bundled_path.exists():
-        return bundled_path
-    raise FileNotFoundError(
-        f"MCP server script '{relative_path}' not found at monorepo path {monorepo_path} "
-        f"or bundled path {bundled_path}."
-    )
-
-
-MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/pinecone_kb_mcp/server.py")
-
 # Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes
 # precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
+
+# Remote MCP server endpoint. Read AFTER load_dotenv() so a URL set in either
+# .env file actually takes effect. Defaults assume the server is running
+# locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/pinecone_kb_mcp/server.py);
+# in a real deployment this is injected by the platform (e.g. pointed at an
+# Agent Manager MCP proxy in front of the server).
+PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -129,10 +116,8 @@ async def _load_kb_tool() -> StructuredTool:
     client = MultiServerMCPClient(
         {
             "pinecone-kb": {
-                "transport": "stdio",
-                "command": sys.executable,
-                "args": [str(MCP_SERVER_PATH)],
-                "env": dict(os.environ),
+                "url": PINECONE_MCP_URL,
+                "transport": "sse",
             }
         }
     )

@@ -27,7 +27,13 @@ _pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
 _index = _pc.Index(os.environ["PINECONE_INDEX_NAME"])
 _openai = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-mcp = FastMCP("pinecone-kb")
+# MCP_TRANSPORT selects "stdio" (default, for local subprocess use) or "sse"/
+# "streamable-http" to run this as a standalone network service that agents
+# connect to remotely via MCP_*_URL env vars instead of spawning it locally.
+MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
+MCP_PORT = int(os.environ.get("MCP_PORT", "9001"))
+
+mcp = FastMCP("pinecone-kb", host=MCP_HOST, port=MCP_PORT)
 
 
 @mcp.tool()
@@ -70,4 +76,7 @@ def search_knowledge_base(namespace: str, query: str, top_k: int = 5) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
+    if transport != "stdio":
+        print(f"[pinecone-kb-mcp] serving over {transport} at {MCP_HOST}:{MCP_PORT}", file=sys.stderr)
+    mcp.run(transport=transport)

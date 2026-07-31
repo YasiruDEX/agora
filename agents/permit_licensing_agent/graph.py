@@ -1,14 +1,21 @@
 """LangGraph runnable for the Permit & Licensing Agent.
 
-Dynamically discovers tools from two MCP servers (pinecone-kb, permit-db-mcp),
-pins the Pinecone tool's namespace to this department's KB_NAMESPACE, and binds
-an agent-to-agent tool that forwards out-of-scope questions to a running
-Citizen Inquiry Agent instance over HTTP.
+Dynamically discovers tools from two remote MCP servers (pinecone-kb,
+permit-db-mcp) over SSE, pins the Pinecone tool's namespace to this
+department's KB_NAMESPACE, and binds an agent-to-agent tool that forwards
+out-of-scope questions to a running Citizen Inquiry Agent instance over HTTP.
+
+This agent container does not run the MCP servers itself — it only holds
+their network addresses (PINECONE_MCP_URL, PERMIT_DB_MCP_URL), configured via
+environment variables. The MCP servers and their databases are deployed and
+scaled independently (see mcp_servers/*/server.py, run with MCP_TRANSPORT=sse).
+When running the two Permit & Licensing instances (Building Permits / Business
+Licenses), point each at its own PERMIT_DB_MCP_URL via that instance's own
+env file (.env.building_permits / .env.business_licenses).
 """
 import logging
 import os
 import string
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -37,36 +44,12 @@ logger = logging.getLogger("permit_licensing_agent.graph")
 
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
-
-
-def _resolve_mcp_server(relative_path: str) -> Path:
-    """Resolve an MCP server script's path.
-
-    Prefers the full-monorepo layout (REPO_ROOT/mcp_servers/...). Falls back
-    to a copy bundled alongside this agent (./mcp_servers/...) for standalone
-    deployments that only package this agent's own directory, without the
-    rest of the repo.
-    """
-    monorepo_path = REPO_ROOT / relative_path
-    if monorepo_path.exists():
-        return monorepo_path
-    bundled_path = AGENT_DIR / relative_path
-    if bundled_path.exists():
-        return bundled_path
-    raise FileNotFoundError(
-        f"MCP server script '{relative_path}' not found at monorepo path {monorepo_path} "
-        f"or bundled path {bundled_path}."
-    )
-
-
 PROMPT_PATH = AGENT_DIR / "prompt.md"
-PINECONE_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/pinecone_kb_mcp/server.py")
-PERMIT_DB_MCP_SERVER_PATH = _resolve_mcp_server("mcp_servers/permit_db_mcp/server.py")
 
 # Which agent-local env file to load. Defaults to ".env" (single-instance mode).
 # Set AGENT_ENV_FILE=".env.building_permits" (etc.) in the process environment
 # *before* launch to run this codebase as a distinct, independently-configured
-# instance (its own port, department identity, and PERMIT_DB_PATH).
+# instance (its own port, department identity, and PERMIT_DB_MCP_URL).
 AGENT_ENV_FILE = os.environ.get("AGENT_ENV_FILE", ".env")
 
 # Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
@@ -74,6 +57,14 @@ AGENT_ENV_FILE = os.environ.get("AGENT_ENV_FILE", ".env")
 # takes precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / AGENT_ENV_FILE, override=True)
+
+# Remote MCP server endpoints. Read AFTER load_dotenv() so a URL set in
+# either env file actually takes effect. Defaults assume each server is
+# running locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/*/server.py);
+# in a real deployment these are injected by the platform (e.g. pointed at an
+# Agent Manager MCP proxy in front of each server).
+PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+PERMIT_DB_MCP_URL = os.environ.get("PERMIT_DB_MCP_URL", "http://localhost:9004/sse")
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -161,16 +152,12 @@ async def _discover_mcp_tools() -> list:
     client = MultiServerMCPClient(
         {
             "pinecone-kb": {
-                "transport": "stdio",
-                "command": sys.executable,
-                "args": [str(PINECONE_MCP_SERVER_PATH)],
-                "env": dict(os.environ),
+                "url": PINECONE_MCP_URL,
+                "transport": "sse",
             },
             "permit-db-mcp": {
-                "transport": "stdio",
-                "command": sys.executable,
-                "args": [str(PERMIT_DB_MCP_SERVER_PATH)],
-                "env": dict(os.environ),
+                "url": PERMIT_DB_MCP_URL,
+                "transport": "sse",
             },
         }
     )

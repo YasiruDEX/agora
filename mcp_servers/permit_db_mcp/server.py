@@ -181,7 +181,15 @@ def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
 
 init_db()
 
-mcp = FastMCP("permit-db")
+# MCP_TRANSPORT selects "stdio" (default, for local subprocess use) or "sse"/
+# "streamable-http" to run this as a standalone network service that agents
+# connect to remotely via MCP_*_URL env vars instead of spawning it locally.
+# When running two instances of this codebase (Building Permits / Business
+# Licenses), set MCP_PORT distinctly per instance alongside PERMIT_DB_PATH.
+MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
+MCP_PORT = int(os.environ.get("MCP_PORT", "9004"))
+
+mcp = FastMCP("permit-db", host=MCP_HOST, port=MCP_PORT)
 
 
 @mcp.tool()
@@ -301,5 +309,8 @@ def db_delete_record(table_name: str, key_field: str, key_value: str) -> str:
 
 
 if __name__ == "__main__":
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
     print(f"[permit-db-mcp] using database at {DB_PATH}", file=sys.stderr)
-    mcp.run(transport="stdio")
+    if transport != "stdio":
+        print(f"[permit-db-mcp] serving over {transport} at {MCP_HOST}:{MCP_PORT}", file=sys.stderr)
+    mcp.run(transport=transport)

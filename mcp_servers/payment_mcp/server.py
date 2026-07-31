@@ -78,7 +78,13 @@ def _next_receipt_no(conn: sqlite3.Connection, year: int) -> str:
     return f"RCT-{year}-{8800 + count + 1}"
 
 
-mcp = FastMCP("payment-gateway")
+# MCP_TRANSPORT selects "stdio" (default, for local subprocess use) or "sse"/
+# "streamable-http" to run this as a standalone network service that agents
+# connect to remotely via MCP_*_URL env vars instead of spawning it locally.
+MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
+MCP_PORT = int(os.environ.get("MCP_PORT", "9006"))
+
+mcp = FastMCP("payment-gateway", host=MCP_HOST, port=MCP_PORT)
 
 
 @mcp.tool()
@@ -180,5 +186,8 @@ def verify_and_settle_payment(transaction_id: str) -> str:
 
 
 if __name__ == "__main__":
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
     print(f"[payment-mcp] using database at {DB_PATH}", file=sys.stderr)
-    mcp.run(transport="stdio")
+    if transport != "stdio":
+        print(f"[payment-mcp] serving over {transport} at {MCP_HOST}:{MCP_PORT}", file=sys.stderr)
+    mcp.run(transport=transport)
