@@ -8,7 +8,18 @@ MemorySaver checkpointing keyed by session_id.
 
 This agent container does not run the MCP server itself — it only holds its
 network address (KB_MCP_URL), configured via an environment variable.
+
+FALLBACK BEHAVIOR: the agent must boot even if the local-kb MCP server is
+unreachable at startup (e.g. not deployed yet, mid-restart, network blip). If
+connecting fails, build_graph() binds a stub tool instead of raising, so the
+FastAPI app still comes up and /chat still responds -- just with a clear
+"MCP server not available" message instead of grounded KB content. The same
+fallback also covers the MCP server going down *after* a successful startup
+(the real tool's call is wrapped too), since langchain_mcp_adapters only
+actually opens the SSE connection when the tool is invoked, not at get_tools()
+time.
 """
+import logging
 import os
 import string
 from pathlib import Path
@@ -24,6 +35,8 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field
 
 from langchain_mcp_adapters.client import MultiServerMCPClient  # noqa: E402
+
+logger = logging.getLogger("citizen_inquiry_agent.graph")
 
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
@@ -102,12 +115,47 @@ class SearchKnowledgeBaseArgs(BaseModel):
     top_k: int = Field(default=5, description="Number of matching chunks to return.")
 
 
+def mcp_unavailable_message() -> str:
+    support_email = os.environ.get("SUPPORT_EMAIL_CONTACT", "the department")
+    return (
+        "Whoa, hold on!! The knowledge base service (MCP server) is not available "
+        "right now!! I can't look up department documents, fees, or procedures until "
+        f"it's back. Please try again shortly, or contact {support_email} in the meantime."
+    )
+
+
+def _fallback_kb_tool(namespace: str) -> StructuredTool:
+    """Stub tool used whenever the local-kb MCP server can't be reached -- at
+    startup or mid-session. Always returns the same "MCP server not available"
+    message so the agent keeps responding instead of crashing or hanging."""
+
+    async def _unavailable(query: str, top_k: int = 5) -> str:
+        return mcp_unavailable_message()
+
+    return StructuredTool.from_function(
+        coroutine=_unavailable,
+        name="search_knowledge_base",
+        description=(
+            f"Semantic search over the '{namespace}' department knowledge base. "
+            "Always use this to answer factual citizen questions about documents, "
+            "fees, timelines, eligibility, or procedures."
+        ),
+        args_schema=SearchKnowledgeBaseArgs,
+    )
+
+
 async def _load_kb_tool() -> StructuredTool:
     """Connect to the local-kb MCP server and wrap search_knowledge_base.
 
     The wrapper hard-pins `namespace` to this department's KB_NAMESPACE env var so
     the tool always searches the correct department's data, regardless of what the
     LLM would otherwise pass.
+
+    Never raises: if the MCP server can't be reached (now, or later when the
+    wrapped tool is actually invoked), the agent still boots/responds -- it just
+    falls back to a fixed "MCP server not available" message instead of
+    grounded KB content. See the module docstring for why both paths need
+    covering separately.
     """
     namespace = os.environ["KB_NAMESPACE"]
 
@@ -119,11 +167,29 @@ async def _load_kb_tool() -> StructuredTool:
             }
         }
     )
-    mcp_tools = await client.get_tools()
-    raw_tool = next(t for t in mcp_tools if t.name == "search_knowledge_base")
+
+    try:
+        mcp_tools = await client.get_tools()
+        raw_tool = next(t for t in mcp_tools if t.name == "search_knowledge_base")
+    except Exception:
+        logger.warning(
+            "Could not reach local-kb MCP server at %s -- falling back to a "
+            "'MCP server not available' response for search_knowledge_base.",
+            KB_MCP_URL,
+            exc_info=True,
+        )
+        return _fallback_kb_tool(namespace)
 
     async def _search(query: str, top_k: int = 5) -> str:
-        raw_result = await raw_tool.ainvoke({"namespace": namespace, "query": query, "top_k": top_k})
+        try:
+            raw_result = await raw_tool.ainvoke({"namespace": namespace, "query": query, "top_k": top_k})
+        except Exception:
+            logger.warning(
+                "local-kb MCP server at %s became unreachable during a search_knowledge_base call.",
+                KB_MCP_URL,
+                exc_info=True,
+            )
+            return mcp_unavailable_message()
         return _extract_text(raw_result)
 
     return StructuredTool.from_function(

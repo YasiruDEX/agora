@@ -13,7 +13,7 @@ from typing import Any, Optional
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from pydantic import BaseModel, Field
 
 AGENT_DIR = Path(__file__).resolve().parent
@@ -31,9 +31,9 @@ load_dotenv(AGENT_DIR / ".env", override=True)
 # isolation as the process's working directory — in that case `agents` never
 # exists, but `graph.py` sits right next to this file and imports directly.
 try:
-    from agents.citizen_inquiry_agent.graph import build_graph  # noqa: E402
+    from agents.citizen_inquiry_agent.graph import build_graph, mcp_unavailable_message  # noqa: E402
 except ModuleNotFoundError:
-    from graph import build_graph  # type: ignore[no-redef]  # noqa: E402
+    from graph import build_graph, mcp_unavailable_message  # type: ignore[no-redef]  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("citizen_inquiry_agent")
@@ -73,8 +73,20 @@ async def chat(request: ChatRequest) -> ChatResponse:
     config = {"configurable": {"thread_id": request.session_id}}
     result = await graph.ainvoke({"messages": [HumanMessage(content=request.message)]}, config=config)
 
-    final_message = result["messages"][-1]
-    response_text = final_message.content if isinstance(final_message, AIMessage) else str(final_message.content)
+    # If search_knowledge_base hit the "MCP server not available" fallback this
+    # turn, respond with that exact message rather than the model's own
+    # paraphrase of it -- the LLM can reword tool output, but this fallback is
+    # a fixed, user-facing notice and must always come through verbatim.
+    unavailable_notice = mcp_unavailable_message()
+    mcp_is_down = any(
+        isinstance(m, ToolMessage) and m.content == unavailable_notice for m in result["messages"]
+    )
+
+    if mcp_is_down:
+        response_text = unavailable_notice
+    else:
+        final_message = result["messages"][-1]
+        response_text = final_message.content if isinstance(final_message, AIMessage) else str(final_message.content)
 
     logger.info("Responding to session_id=%s with: %r", request.session_id, response_text)
     return ChatResponse(response=response_text)
