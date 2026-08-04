@@ -88,7 +88,7 @@ mcp = FastMCP("payment-gateway", host=MCP_HOST, port=MCP_PORT)
 
 
 @mcp.tool()
-def create_payment_link(assessment_no: str, quarter: str, amount_lkr: float) -> str:
+def create_payment_link(assessment_no: str, quarter: str, amount_usd: float) -> str:
     """Generate a mock municipal payment gateway checkout link for a tax quarter.
 
     Creates or updates the corresponding row in `tax_payments` with status
@@ -98,7 +98,7 @@ def create_payment_link(assessment_no: str, quarter: str, amount_lkr: float) -> 
     Args:
         assessment_no: The property's assessment number.
         quarter: Quarter being paid, e.g. 'Q1'.
-        amount_lkr: Final amount in LKR to collect (with any discount or
+        amount_usd: Final amount in USD to collect (with any discount or
             surcharge already applied by the caller).
     """
     conn = _connect()
@@ -117,20 +117,20 @@ def create_payment_link(assessment_no: str, quarter: str, amount_lkr: float) -> 
             conn.execute(
                 "UPDATE tax_payments SET amount_paid = ?, payment_status = 'PENDING_GATEWAY', "
                 "transaction_id = ?, updated_at = CURRENT_TIMESTAMP WHERE receipt_no = ?",
-                (amount_lkr, txn_id, existing["receipt_no"]),
+                (amount_usd, txn_id, existing["receipt_no"]),
             )
         else:
             conn.execute(
                 "INSERT INTO tax_payments "
                 "(receipt_no, assessment_no, year, quarter, amount_paid, payment_status, transaction_id) "
                 "VALUES (?, ?, ?, ?, ?, 'PENDING_GATEWAY', ?)",
-                (f"PEND-{txn_id}", assessment_no, year, quarter, amount_lkr, txn_id),
+                (f"PEND-{txn_id}", assessment_no, year, quarter, amount_usd, txn_id),
             )
         conn.commit()
 
         return (
             f"Payment link created for assessment {assessment_no} ({quarter} {year}), "
-            f"amount LKR {amount_lkr:,.2f}.\n"
+            f"amount ${amount_usd:,.2f}.\n"
             f"Checkout URL: {checkout_url}\n"
             f"Transaction ID: {txn_id}\n"
             f"Status: PENDING_GATEWAY (awaiting settlement)."
@@ -171,11 +171,11 @@ def verify_and_settle_payment(transaction_id: str) -> str:
 
         settled_at = datetime.now().strftime("%Y-%m-%d %H:%M")
         return (
-            "=== MUNICIPAL TAX PAYMENT RECEIPT (SIMULATED) ===\n"
+            "=== RIVERSIDE COUNTY TAX PAYMENT RECEIPT (SIMULATED) ===\n"
             f"Receipt No.     : {receipt_no}\n"
             f"Assessment No.  : {row['assessment_no']}\n"
             f"Period          : {row['quarter']} {row['year']}\n"
-            f"Amount Paid     : LKR {row['amount_paid']:,.2f}\n"
+            f"Amount Paid     : ${row['amount_paid']:,.2f}\n"
             f"Transaction ID  : {transaction_id}\n"
             f"Settled At      : {settled_at}\n"
             "Status          : PAID\n"

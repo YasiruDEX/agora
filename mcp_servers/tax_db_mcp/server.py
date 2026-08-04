@@ -51,11 +51,11 @@ SCHEMA: dict[str, dict[str, Any]] = {
 }
 
 SEED_PROPERTIES = [
-    ("PROP-COL-2026-88", "197508100V", "K. L. Perera", "No. 55, Ward Place, Colombo 07", 250000.0, 12500.0),
+    ("PROP-RVC-2026-88", "DL-F97508100", "Karen L. Peterson", "55 Ward Pl, Riverside, CA 92501", 250000.0, 625.0),
 ]
 
 SEED_TAX_PAYMENTS = [
-    ("PEND-PROP-COL-2026-88-2026Q1", "PROP-COL-2026-88", 2026, "Q1", 0.0, "UNPAID", None),
+    ("PEND-PROP-RVC-2026-88-2026Q1", "PROP-RVC-2026-88", 2026, "Q1", 0.0, "UNPAID", None),
 ]
 
 
@@ -179,8 +179,8 @@ def db_read_record(table_name: str, query_params: dict[str, Any]) -> str:
 
     Args:
         table_name: 'properties' or 'tax_payments'.
-        query_params: Column-value pairs to filter by (e.g. {"assessment_no": "PROP-COL-2026-88"}
-            or {"nic": "197508100V"}). Pass an empty dict to fetch all rows (capped at 50).
+        query_params: Column-value pairs to filter by (e.g. {"assessment_no": "PROP-RVC-2026-88"}
+            or {"nic": "DL-F97508100"}). Pass an empty dict to fetch all rows (capped at 50).
     """
     _validate_table(table_name)
     filters = _filter_columns(table_name, query_params)

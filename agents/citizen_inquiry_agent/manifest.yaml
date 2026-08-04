@@ -59,7 +59,7 @@ spec:
       type: string
       required: true
       description: Official department fallback contact email.
-      example: "permits.licensing@localauthority.gov.lk"
+      example: "permits.licensing@riversidecounty.gov"
 
     - name: OFFICE_HOURS_INFO
       type: string

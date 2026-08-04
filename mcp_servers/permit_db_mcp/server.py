@@ -59,35 +59,35 @@ SCHEMA: dict[str, dict[str, Any]] = {
 SEED_BY_CATEGORY: dict[str, dict[str, list[tuple]]] = {
     "BUILDING_PLAN": {
         "applicants": [
-            ("198204100V", "Ariyawansa Gunasekera", "0771112233", "No. 23, Station Road, Maharagama"),
-            ("851234567V", "Kamal Perera", "0771234567", "No. 12, Temple Road, Nugegoda"),
+            ("DL-A4521987", "James Anderson", "(951) 555-0112", "123 Magnolia Ave, Riverside, CA 92501"),
+            ("DL-B8812345", "Michael Torres", "(951) 555-0134", "456 Main St, Corona, CA 92879"),
         ],
         "applications": [
-            ("APP-BP-5001", "198204100V", "BUILDING_PLAN", "No. 23, Station Road, Maharagama", 2200.0, "INSPECTION_SCHEDULED", "2026-08-18", None),
-            ("APP-BP-1001", "851234567V", "BUILDING_PLAN", "No. 12, Temple Road, Nugegoda", 1850.0, "INSPECTION_SCHEDULED", "2026-08-12", None),
-            ("APP-SL-2001", "851234567V", "STREET_LINE", "No. 12, Temple Road, Nugegoda", None, "DOCUMENTS_PENDING", None, None),
+            ("APP-BP-5001", "DL-A4521987", "BUILDING_PLAN", "123 Magnolia Ave, Riverside, CA 92501", 2200.0, "INSPECTION_SCHEDULED", "2026-08-18", None),
+            ("APP-BP-1001", "DL-B8812345", "BUILDING_PLAN", "456 Main St, Corona, CA 92879", 1850.0, "INSPECTION_SCHEDULED", "2026-08-12", None),
+            ("APP-SL-2001", "DL-B8812345", "STREET_LINE", "456 Main St, Corona, CA 92879", None, "DOCUMENTS_PENDING", None, None),
         ],
     },
     "TRADE_LICENSE": {
         "applicants": [
-            ("199012300V", "Chathurika Wickramasinghe", "0774445566", "No. 88, Main Street, Kandy"),
-            ("770099887V", "Ruwan Jayasuriya", "0712223344", "No. 7, Lake Drive, Colombo 08"),
+            ("DL-C99012300", "Sarah Mitchell", "(951) 555-0145", "88 Palm Canyon Dr, Palm Desert, CA 92260"),
+            ("DL-D70099887", "David Chen", "(951) 555-0167", "7 Lakeview Dr, Temecula, CA 92590"),
         ],
         "applications": [
-            ("APP-TL-6001", "199012300V", "TRADE_LICENSE", "No. 88, Main Street, Kandy", 450.0, "DOCUMENTS_PENDING", None, None),
-            ("APP-TL-3001", "770099887V", "TRADE_LICENSE", "No. 7, Lake Drive, Colombo 08", 620.0, "APPROVED", None, None),
+            ("APP-TL-6001", "DL-C99012300", "TRADE_LICENSE", "88 Palm Canyon Dr, Palm Desert, CA 92260", 450.0, "DOCUMENTS_PENDING", None, None),
+            ("APP-TL-3001", "DL-D70099887", "TRADE_LICENSE", "7 Lakeview Dr, Temecula, CA 92590", 620.0, "APPROVED", None, None),
         ],
     },
     "DEFAULT": {
         "applicants": [
-            ("851234567V", "Kamal Perera", "0771234567", "No. 12, Temple Road, Nugegoda"),
-            ("923456789V", "Nimal Silva", "0779876543", "No. 45, Galle Road, Dehiwala"),
-            ("770099887V", "Ruwan Jayasuriya", "0712223344", "No. 7, Lake Drive, Colombo 08"),
+            ("DL-B8812345", "Michael Torres", "(951) 555-0134", "456 Main St, Corona, CA 92879"),
+            ("DL-E23456789", "Robert Martinez", "(951) 555-0198", "45 Sunrise Ave, Moreno Valley, CA 92553"),
+            ("DL-D70099887", "David Chen", "(951) 555-0167", "7 Lakeview Dr, Temecula, CA 92590"),
         ],
         "applications": [
-            ("APP-BP-1001", "851234567V", "BUILDING_PLAN", "No. 12, Temple Road, Nugegoda", 1850.0, "INSPECTION_SCHEDULED", "2026-08-12", None),
-            ("APP-SL-2001", "923456789V", "STREET_LINE", "No. 45, Galle Road, Dehiwala", None, "DOCUMENTS_PENDING", None, None),
-            ("APP-TL-3001", "770099887V", "TRADE_LICENSE", "No. 7, Lake Drive, Colombo 08", 620.0, "APPROVED", None, None),
+            ("APP-BP-1001", "DL-B8812345", "BUILDING_PLAN", "456 Main St, Corona, CA 92879", 1850.0, "INSPECTION_SCHEDULED", "2026-08-12", None),
+            ("APP-SL-2001", "DL-E23456789", "STREET_LINE", "45 Sunrise Ave, Moreno Valley, CA 92553", None, "DOCUMENTS_PENDING", None, None),
+            ("APP-TL-3001", "DL-D70099887", "TRADE_LICENSE", "7 Lakeview Dr, Temecula, CA 92590", 620.0, "APPROVED", None, None),
         ],
     },
 }
@@ -226,7 +226,7 @@ def db_read_record(table_name: str, query_params: dict[str, Any]) -> str:
 
     Args:
         table_name: 'applicants' or 'permit_applications'.
-        query_params: Column-value pairs to filter by (e.g. {"nic": "851234567V"}
+        query_params: Column-value pairs to filter by (e.g. {"nic": "DL-B8812345"}
             or {"app_id": "APP-BP-1001"}). Pass an empty dict to fetch all rows
             (capped at 50).
     """

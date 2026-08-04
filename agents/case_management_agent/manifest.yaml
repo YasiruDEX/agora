@@ -89,7 +89,7 @@ spec:
       type: string
       required: true
       description: Official department fallback contact email.
-      example: "cases@council.gov.lk"
+      example: "cases@riversidecounty.gov"
 
     - name: OFFICE_HOURS_INFO
       type: string

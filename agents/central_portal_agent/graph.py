@@ -1,6 +1,6 @@
 """LangGraph runnable for the Central Portal Chat Agent.
 
-The primary AI assistant on the main gov.lk / gic.gov.lk portal home page.
+The primary AI assistant on the main Riverside County citizen portal home page.
 Unlike every department agent (which pins search_knowledge_base to one
 KB_NAMESPACE), this agent binds search_all_government_knowledge -- a fan-out
 wrapper (see tools.py) over the same local-kb MCP tool that searches every
@@ -59,7 +59,7 @@ REQUIRED_ENV = [
     "OFFICE_HOURS_INFO",
 ]
 
-LANGUAGE_NAMES = {"en": "English", "si": "Sinhala", "ta": "Tamil"}
+LANGUAGE_NAMES = {"en": "English"}
 
 
 class CentralPortalState(MessagesState):

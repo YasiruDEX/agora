@@ -57,7 +57,7 @@ components:
       properties:
         message:
           type: string
-          example: Check status for NIC 198204100V
+          example: Check status for NIC DL-A4521987
         session_id:
           type: string
           example: session-permits-1732900000

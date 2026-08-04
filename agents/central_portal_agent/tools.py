@@ -2,7 +2,7 @@
 
 Every department agent (citizen_inquiry_agent, tax_assistance_agent, etc.) pins
 `search_knowledge_base` to its own single KB_NAMESPACE. This agent is the front
-door on the main gov.lk / gic.gov.lk portal -- it doesn't know in advance which
+door on the main Riverside County citizen portal -- it doesn't know in advance which
 department a citizen's question belongs to, so it fans a query out across every
 configured namespace (or a caller-specified one) and deduplicates overlapping
 results before returning them to the LLM.
@@ -164,7 +164,7 @@ def build_search_all_government_knowledge_tool(
         coroutine=_search_all,
         name="search_all_government_knowledge",
         description=(
-            "Search the Sri Lankan government knowledge base for a citizen's question. "
+            "Search the Riverside County government knowledge base for a citizen's question. "
             f"Configured department namespaces: {', '.join(all_namespaces)}."
         ),
         args_schema=SearchAllGovernmentKnowledgeArgs,

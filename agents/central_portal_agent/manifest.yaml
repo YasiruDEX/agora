@@ -5,8 +5,8 @@ metadata:
   name: Central Portal Chat Agent
   version: 1.0.0
   description: >-
-    Primary AI assistant on the main Sri Lanka Government Portal (gov.lk /
-    gic.gov.lk) home page. Unlike the department-scoped Citizen Inquiry Agent
+    Primary AI assistant on the main Riverside County citizen portal home page.
+    Unlike the department-scoped Citizen Inquiry Agent
     template, this is a singleton that searches across every configured
     department knowledge base namespace at once via search_all_government_knowledge,
     so citizens can ask broad, cross-departmental questions from a single
@@ -72,13 +72,13 @@ spec:
       type: string
       required: true
       description: Default opening greeting shown in the chat UI.
-      example: "Ayubowan! I am your Central Government Information Assistant."
+      example: "Hello! I am your Central Government Information Assistant."
 
     - name: SUPPORT_EMAIL_CONTACT
       type: string
       required: true
       description: Fallback contact email when no knowledge base answer is found.
-      example: "info@gic.gov.lk"
+      example: "info@riversidecounty.gov"
 
     - name: OFFICE_HOURS_INFO
       type: string

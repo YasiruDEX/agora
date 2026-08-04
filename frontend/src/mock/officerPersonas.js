@@ -1,5 +1,5 @@
 /**
- * Pool of illustrative Sri Lankan human-officer personas per agent kind.
+ * Pool of illustrative Riverside County human-officer personas per agent kind.
  * Every new chat session is assigned one deterministically (hashed from the
  * session ID) so the same session always sees the same "officer", while
  * different sessions/visits see different ones. For the Case Management
@@ -9,35 +9,35 @@
 
 export const OFFICER_POOLS = {
   'citizen-inquiry': [
-    { id: 'selvarajah', name: 'T. Selvarajah', designationKey: 'informationOfficer' },
-    { id: 'nizar-citizen', name: 'Farhana Nizar', designationKey: 'citizenServicesOfficer' },
-    { id: 'jayasuriya', name: 'R. M. Jayasuriya', designationKey: 'contactCenterCoordinator' },
+    { id: 'thompson', name: 'T. Thompson', designationKey: 'informationOfficer' },
+    { id: 'nguyen-citizen', name: 'Farrah Nguyen', designationKey: 'citizenServicesOfficer' },
+    { id: 'reyes', name: 'R. M. Reyes', designationKey: 'contactCenterCoordinator' },
   ],
   'benefits-eligibility': [
-    { id: 'wijesinghe', name: 'K. P. Wijesinghe', designationKey: 'socialServicesOfficer' },
-    { id: 'fernando', name: 'Dilani Fernando', designationKey: 'welfareBenefitsOfficer' },
-    { id: 'rajapaksha', name: 'S. Rajapaksha', designationKey: 'eligibilityAssessor' },
+    { id: 'kingston', name: 'K. P. Kingston', designationKey: 'socialServicesOfficer' },
+    { id: 'delgado', name: 'Dana Delgado', designationKey: 'welfareBenefitsOfficer' },
+    { id: 'ramirez', name: 'S. Ramirez', designationKey: 'eligibilityAssessor' },
   ],
   'case-management': [
     { id: 'ellis', name: 'Joan Ellis', designationKey: 'seniorCaseworker' },
     { id: 'lee', name: 'Marcus Lee', designationKey: 'caseworker' },
   ],
   'permits-building': [
-    { id: 'gunasekera', name: 'A. B. Gunasekera', designationKey: 'buildingInspector' },
-    { id: 'de-silva', name: 'Chaminda de Silva', designationKey: 'permitsOfficer' },
+    { id: 'hayes', name: 'A. B. Hayes', designationKey: 'buildingInspector' },
+    { id: 'de-silva', name: 'Chad de Silva', designationKey: 'permitsOfficer' },
   ],
   'permits-business': [
-    { id: 'wickramasinghe', name: 'N. Wickramasinghe', designationKey: 'licensingOfficer' },
-    { id: 'perera-b', name: 'Buddhika Perera', designationKey: 'tradeLicenseOfficer' },
+    { id: 'winters', name: 'N. Winters', designationKey: 'licensingOfficer' },
+    { id: 'porter-b', name: 'Bradley Porter', designationKey: 'tradeLicenseOfficer' },
   ],
   'tax-assistance': [
-    { id: 'perera-kl', name: 'K. L. Perera', designationKey: 'seniorRevenueInspector' },
-    { id: 'nizar-tax', name: 'Farhana Nizar', designationKey: 'assessmentOfficer' },
-    { id: 'bandara', name: 'M. Bandara', designationKey: 'revenueCollector' },
+    { id: 'porter-kl', name: 'K. L. Porter', designationKey: 'seniorRevenueInspector' },
+    { id: 'nguyen-tax', name: 'Farrah Nguyen', designationKey: 'assessmentOfficer' },
+    { id: 'bandera', name: 'M. Bandera', designationKey: 'revenueCollector' },
   ],
   'records-foia': [
-    { id: 'selvarajah-records', name: 'T. Selvarajah', designationKey: 'informationOfficer' },
-    { id: 'jayawardena', name: 'S. Jayawardena', designationKey: 'recordsComplianceOfficer' },
+    { id: 'thompson-records', name: 'T. Thompson', designationKey: 'informationOfficer' },
+    { id: 'jennings', name: 'S. Jennings', designationKey: 'recordsComplianceOfficer' },
   ],
 }
 

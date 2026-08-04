@@ -41,7 +41,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Noto Sans", "Noto Sans Sinhala", "Noto Sans Tamil", "system-ui", "sans-serif"],
+        sans: ["Noto Sans", "system-ui", "sans-serif"],
       },
       boxShadow: {
         gov: "0 1px 3px rgba(30, 41, 59, 0.12), 0 1px 2px rgba(30, 41, 59, 0.08)",

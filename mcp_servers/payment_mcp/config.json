@@ -13,7 +13,7 @@
           "parameters": {
             "assessment_no": {"type": "string", "required": true, "description": "The property's assessment number."},
             "quarter": {"type": "string", "required": true, "description": "Quarter being paid, e.g. 'Q1'."},
-            "amount_lkr": {"type": "number", "required": true, "description": "Final amount in LKR to collect."}
+            "amount_usd": {"type": "number", "required": true, "description": "Final amount in USD to collect."}
           }
         },
         {

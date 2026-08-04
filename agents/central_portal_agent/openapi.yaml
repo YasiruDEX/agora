@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Central Portal Chat Agent
   description: >-
-    Primary AI assistant on the main Sri Lanka Government Portal home page.
+    Primary AI assistant on the main Riverside County citizen portal home page.
     A singleton that searches across every configured department knowledge
     base namespace at once via search_all_government_knowledge, so citizens
     can ask broad, cross-departmental questions from a single portal search

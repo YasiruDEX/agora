@@ -20,7 +20,7 @@
           "description": "Fetches rows matching query_params from 'citizens' or 'welfare_applications'.",
           "parameters": {
             "table_name": {"type": "string", "required": true, "description": "'citizens' or 'welfare_applications'."},
-            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"nic\": \"851234567V\"}."}
+            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"nic\": \"DL-B8812345\"}."}
           }
         },
         {

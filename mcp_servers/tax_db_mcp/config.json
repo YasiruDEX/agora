@@ -20,7 +20,7 @@
           "description": "Fetches rows matching query_params from 'properties' or 'tax_payments'.",
           "parameters": {
             "table_name": {"type": "string", "required": true, "description": "'properties' or 'tax_payments'."},
-            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"assessment_no\": \"PROP-COL-2026-88\"}."}
+            "query_params": {"type": "object", "required": true, "description": "Column-value pairs to filter by, e.g. {\"assessment_no\": \"PROP-RVC-2026-88\"}."}
           }
         },
         {

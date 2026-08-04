@@ -172,7 +172,7 @@ def _build_records_tools(raw_read_tool, raw_create_tool, raw_update_tool, raw_re
             reason = record.get("exemption_reason") or "Reason not specified."
             return (
                 f"EXEMPTION NOTICE: Record '{record_id}' (\"{record['title']}\") is exempt from disclosure "
-                f"under Sri Lanka's Right to Information framework.\n"
+                f"under the California Public Records Act (CPRA).\n"
                 f"Exemption reason: {reason}\n"
                 "The underlying content of this record cannot be released."
             )

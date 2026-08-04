@@ -4,36 +4,22 @@ import { Phone, Search } from 'lucide-react'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 export default function Header() {
-  const { t, lang, setLang, languages } = useLanguage()
+  const { t } = useLanguage()
   const [search, setSearch] = useState('')
 
   return (
     <header className="sticky top-0 z-40 shadow-gov">
       {/* Top utility bar */}
       <div className="bg-slateink text-white text-xs">
-        <div className="mx-auto max-w-7xl px-4 flex items-center justify-between h-9">
-          <div className="flex items-center gap-1.5">
-            {languages.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                className={`px-2 py-0.5 rounded transition-colors ${
-                  lang === l.code ? 'bg-gold text-slateink font-semibold' : 'text-slate-200 hover:text-white'
-                }`}
-                aria-pressed={lang === l.code}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
+        <div className="mx-auto max-w-7xl px-4 flex items-center justify-end h-9">
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline text-slate-300">{t('header.hotlineLabel')}</span>
             <a
-              href="tel:1919"
+              href="tel:311"
               className="inline-flex items-center gap-1.5 bg-maroon text-white font-bold px-2.5 py-0.5 rounded-full"
             >
               <Phone className="w-3 h-3" strokeWidth={2.5} />
-              1919
+              311
             </a>
           </div>
         </div>
@@ -43,7 +29,7 @@ export default function Header() {
       <div className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-4">
           <Link to="/" className="flex items-center gap-3 shrink-0">
-            <img src="/images/emblem_sri_lanka.svg" alt="National Emblem of Sri Lanka (stylized, demo)" className="w-12 h-12" />
+            <img src="/images/emblem_riverside_county.svg" alt="Riverside County Seal (stylized, demo)" className="w-12 h-12" />
             <div className="leading-tight">
               <p className="font-bold text-slateink text-base sm:text-lg">{t('header.portalName')}</p>
               <p className="text-[11px] sm:text-xs text-maroon font-medium">{t('header.portalSub')}</p>

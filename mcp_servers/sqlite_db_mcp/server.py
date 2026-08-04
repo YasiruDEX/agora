@@ -41,14 +41,14 @@ SCHEMA: dict[str, dict[str, Any]] = {
 }
 
 SEED_CITIZENS = [
-    ("851234567V", "Kamal Perera", 67, 8500.0, "0771234567"),
-    ("923456789V", "Nimal Silva", 45, 22000.0, "0779876543"),
-    ("601122334V", "Somawathie Fernando", 72, 6000.0, "0765554433"),
+    ("DL-B8812345", "Michael Torres", 67, 1800.0, "(951) 555-0134"),
+    ("DL-E23456789", "Robert Martinez", 45, 3200.0, "(951) 555-0198"),
+    ("DL-G60112233", "Eleanor Watson", 72, 1350.0, "(951) 555-0176"),
 ]
 
 SEED_APPLICATIONS = [
-    ("APP-0001", "851234567V", "senior_citizen_allowance", "approved", "Verified by GN certificate.", None),
-    ("APP-0002", "601122334V", "medical_low_income_aid", "pending", "Awaiting PHI home visit report.", None),
+    ("APP-0001", "DL-B8812345", "senior_citizen_allowance", "approved", "Verified by County Caseworker.", None),
+    ("APP-0002", "DL-G60112233", "medical_low_income_aid", "pending", "Awaiting home visit report from County Environmental Health Specialist.", None),
 ]
 
 
@@ -174,7 +174,7 @@ def db_read_record(table_name: str, query_params: dict[str, Any]) -> str:
 
     Args:
         table_name: 'citizens' or 'welfare_applications'.
-        query_params: Column-value pairs to filter by (e.g. {"nic": "851234567V"}).
+        query_params: Column-value pairs to filter by (e.g. {"nic": "DL-B8812345"}).
             Pass an empty dict to fetch all rows (capped at 50).
     """
     _validate_table(table_name)

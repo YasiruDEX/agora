@@ -73,7 +73,7 @@ spec:
       type: string
       required: true
       description: Official department fallback contact email.
-      example: "socialservices@council.gov.lk"
+      example: "socialservices@riversidecounty.gov"
 
     - name: OFFICE_HOURS_INFO
       type: string
@@ -84,7 +84,7 @@ spec:
       type: number
       required: true
       default: 15000
-      description: Maximum monthly household income (LKR) to pre-qualify for income-based benefits.
+      description: Maximum monthly household income (USD) to pre-qualify for income-based benefits.
 
     - name: MIN_SENIOR_CITIZEN_AGE
       type: integer

@@ -51,9 +51,9 @@ and keep the plan in sync. Commit iteratively.
 # Implementation Reference
 
 The sections above are the original demo plan. Everything below documents what has actually been
-built so far: a multi-departmental government service portal (`gov.lk` / `gic.gov.lk`) backed by
+built so far: a multi-departmental government service portal (`riversidecounty.gov`) backed by
 independent, domain-scoped LangGraph agents and Model Context Protocol (MCP) tool servers, plus a
-React frontend. This is a demo/reference build, not the official gov.lk website.
+React frontend. This is a demo/reference build for a fictional "Riverside County," not a real government website.
 
 ## System Architecture
 
@@ -190,7 +190,7 @@ startup (only re-embedding files whose content changed), or it can be pre-warmed
 - **Stack**: React 19 + Vite 8, Tailwind CSS 3, `lucide-react` icons, `react-router-dom` 7,
   `react-markdown` for rendering agent responses.
 - **`src/i18n/`** — `LanguageContext.jsx` provides a `t()` lookup over `translations.js`
-  (English / Sinhala / Tamil), covering navigation, hero copy, service directory, gazette
+  (English), covering navigation, hero copy, service directory, gazette
   notices, and every chat/agent-facing string.
 - **`src/mock/`** — `agentMocks.js` is a fully localized, self-contained mock agent engine (no
   backend required) simulating tool-execution steps and structured response cards per agent kind;

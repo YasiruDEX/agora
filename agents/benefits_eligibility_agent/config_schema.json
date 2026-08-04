@@ -45,7 +45,7 @@
     },
     "MAX_MONTHLY_INCOME_THRESHOLD": {
       "type": "number",
-      "title": "Max Monthly Income Threshold (LKR)",
+      "title": "Max Monthly Income Threshold (USD)",
       "default": 15000,
       "minimum": 0
     },

@@ -7,7 +7,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-16 bg-slateink text-slate-300">
-      <img src="/images/flag_strip.svg" alt="" className="w-full h-1.5 object-cover" />
+      <img src="/images/banner_strip_riverside.svg" alt="" className="w-full h-1.5 object-cover" />
 
       <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
         <div>
@@ -52,7 +52,7 @@ export default function Footer() {
         <div>
           <p className="text-white font-semibold mb-2">{t('footer.emergencyHeading')}</p>
           <ul className="space-y-1.5">
-            <li>{t('footer.infoCenter')}: <span className="text-gold font-semibold">1919</span></li>
+            <li>{t('footer.infoCenter')}: <span className="text-gold font-semibold">311</span></li>
             <li>{t('footer.police')}: <span className="text-gold font-semibold">119</span></li>
             <li>{t('footer.ambulance')}: <span className="text-gold font-semibold">110</span></li>
             <li>{t('footer.disaster')}: <span className="text-gold font-semibold">117</span></li>

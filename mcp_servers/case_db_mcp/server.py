@@ -44,8 +44,8 @@ SCHEMA: dict[str, dict[str, Any]] = {
 }
 
 SEED_CASES = [
-    ("CASE-2026-001", "845567123V", "Sunethra Dias", "joan.ellis", "BENEFITS_REVIEW", "OPEN"),
-    ("CASE-2026-002", "923456789V", "Nimal Silva", "marcus.lee", "MEDICAL_AID_ASSESSMENT", "PENDING_REVIEW"),
+    ("CASE-2026-001", "DL-H84556712", "Linda Foster", "joan.ellis", "BENEFITS_REVIEW", "OPEN"),
+    ("CASE-2026-002", "DL-E23456789", "Robert Martinez", "marcus.lee", "MEDICAL_AID_ASSESSMENT", "PENDING_REVIEW"),
 ]
 
 SEED_NOTES = [

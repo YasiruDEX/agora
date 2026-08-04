@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://agora.local/schemas/central-portal-agent-config.json",
   "title": "Central Portal Chat Agent - Instantiation Config",
-  "description": "Input form schema used by WSO2 Agent Manager to instantiate the singleton Central Portal Chat Agent for the gov.lk / gic.gov.lk home page.",
+  "description": "Input form schema used by WSO2 Agent Manager to instantiate the singleton Central Portal Chat Agent for the riversidecounty.gov home page.",
   "type": "object",
   "properties": {
     "PORT": {
