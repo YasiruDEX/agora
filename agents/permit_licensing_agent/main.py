@@ -25,7 +25,7 @@ REPO_ROOT = AGENT_DIR.parent.parent
 # instance (its own port, department identity, and PERMIT_DB_PATH).
 AGENT_ENV_FILE = os.environ.get("AGENT_ENV_FILE", ".env")
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own env file and
 # overrides anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -54,7 +54,7 @@ class ChatResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Building LangGraph runnable (LLM + Pinecone MCP + Permit DB MCP + A2A tool)...")
+    logger.info("Building LangGraph runnable (LLM + local KB MCP + Permit DB MCP + A2A tool)...")
     app.state.graph = await build_graph()
     logger.info("Permit & Licensing Agent ready.")
     yield

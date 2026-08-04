@@ -24,6 +24,10 @@ venv/
 data/*.db
 data/*.sqlite
 data/*.sqlite3
+mcp_servers/local_kb_mcp/kb_index_cache.json
+
+# Scratch scripts for manual/local testing, not part of the shipped repo
+local_dev/
 
 
 commands.txt

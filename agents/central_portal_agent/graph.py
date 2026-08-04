@@ -3,7 +3,7 @@
 The primary AI assistant on the main gov.lk / gic.gov.lk portal home page.
 Unlike every department agent (which pins search_knowledge_base to one
 KB_NAMESPACE), this agent binds search_all_government_knowledge -- a fan-out
-wrapper (see tools.py) over the same pinecone-kb MCP tool that searches every
+wrapper (see tools.py) over the same local-kb MCP tool that searches every
 configured department namespace (or one, if the citizen's question clearly
 names a department) and reports back which namespace(s) contributed.
 """
@@ -37,7 +37,7 @@ AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific config lives in this agent's own .env and takes precedence
 # over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -45,10 +45,10 @@ load_dotenv(AGENT_DIR / ".env", override=True)
 
 # Remote MCP server endpoint. Read AFTER load_dotenv() so a URL set in either
 # .env file actually takes effect. Defaults assume the server is running
-# locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/pinecone_kb_mcp/server.py);
+# locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/local_kb_mcp/server.py);
 # in a real deployment this is injected by the platform (e.g. pointed at an
 # Agent Manager MCP proxy in front of the server).
-PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+KB_MCP_URL = os.environ.get("KB_MCP_URL", "http://localhost:9001/sse")
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -57,8 +57,6 @@ REQUIRED_ENV = [
     "WELCOME_MESSAGE",
     "SUPPORT_EMAIL_CONTACT",
     "OFFICE_HOURS_INFO",
-    "PINECONE_API_KEY",
-    "PINECONE_INDEX_NAME",
 ]
 
 LANGUAGE_NAMES = {"en": "English", "si": "Sinhala", "ta": "Tamil"}
@@ -108,11 +106,11 @@ def _language_instruction(language: str) -> str:
 
 
 async def _discover_mcp_tools() -> list:
-    """Connect to the pinecone-kb MCP server and dynamically discover its tools."""
+    """Connect to the local-kb MCP server and dynamically discover its tools."""
     client = MultiServerMCPClient(
         {
-            "pinecone-kb": {
-                "url": PINECONE_MCP_URL,
+            "local-kb": {
+                "url": KB_MCP_URL,
                 "transport": "sse",
             }
         }

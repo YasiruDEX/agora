@@ -77,9 +77,10 @@ React frontend. This is a demo/reference build, not the official gov.lk website.
                    │                                │  │  from every other citizen-facing agent
                    ▼                                │  │
         ┌───────────────────────┐                   │  │
-        │ pinecone-kb MCP        │◄──────────────────┘  │
+        │ local-kb MCP           │◄──────────────────┘  │
         │ search_knowledge_base  │                       │
-        │ (5 namespaces)         │                       │
+        │ (5 namespaces, local   │                       │
+        │  RAG index, no ext DB) │                       │
         └───────────────────────┘                       │
                                                           │
    ┌───────────────────┬────────────────────┬────────────┴───────┬───────────────────────┐
@@ -109,14 +110,14 @@ no separate MCP gateway process to run.
 
 | Agent (codebase)                             | Port(s)     | Department / Instance                          | `targetLlmTier` (provider / model)                          | Primary MCP tools                                                                 |
 | --------------------------------------------- | ----------- | ----------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `central_portal_agent`                        | 8007        | Government Information Center (GIC 1919)        | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base` fanned out across all 5 KB namespaces          |
-| `citizen_inquiry_agent`                       | 8001        | Contact Center (generic per-department template) | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base` scoped to one `KB_NAMESPACE`                   |
-| `benefits_eligibility_agent`                  | 8000        | Department of Social Services                    | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base`, `sqlite-db-mcp` CRUD on `citizens` / `welfare_applications` |
-| `permit_licensing_agent` (Building Permits)   | 8002        | Permits & Licensing — Building Permits Division  | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base`, `permit-db-mcp` CRUD (`PERMIT_DB_PATH=data/building_permits.db`) |
-| `permit_licensing_agent` (Business Licenses)  | 8003        | Permits & Licensing — Business & Trade Licenses  | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base`, `permit-db-mcp` CRUD (`PERMIT_DB_PATH=data/business_licenses.db`) |
-| `tax_assistance_agent`                        | 8004        | Tax & Revenue Department                         | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base`, `tax-db-mcp` CRUD, `payment-mcp` (`create_payment_link`, `verify_and_settle_payment`) |
-| `case_management_agent`                       | 8005        | Department of Social Services (Caseworker portal)| `on-prem` (`onprem-vllm` / `llama-3-70b-instruct`)             | `pinecone-kb.search_knowledge_base`, `case-db-mcp` CRUD wrapped in OBO-scoped tools |
-| `records_foia_agent`                          | 8006        | Department of Records & Compliance               | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `pinecone-kb.search_knowledge_base`, `records-db-mcp` CRUD + `redact_pii_text`     |
+| `central_portal_agent`                        | 8007        | Government Information Center (GIC 1919)        | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base` fanned out across all 5 KB namespaces          |
+| `citizen_inquiry_agent`                       | 8001        | Contact Center (generic per-department template) | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base` scoped to one `KB_NAMESPACE`                   |
+| `benefits_eligibility_agent`                  | 8000        | Department of Social Services                    | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base`, `sqlite-db-mcp` CRUD on `citizens` / `welfare_applications` |
+| `permit_licensing_agent` (Building Permits)   | 8002        | Permits & Licensing — Building Permits Division  | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base`, `permit-db-mcp` CRUD (`PERMIT_DB_PATH=data/building_permits.db`) |
+| `permit_licensing_agent` (Business Licenses)  | 8003        | Permits & Licensing — Business & Trade Licenses  | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base`, `permit-db-mcp` CRUD (`PERMIT_DB_PATH=data/business_licenses.db`) |
+| `tax_assistance_agent`                        | 8004        | Tax & Revenue Department                         | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base`, `tax-db-mcp` CRUD, `payment-mcp` (`create_payment_link`, `verify_and_settle_payment`) |
+| `case_management_agent`                       | 8005        | Department of Social Services (Caseworker portal)| `on-prem` (`onprem-vllm` / `llama-3-70b-instruct`)             | `local-kb.search_knowledge_base`, `case-db-mcp` CRUD wrapped in OBO-scoped tools |
+| `records_foia_agent`                          | 8006        | Department of Records & Compliance               | `cloud-standard` (`azure-openai-gov` / `gpt-4o`)               | `local-kb.search_knowledge_base`, `records-db-mcp` CRUD + `redact_pii_text`     |
 
 Every citizen-facing agent above (all except `central_portal_agent`) also carries a
 `consult_citizen_inquiry_agent` agent-to-agent tool that forwards out-of-scope questions to
@@ -141,7 +142,7 @@ per-agent in `agents/<agent>/manifest.yaml`.
 
 | Server (`config.json` key) | File                                       | Backing store                                    | Tools |
 | --------------------------- | ------------------------------------------- | ------------------------------------------------- | ----- |
-| `pinecone-kb`               | `mcp_servers/pinecone_kb_mcp/server.py`      | Pinecone index (`PINECONE_INDEX_NAME`)             | `search_knowledge_base(namespace, query, top_k=5)` — namespaces: `tax-revenue`, `social-services`, `permits-licensing`, `records-compliance`, `health-environment` |
+| `local-kb`               | `mcp_servers/local_kb_mcp/server.py`      | Local RAG index (`kb_index_cache.json`, embedded with OpenAI, no external vector DB) | `search_knowledge_base(namespace, query, top_k=5)` — namespaces: `tax-revenue`, `social-services`, `permits-licensing`, `records-compliance`, `health-environment` |
 | `sqlite-db-mcp`              | `mcp_servers/sqlite_db_mcp/server.py`        | `data/social_services.db` (`citizens`, `welfare_applications`) | `db_create_record`, `db_read_record`, `db_update_record`, `db_delete_record` |
 | `case-db-mcp`                | `mcp_servers/case_db_mcp/server.py`          | `data/case_management.db` (`cases`, `case_notes`) | `db_read_record`, `db_create_record`, `db_update_record` (no delete — raw tools are wrapped by `graph.py` into OBO-scoped tools before the LLM ever sees them) |
 | `permit-db-mcp`              | `mcp_servers/permit_db_mcp/server.py`        | `PERMIT_DB_PATH` env var, default `data/permits.db`; per-instance `data/building_permits.db` / `data/business_licenses.db` (`applicants`, `permit_applications`) | `db_create_record`, `db_read_record`, `db_update_record`, `db_delete_record` |
@@ -152,9 +153,11 @@ per-agent in `agents/<agent>/manifest.yaml`.
 Table/column names passed to every `db_*` tool are validated against a fixed schema whitelist
 before being interpolated into SQL; only values are ever bound as parameters.
 
-Knowledge base content lives as Markdown under `knowledge_base/<category>/` and is ingested into
-Pinecone via `scripts/ingest_kb_pinecone.py` (chunked with `RecursiveCharacterTextSplitter`,
-embedded with `text-embedding-3-small`, partitioned by namespace).
+Knowledge base content lives as Markdown under `knowledge_base/<category>/` and is chunked,
+embedded with `text-embedding-3-small`, and cached locally per namespace by
+`mcp_servers/local_kb_mcp/kb_index.py` — the MCP server builds/refreshes this index itself on
+startup (only re-embedding files whose content changed), or it can be pre-warmed explicitly with
+`scripts/build_kb_index.py`. There is no external vector database in this pipeline.
 
 ## Key Governance & Security Features
 
@@ -211,8 +214,9 @@ embedded with `text-embedding-3-small`, partitioned by namespace).
 
 - Python 3.11+ (repo's checked-in `.venv` targets 3.11)
 - Node.js 18+ (developed against Node 20)
-- A Pinecone index and an OpenAI API key (only required for real backend mode / KB ingestion —
-  the frontend runs standalone against its mock engine without either)
+- An OpenAI API key (only required for real backend mode — used for both the agents' LLM calls
+  and to embed the knowledge base for the local-kb MCP server's local RAG index; the frontend
+  runs standalone against its mock engine without it)
 
 ### Environment setup
 
@@ -222,23 +226,35 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 cp .env.example .env
-# fill in PINECONE_API_KEY, PINECONE_INDEX_NAME, OPENAI_API_KEY
+# fill in OPENAI_API_KEY
 
 # per-agent department config — copy and adjust as needed
 for d in agents/*/; do cp "$d/.env.example" "$d/.env" 2>/dev/null; done
 ```
 
-### Ingest the knowledge base (one-time, requires Pinecone + OpenAI keys)
+### Build the local knowledge base index (optional, requires an OpenAI key)
 
 ```bash
-python scripts/ingest_kb_pinecone.py
+python scripts/build_kb_index.py       # add --force to re-embed everything
+```
+
+Not required — `mcp_servers/local_kb_mcp/server.py` builds/refreshes this same index itself on
+startup — but pre-warming it here avoids the one-time embedding delay on the server's first run.
+
+### Start the local-kb MCP server
+
+Every citizen-facing agent connects to `local-kb` over SSE (`KB_MCP_URL`, default
+`http://localhost:9001/sse`), so start it before any agent:
+
+```bash
+MCP_TRANSPORT=sse python mcp_servers/local_kb_mcp/server.py
 ```
 
 ### Start the agent services
 
-Each agent is a standalone FastAPI app; MCP servers are spawned automatically by each agent's
-LangGraph tool-binding step, so nothing needs to be started separately for them. Run each agent
-in its own terminal (or background it):
+Each agent is a standalone FastAPI app that connects out to `local-kb` (and any other MCP
+servers it needs) over SSE at startup — nothing is spawned automatically, so the relevant MCP
+servers must already be running. Run each agent in its own terminal (or background it):
 
 ```bash
 # Cloud-tier agents
@@ -288,7 +304,7 @@ agora/
 ├── agents/                  # one directory per agent codebase (manifest.yaml, prompt.md, graph.py, tools.py, main.py)
 ├── mcp_servers/              # stdio MCP tool servers (one directory per server)
 ├── data/                     # per-department SQLite databases
-├── knowledge_base/           # Markdown KB source docs, ingested into Pinecone by department namespace
+├── knowledge_base/           # Markdown KB source docs, indexed locally by department namespace
 ├── scripts/                  # ingestion and verification scripts
 ├── frontend/                 # React + Vite citizen portal UI
 ├── docs/demo-blueprint.html  # visual walkthrough of the demo scenario

@@ -30,14 +30,14 @@
     "ALL_NAMESPACES": {
       "type": "string",
       "title": "All Department Namespaces",
-      "description": "Comma-separated list of Pinecone namespaces searched across when a question isn't scoped to one department.",
+      "description": "Comma-separated list of KB namespaces searched across when a question isn't scoped to one department.",
       "pattern": "^[a-z0-9-]+(,[a-z0-9-]+)*$",
       "examples": ["tax-revenue,social-services,permits-licensing,records-compliance,health-environment"]
     },
     "KB_MIN_RELEVANCE_SCORE": {
       "type": "number",
       "title": "Minimum KB Relevance Score",
-      "description": "Minimum Pinecone cosine-similarity score kept when fanning a query out across every namespace. Not applied to an explicitly-targeted single namespace.",
+      "description": "Minimum KB cosine-similarity score kept when fanning a query out across every namespace. Not applied to an explicitly-targeted single namespace.",
       "default": 0.4,
       "minimum": 0,
       "maximum": 1

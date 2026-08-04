@@ -29,7 +29,7 @@ spec:
 
   tools:
     mcp:
-      - server: pinecone-kb
+      - server: local-kb
         expose:
           - search_knowledge_base
       - server: case-db-mcp
@@ -77,7 +77,7 @@ spec:
     - name: KB_NAMESPACE
       type: string
       required: true
-      description: Target Pinecone namespace for this department's policy knowledge base.
+      description: Target KB namespace for this department's policy knowledge base.
       example: "social-services"
 
     - name: WELCOME_MESSAGE

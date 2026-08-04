@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific config lives in this agent's own .env and overrides anything
 # (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -73,7 +73,7 @@ def _contributing_namespaces(messages: list) -> list[str]:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Building LangGraph runnable (LLM + multi-namespace Pinecone MCP tool)...")
+    logger.info("Building LangGraph runnable (LLM + multi-namespace local KB MCP tool)...")
     app.state.graph = await build_graph()
     logger.info("Central Portal Chat Agent ready on port %d.", PORT)
     yield

@@ -25,7 +25,7 @@ spec:
 
   tools:
     mcp:
-      - server: pinecone-kb
+      - server: local-kb
         expose:
           - search_knowledge_base
 
@@ -55,7 +55,7 @@ spec:
       type: string
       required: true
       description: >-
-        Comma-separated list of Pinecone namespaces this agent searches
+        Comma-separated list of KB namespaces this agent searches
         across when a citizen's question isn't scoped to one department.
       example: "tax-revenue,social-services,permits-licensing,records-compliance,health-environment"
 
@@ -64,7 +64,7 @@ spec:
       required: false
       default: 0.4
       description: >-
-        Minimum Pinecone cosine-similarity score for a result to be kept when
+        Minimum KB cosine-similarity score for a result to be kept when
         fanning a query out across every namespace. Not applied when a
         single department namespace is explicitly targeted.
 

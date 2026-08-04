@@ -77,7 +77,7 @@ components:
           type: string
         contributing_namespaces:
           type: array
-          description: Pinecone namespaces whose results cleared KB_MIN_RELEVANCE_SCORE and contributed to this answer.
+          description: KB namespaces whose results cleared KB_MIN_RELEVANCE_SCORE and contributed to this answer.
           items:
             type: string
           default: []

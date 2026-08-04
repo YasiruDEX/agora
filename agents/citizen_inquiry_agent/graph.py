@@ -2,12 +2,12 @@
 
 Builds a StateGraph over `messages` that calls an LLM bound to the
 `search_knowledge_base` MCP tool, served remotely over SSE by a standalone
-pinecone-kb MCP server (see mcp_servers/pinecone_kb_mcp/server.py, run with
+local-kb MCP server (see mcp_servers/local_kb_mcp/server.py, run with
 MCP_TRANSPORT=sse), grounded in this department's KB_NAMESPACE, with
 MemorySaver checkpointing keyed by session_id.
 
 This agent container does not run the MCP server itself — it only holds its
-network address (PINECONE_MCP_URL), configured via an environment variable.
+network address (KB_MCP_URL), configured via an environment variable.
 """
 import os
 import string
@@ -29,7 +29,7 @@ AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes
 # precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -37,10 +37,10 @@ load_dotenv(AGENT_DIR / ".env", override=True)
 
 # Remote MCP server endpoint. Read AFTER load_dotenv() so a URL set in either
 # .env file actually takes effect. Defaults assume the server is running
-# locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/pinecone_kb_mcp/server.py);
+# locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/local_kb_mcp/server.py);
 # in a real deployment this is injected by the platform (e.g. pointed at an
 # Agent Manager MCP proxy in front of the server).
-PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+KB_MCP_URL = os.environ.get("KB_MCP_URL", "http://localhost:9001/sse")
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -49,8 +49,6 @@ REQUIRED_ENV = [
     "WELCOME_MESSAGE",
     "SUPPORT_EMAIL_CONTACT",
     "OFFICE_HOURS_INFO",
-    "PINECONE_API_KEY",
-    "PINECONE_INDEX_NAME",
 ]
 
 
@@ -105,7 +103,7 @@ class SearchKnowledgeBaseArgs(BaseModel):
 
 
 async def _load_kb_tool() -> StructuredTool:
-    """Connect to the pinecone-kb MCP server and wrap search_knowledge_base.
+    """Connect to the local-kb MCP server and wrap search_knowledge_base.
 
     The wrapper hard-pins `namespace` to this department's KB_NAMESPACE env var so
     the tool always searches the correct department's data, regardless of what the
@@ -115,8 +113,8 @@ async def _load_kb_tool() -> StructuredTool:
 
     client = MultiServerMCPClient(
         {
-            "pinecone-kb": {
-                "url": PINECONE_MCP_URL,
+            "local-kb": {
+                "url": KB_MCP_URL,
                 "transport": "sse",
             }
         }

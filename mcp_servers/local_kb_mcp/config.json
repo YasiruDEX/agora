@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "local-kb": {
+      "_comment": "Local RAG over the department knowledge base (knowledge_base/*.md), embedded with OpenAI and cached in kb_index_cache.json -- no external vector DB. See mcp_servers/local_kb_mcp/server.py and kb_index.py.",
+      "command": "${workspaceRoot}/.venv/bin/python",
+      "args": ["${workspaceRoot}/mcp_servers/local_kb_mcp/server.py"],
+      "transport": "stdio",
+      "env": {
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+      },
+      "tools": [
+        {
+          "name": "search_knowledge_base",
+          "description": "Semantic search over the local department knowledge base. Requires a namespace parameter to scope results to a single department.",
+          "parameters": {
+            "namespace": {
+              "type": "string",
+              "required": true,
+              "description": "Namespace to search, e.g. 'permits-licensing', 'tax-revenue', 'social-services', 'health-environment', 'records-compliance'."
+            },
+            "query": {
+              "type": "string",
+              "required": true,
+              "description": "Natural language citizen question to search for."
+            },
+            "top_k": {
+              "type": "integer",
+              "required": false,
+              "default": 5,
+              "description": "Number of matching chunks to return."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

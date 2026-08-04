@@ -23,7 +23,7 @@ spec:
 
   tools:
     mcp:
-      - server: pinecone-kb
+      - server: local-kb
         expose:
           - search_knowledge_base
 
@@ -46,7 +46,7 @@ spec:
     - name: KB_NAMESPACE
       type: string
       required: true
-      description: Target Pinecone namespace for this department's knowledge base.
+      description: Target KB namespace for this department's knowledge base.
       example: "permits-licensing"
 
     - name: WELCOME_MESSAGE

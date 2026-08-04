@@ -27,7 +27,7 @@ spec:
 
   tools:
     mcp:
-      - server: pinecone-kb
+      - server: local-kb
         expose:
           - search_knowledge_base
       - server: tax-db-mcp
@@ -67,7 +67,7 @@ spec:
     - name: KB_NAMESPACE
       type: string
       required: true
-      description: Target Pinecone namespace for this department's policy knowledge base.
+      description: Target KB namespace for this department's policy knowledge base.
       example: "tax-revenue"
 
     - name: WELCOME_MESSAGE

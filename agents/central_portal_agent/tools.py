@@ -28,7 +28,7 @@ from typing import Any
 from langchain_core.tools import BaseTool, StructuredTool
 from pydantic import BaseModel, Field
 
-# Matches one result block emitted by mcp_servers/pinecone_kb_mcp/server.py:
+# Matches one result block emitted by mcp_servers/local_kb_mcp/server.py:
 #   "[{i}] (score={score:.3f}, source_file={source_file}, department={department})\n{text}"
 # blocks are joined with "\n\n" by the server, so that's the block separator here too.
 _BLOCK_RE = re.compile(
@@ -124,11 +124,11 @@ class SearchAllGovernmentKnowledgeArgs(BaseModel):
 def build_search_all_government_knowledge_tool(
     raw_kb_tool: BaseTool, all_namespaces: list[str], min_relevance_score: float = 0.4
 ) -> BaseTool:
-    """Wrap the raw pinecone-kb MCP `search_knowledge_base` tool (already
+    """Wrap the raw local-kb MCP `search_knowledge_base` tool (already
     connected by graph.py) into `search_all_government_knowledge`.
 
     min_relevance_score only applies when fanning out across every namespace
-    (department_filter="all"): Pinecone's top_k query has no relevance cutoff
+    (department_filter="all"): the local KB's top_k query has no relevance cutoff
     of its own, so an unrelated namespace always returns *some* nearest
     neighbor even when nothing there is actually relevant (e.g. querying
     "business license fees" still gets a top match in social-services --

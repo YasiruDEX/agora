@@ -1,7 +1,7 @@
 """LangGraph runnable for the Records / FOIA Agent.
 
-Dynamically discovers tools from two remote MCP servers (pinecone-kb,
-records-db-mcp) over SSE, pins the Pinecone tool's namespace to this
+Dynamically discovers tools from two remote MCP servers (local-kb,
+records-db-mcp) over SSE, pins the KB tool's namespace to this
 department's KB_NAMESPACE, and enforces the statutory exemption + PII
 redaction pipeline: the raw records-db-mcp tools are NEVER bound directly to
 the LLM. Instead they are wrapped into `get_public_record`, which checks
@@ -11,7 +11,7 @@ non-exempt record's content is always passed through `redact_pii_text` before
 the LLM ever sees it.
 
 This agent container does not run the MCP servers itself — it only holds
-their network addresses (PINECONE_MCP_URL, RECORDS_DB_MCP_URL), configured
+their network addresses (KB_MCP_URL, RECORDS_DB_MCP_URL), configured
 via environment variables. The MCP servers and their databases are deployed
 and scaled independently (see mcp_servers/*/server.py, run with
 MCP_TRANSPORT=sse).
@@ -51,7 +51,7 @@ AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes
 # precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -62,7 +62,7 @@ load_dotenv(AGENT_DIR / ".env", override=True)
 # running locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/*/server.py);
 # in a real deployment these are injected by the platform (e.g. pointed at an
 # Agent Manager MCP proxy in front of each server).
-PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+KB_MCP_URL = os.environ.get("KB_MCP_URL", "http://localhost:9001/sse")
 RECORDS_DB_MCP_URL = os.environ.get("RECORDS_DB_MCP_URL", "http://localhost:9007/sse")
 
 REQUIRED_ENV = [
@@ -72,8 +72,6 @@ REQUIRED_ENV = [
     "WELCOME_MESSAGE",
     "SUPPORT_EMAIL_CONTACT",
     "OFFICE_HOURS_INFO",
-    "PINECONE_API_KEY",
-    "PINECONE_INDEX_NAME",
 ]
 
 
@@ -110,8 +108,8 @@ async def _discover_mcp_tools() -> list:
     """Connect to both MCP servers and dynamically discover their tools."""
     client = MultiServerMCPClient(
         {
-            "pinecone-kb": {
-                "url": PINECONE_MCP_URL,
+            "local-kb": {
+                "url": KB_MCP_URL,
                 "transport": "sse",
             },
             "records-db-mcp": {

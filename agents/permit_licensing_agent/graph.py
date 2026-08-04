@@ -1,12 +1,12 @@
 """LangGraph runnable for the Permit & Licensing Agent.
 
-Dynamically discovers tools from two remote MCP servers (pinecone-kb,
-permit-db-mcp) over SSE, pins the Pinecone tool's namespace to this
+Dynamically discovers tools from two remote MCP servers (local-kb,
+permit-db-mcp) over SSE, pins the KB tool's namespace to this
 department's KB_NAMESPACE, and binds an agent-to-agent tool that forwards
 out-of-scope questions to a running Citizen Inquiry Agent instance over HTTP.
 
 This agent container does not run the MCP servers itself — it only holds
-their network addresses (PINECONE_MCP_URL, PERMIT_DB_MCP_URL), configured via
+their network addresses (KB_MCP_URL, PERMIT_DB_MCP_URL), configured via
 environment variables. The MCP servers and their databases are deployed and
 scaled independently (see mcp_servers/*/server.py, run with MCP_TRANSPORT=sse).
 When running the two Permit & Licensing instances (Building Permits / Business
@@ -52,7 +52,7 @@ PROMPT_PATH = AGENT_DIR / "prompt.md"
 # instance (its own port, department identity, and PERMIT_DB_MCP_URL).
 AGENT_ENV_FILE = os.environ.get("AGENT_ENV_FILE", ".env")
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own env file and
 # takes precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -63,7 +63,7 @@ load_dotenv(AGENT_DIR / AGENT_ENV_FILE, override=True)
 # running locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/*/server.py);
 # in a real deployment these are injected by the platform (e.g. pointed at an
 # Agent Manager MCP proxy in front of each server).
-PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+KB_MCP_URL = os.environ.get("KB_MCP_URL", "http://localhost:9001/sse")
 PERMIT_DB_MCP_URL = os.environ.get("PERMIT_DB_MCP_URL", "http://localhost:9004/sse")
 
 REQUIRED_ENV = [
@@ -73,8 +73,6 @@ REQUIRED_ENV = [
     "WELCOME_MESSAGE",
     "SUPPORT_EMAIL_CONTACT",
     "OFFICE_HOURS_INFO",
-    "PINECONE_API_KEY",
-    "PINECONE_INDEX_NAME",
 ]
 
 
@@ -151,8 +149,8 @@ async def _discover_mcp_tools() -> list:
     """Connect to both MCP servers and dynamically discover their tools."""
     client = MultiServerMCPClient(
         {
-            "pinecone-kb": {
-                "url": PINECONE_MCP_URL,
+            "local-kb": {
+                "url": KB_MCP_URL,
                 "transport": "sse",
             },
             "permit-db-mcp": {

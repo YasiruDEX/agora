@@ -1,12 +1,12 @@
 """LangGraph runnable for the Benefits & Eligibility Agent.
 
-Dynamically discovers tools from two remote MCP servers (pinecone-kb,
-sqlite-db-mcp) over SSE, pins the Pinecone tool's namespace to this
+Dynamically discovers tools from two remote MCP servers (local-kb,
+sqlite-db-mcp) over SSE, pins the KB tool's namespace to this
 department's KB_NAMESPACE, and binds an agent-to-agent tool that forwards
 out-of-scope questions to a running Citizen Inquiry Agent instance over HTTP.
 
 This agent container does not run the MCP servers itself — it only holds
-their network addresses (PINECONE_MCP_URL, SQLITE_MCP_URL), configured via
+their network addresses (KB_MCP_URL, SQLITE_MCP_URL), configured via
 environment variables. The MCP servers and their databases are deployed and
 scaled independently (see mcp_servers/*/server.py, run with MCP_TRANSPORT=sse).
 """
@@ -43,7 +43,7 @@ AGENT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = AGENT_DIR.parent.parent
 PROMPT_PATH = AGENT_DIR / "prompt.md"
 
-# Shared infra secrets (PINECONE_*, OPENAI_API_KEY) live in the root .env.
+# Shared infra secrets (OPENAI_API_KEY) live in the root .env.
 # Agent-specific department config lives in this agent's own .env and takes
 # precedence over anything (accidentally) duplicated at the root.
 load_dotenv(REPO_ROOT / ".env")
@@ -54,7 +54,7 @@ load_dotenv(AGENT_DIR / ".env", override=True)
 # running locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/*/server.py);
 # in a real deployment these are injected by the platform (e.g. pointed at an
 # Agent Manager MCP proxy in front of each server).
-PINECONE_MCP_URL = os.environ.get("PINECONE_MCP_URL", "http://localhost:9001/sse")
+KB_MCP_URL = os.environ.get("KB_MCP_URL", "http://localhost:9001/sse")
 SQLITE_MCP_URL = os.environ.get("SQLITE_MCP_URL", "http://localhost:9002/sse")
 
 REQUIRED_ENV = [
@@ -66,8 +66,6 @@ REQUIRED_ENV = [
     "OFFICE_HOURS_INFO",
     "MAX_MONTHLY_INCOME_THRESHOLD",
     "MIN_SENIOR_CITIZEN_AGE",
-    "PINECONE_API_KEY",
-    "PINECONE_INDEX_NAME",
 ]
 
 
@@ -137,8 +135,8 @@ async def _discover_mcp_tools() -> list:
     """Connect to both remote MCP servers over SSE and dynamically discover their tools."""
     client = MultiServerMCPClient(
         {
-            "pinecone-kb": {
-                "url": PINECONE_MCP_URL,
+            "local-kb": {
+                "url": KB_MCP_URL,
                 "transport": "sse",
             },
             "sqlite-db-mcp": {

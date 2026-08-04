@@ -21,7 +21,7 @@
     "KB_NAMESPACE": {
       "type": "string",
       "title": "Knowledge Base Namespace",
-      "description": "Pinecone namespace to search for this department's knowledge base.",
+      "description": "KB namespace to search for this department's knowledge base.",
       "enum": [
         "permits-licensing",
         "tax-revenue",
