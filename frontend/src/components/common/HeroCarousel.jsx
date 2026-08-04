@@ -56,10 +56,10 @@ export default function HeroCarousel() {
           </div>
         ))}
 
-        <div className="relative h-full mx-auto max-w-7xl px-4 flex flex-col justify-center">
-          <p className="uppercase tracking-widest text-gold text-xs font-bold mb-3">{t('hero.kicker')}</p>
-          <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 max-w-2xl">{slide.title}</h1>
-          <p className="text-white/85 max-w-2xl mb-7">{slide.subtitle}</p>
+        <div className="relative h-full mx-auto max-w-7xl px-6 sm:px-14 lg:px-20 flex flex-col justify-center">
+          <p className="uppercase tracking-widest text-gold text-xs font-bold mb-4">{t('hero.kicker')}</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-4 max-w-2xl leading-tight">{slide.title}</h1>
+          <p className="text-white/85 max-w-2xl mb-8 leading-relaxed">{slide.subtitle}</p>
 
           <form className="max-w-xl flex" onSubmit={(e) => e.preventDefault()}>
             <input
@@ -75,18 +75,20 @@ export default function HeroCarousel() {
           </form>
         </div>
 
-        {/* Prev/next controls */}
+        {/* Prev/next controls -- hidden on narrow viewports where there's no
+            room beside the text without overlapping it; text padding above
+            already clears them from sm: up. */}
         <button
           onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
           aria-label="Previous slide"
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center"
+          className="hidden sm:flex absolute left-3 lg:left-5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 items-center justify-center"
         >
           <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
         </button>
         <button
           onClick={() => setIndex((i) => (i + 1) % slides.length)}
           aria-label="Next slide"
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center"
+          className="hidden sm:flex absolute right-3 lg:right-5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 items-center justify-center"
         >
           <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
         </button>
@@ -106,15 +108,15 @@ export default function HeroCarousel() {
 
       {/* Quick action overlay cards */}
       <div className="relative bg-white text-slateink">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 -mt-8 relative z-10 gap-3 pb-6">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 -mt-8 relative z-10 gap-4 pb-8">
             {quickActions.map(({ key, to, Icon }) => (
               <Link
                 key={key}
                 to={to}
-                className="bg-white rounded-xl shadow-gov border border-slate-200 p-4 flex items-center gap-3 hover:border-maroon hover:shadow-lg transition-all"
+                className="bg-white rounded-xl shadow-gov border border-slate-200 p-5 flex items-center gap-3 hover:border-brand hover:shadow-lg transition-all"
               >
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-maroon-50 text-maroon-700 shrink-0">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-700 shrink-0">
                   <Icon className="w-5 h-5" strokeWidth={2} />
                 </span>
                 <span className="font-semibold text-sm leading-tight">{actions[key]}</span>

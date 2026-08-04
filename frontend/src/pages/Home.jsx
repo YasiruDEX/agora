@@ -31,7 +31,7 @@ export default function Home() {
     <div>
       <HeroCarousel />
 
-      <div className="mx-auto max-w-7xl px-4 py-10 space-y-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         <ServiceGrid />
 
         {/* Department directory */}

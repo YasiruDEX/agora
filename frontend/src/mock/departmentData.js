@@ -10,7 +10,7 @@ export const LLM_TIERS = {
   ONPREM: {
     key: 'onprem',
     label: 'On-Prem · PII Restricted',
-    className: 'bg-maroon-50 text-maroon-700 border-maroon-300',
+    className: 'bg-brand-50 text-brand-700 border-brand-300',
   },
 }
 
@@ -94,7 +94,7 @@ export const DEPARTMENTS = [
     name: 'Contact Center',
     shortName: 'Contact Center',
     route: '/contact-center',
-    color: 'maroon',
+    color: 'brand',
     description: 'General inquiries, service directory, and SLA information for all departments.',
     hotline: '311',
     seal: '/images/department_seals/contact_center_seal.svg',
@@ -146,7 +146,7 @@ export const DEPARTMENTS = [
     name: 'Riverside County Tax & Revenue',
     shortName: 'Tax & Revenue',
     route: '/tax-revenue',
-    color: 'maroon',
+    color: 'brand',
     description: 'Property assessment rates, trade tax tiers, and online rate payments.',
     hotline: '311',
     seal: '/images/department_seals/tax_revenue_seal.svg',
@@ -170,7 +170,7 @@ export const DEPARTMENTS = [
     services: [
       { id: 'foia-request', title: 'Public Records Request', description: 'Submit a Freedom of Information Act (FOIA) request.' },
       { id: 'birth-death-marriage', title: 'Birth / Death / Marriage Extracts', description: 'Request certified civil registration extracts.' },
-      { id: 'grievance', title: 'Public Complaints & Grievances', description: 'Lodge a formal complaint with the council.' },
+      { id: 'grievance', title: 'Public Complaints & Grievances', description: 'Lodge a formal complaint with the county.' },
     ],
   },
 ]

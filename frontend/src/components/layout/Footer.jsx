@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="mt-16 bg-slateink text-slate-300">
       <img src="/images/banner_strip_riverside.svg" alt="" className="w-full h-1.5 object-cover" />
 
-      <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
         <div>
           <p className="text-white font-bold mb-2">{t('footer.orgName')}</p>
           <p className="text-slate-400 leading-relaxed">{t('footer.disclaimer')}</p>
@@ -52,16 +52,14 @@ export default function Footer() {
         <div>
           <p className="text-white font-semibold mb-2">{t('footer.emergencyHeading')}</p>
           <ul className="space-y-1.5">
+            <li>{t('footer.emergency')}: <span className="text-gold font-semibold">911</span></li>
             <li>{t('footer.infoCenter')}: <span className="text-gold font-semibold">311</span></li>
-            <li>{t('footer.police')}: <span className="text-gold font-semibold">119</span></li>
-            <li>{t('footer.ambulance')}: <span className="text-gold font-semibold">110</span></li>
-            <li>{t('footer.disaster')}: <span className="text-gold font-semibold">117</span></li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-slate-700">
-        <div className="mx-auto max-w-7xl px-4 py-4 text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-2">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-2">
           <p>&copy; {new Date().getFullYear()} {t('footer.copyright')}</p>
           <p>{t('footer.builtWith')}</p>
         </div>

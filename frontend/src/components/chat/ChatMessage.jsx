@@ -4,13 +4,13 @@ import { useLanguage } from '../../i18n/LanguageContext'
 
 const BADGE_STYLES = {
   emerald: 'bg-emerald-50 border-emerald-300 text-emerald-800',
-  maroon: 'bg-maroon-50 border-maroon-300 text-maroon-700',
+  brand: 'bg-brand-50 border-brand-300 text-brand-700',
   gold: 'bg-gold-50 border-gold-400 text-gold-800',
 }
 
 const STATUS_PILL = {
   emerald: 'bg-emerald-600 text-white',
-  maroon: 'bg-maroon text-white',
+  brand: 'bg-brand text-white',
   gold: 'bg-gold-500 text-slateink',
 }
 
@@ -55,7 +55,7 @@ function AgentCard({ card, onAction, actionLoading }) {
               key={action.id}
               disabled={actionLoading}
               onClick={() => onAction?.(action.id)}
-              className="inline-flex items-center gap-1.5 bg-maroon hover:bg-maroon-600 disabled:opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
+              className="inline-flex items-center gap-1.5 bg-brand hover:bg-brand-600 disabled:opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
             >
               {actionLoading && <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2.5} />}
               {actionLoading ? t('chat.processing') : action.label}
@@ -74,7 +74,7 @@ export default function ChatMessage({ role, text, card, steps, onAction, actionL
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm shadow-sm animate-gov-fade-in ${
-          isUser ? 'bg-maroon text-white rounded-br-sm' : 'bg-white border border-slate-200 text-slateink rounded-bl-sm'
+          isUser ? 'bg-brand text-white rounded-br-sm' : 'bg-white border border-slate-200 text-slateink rounded-bl-sm'
         }`}
       >
         {!isUser && steps?.length > 0 && (

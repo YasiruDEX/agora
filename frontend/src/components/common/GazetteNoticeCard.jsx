@@ -1,14 +1,14 @@
 import { FileText } from 'lucide-react'
 
 const TAG_STYLES = {
-  GAZETTE: 'bg-maroon-50 text-maroon-700 border-maroon-300',
-  CIRCULAR: 'bg-gold-100 text-gold-800 border-gold-400',
-  CABINET: 'bg-emerald-50 text-govgreen border-emerald-300',
-  NOTICE: 'bg-slate-100 text-slateink border-slate-300',
+  NOTICE: 'bg-brand-50 text-brand-700 border-brand-300',
+  ADVISORY: 'bg-gold-100 text-gold-800 border-gold-400',
+  BOARD: 'bg-emerald-50 text-govgreen border-emerald-300',
+  ALERT: 'bg-slate-100 text-slateink border-slate-300',
 }
 
 export default function GazetteNoticeCard({ tag, title, date }) {
-  const style = TAG_STYLES[tag] || TAG_STYLES.NOTICE
+  const style = TAG_STYLES[tag] || TAG_STYLES.ALERT
 
   return (
     <div className="flex items-start gap-3 bg-white rounded-lg border border-slate-200 p-3.5 hover:shadow-gov transition-shadow">

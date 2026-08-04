@@ -54,11 +54,11 @@ export default function ServiceGrid() {
           const Icon = CATEGORY_ICONS[cat.id] || FileText
           const route = CATEGORY_ROUTES[cat.id]
           const cardClass = `bg-white rounded-lg border border-slate-200 p-3.5 flex flex-col gap-2 ${
-            route ? 'hover:shadow-gov hover:border-maroon transition-all cursor-pointer' : 'opacity-90'
+            route ? 'hover:shadow-gov hover:border-brand transition-all cursor-pointer' : 'opacity-90'
           }`
           const content = (
             <>
-              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-maroon-50 text-maroon-700">
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand-50 text-brand-700">
                 <Icon className="w-4.5 h-4.5" strokeWidth={2} />
               </span>
               <div>

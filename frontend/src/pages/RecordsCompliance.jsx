@@ -8,7 +8,7 @@ export default function RecordsCompliance() {
   const { t } = useLanguage()
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-3 mb-2">
         <img src={dept.seal} alt="" className="w-10 h-10" />
         <h1 className="text-2xl font-bold text-slateink">{t('pages.records.title')}</h1>
@@ -17,7 +17,7 @@ export default function RecordsCompliance() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-3">
-          <div className="rounded-lg border-l-4 border-maroon bg-maroon-50 text-maroon-700 p-3.5 text-sm flex gap-3">
+          <div className="rounded-lg border-l-4 border-brand bg-brand-50 text-brand-700 p-3.5 text-sm flex gap-3">
             <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" strokeWidth={2} />
             <div>
               <p className="font-semibold">{t('records.rtiTitle')}</p>

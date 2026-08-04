@@ -7,7 +7,7 @@ export default function ContactCenter() {
   const { t } = useLanguage()
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-1">
         <div className="flex items-center gap-3 mb-2">
           <img src={dept.seal} alt="" className="w-10 h-10" />
@@ -15,7 +15,7 @@ export default function ContactCenter() {
         </div>
         <p className="text-slate-600 mb-4">{t('pages.contactCenter.description')}</p>
         <div className="bg-white rounded-lg border border-slate-200 p-4 mb-4">
-          <p className="text-sm font-semibold text-maroon mb-2">{t('contact.hotlineLabel')}</p>
+          <p className="text-sm font-semibold text-brand mb-2">{t('contact.hotlineLabel')}</p>
           <a href={`tel:${dept.hotline}`} className="text-2xl font-extrabold text-slateink">
             {dept.hotline}
           </a>

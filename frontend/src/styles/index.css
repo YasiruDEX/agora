@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --gov-maroon: #8d1b3d;
+  --gov-brand: #2a5b8c;
   --gov-gold: #ffc72c;
   --gov-slate: #1e293b;
   --gov-surface: #f8fafc;
@@ -97,6 +97,6 @@ body {
   font-weight: 700;
 }
 .prose-chat a {
-  color: var(--gov-maroon);
+  color: var(--gov-brand);
   text-decoration: underline;
 }

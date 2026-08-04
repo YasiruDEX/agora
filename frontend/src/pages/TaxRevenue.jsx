@@ -8,7 +8,7 @@ export default function TaxRevenue() {
   const { t } = useLanguage()
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-3 mb-2">
         <img src={dept.seal} alt="" className="w-10 h-10" />
         <h1 className="text-2xl font-bold text-slateink">{t('pages.taxRevenue.title')}</h1>

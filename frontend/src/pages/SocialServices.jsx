@@ -29,7 +29,7 @@ export default function SocialServices() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-3 mb-2">
         <img src={dept.seal} alt="" className="w-10 h-10" />
         <h1 className="text-2xl font-bold text-slateink">{t('pages.socialServices.title')}</h1>
@@ -41,7 +41,7 @@ export default function SocialServices() {
         <button
           onClick={() => setView('citizen')}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-            view === 'citizen' ? 'bg-maroon text-white' : 'text-slateink hover:bg-surface'
+            view === 'citizen' ? 'bg-brand text-white' : 'text-slateink hover:bg-surface'
           }`}
         >
           {t('social.citizenTab')}
@@ -49,7 +49,7 @@ export default function SocialServices() {
         <button
           onClick={() => setView('caseworker')}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-            view === 'caseworker' ? 'bg-maroon text-white' : 'text-slateink hover:bg-surface'
+            view === 'caseworker' ? 'bg-brand text-white' : 'text-slateink hover:bg-surface'
           }`}
         >
           {t('social.caseworkerTab')}
@@ -73,7 +73,7 @@ export default function SocialServices() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-4">
-            <div className="rounded-lg border-l-4 border-maroon bg-maroon-50 text-maroon-700 p-3.5 text-sm flex gap-3">
+            <div className="rounded-lg border-l-4 border-brand bg-brand-50 text-brand-700 p-3.5 text-sm flex gap-3">
               <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" strokeWidth={2} />
               <div>
                 <p className="font-semibold">{t('social.oboTitle')}</p>
@@ -81,14 +81,14 @@ export default function SocialServices() {
               </div>
             </div>
             <div className="bg-white rounded-lg border border-slate-200 p-4">
-              <p className="text-sm font-semibold text-maroon mb-2">{t('social.activeCaseworker')}</p>
+              <p className="text-sm font-semibold text-brand mb-2">{t('social.activeCaseworker')}</p>
               <div className="space-y-2">
                 {PERSONAS.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => setPersona(p.id)}
                     className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
-                      persona === p.id ? 'border-maroon bg-maroon-50' : 'border-slate-200 hover:bg-surface'
+                      persona === p.id ? 'border-brand bg-brand-50' : 'border-slate-200 hover:bg-surface'
                     }`}
                   >
                     <p className="font-semibold text-sm">{p.label}</p>

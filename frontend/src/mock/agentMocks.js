@@ -45,13 +45,13 @@ const TEXT = {
   en: {
     citizen: {
       officeHours:
-        'The Municipal Council offices are open Monday through Friday from 8:30 AM to 4:15 PM. For urgent assistance, contact the Riverside County Information Center at 311.',
+        'Riverside County Administration offices are open Monday through Friday from 8:30 AM to 4:15 PM. For urgent assistance, contact the Riverside County Information Center at 311.',
       birthDeathMarriage:
         'Birth, death, and marriage extracts are handled by the Department of Records & Compliance. Visit the Records & Compliance page to submit a request.',
       assessmentRoute:
         'Assessment rates are paid quarterly through the Tax & Revenue Department — at the Payment Counter, or online via the Tax & Assessment Agent.',
       fallback:
-        "I'm not certain about that yet in this demo — try asking about council working hours, assessment rate payments, or civil registration extracts.",
+        "I'm not certain about that yet in this demo — try asking about county office hours, assessment rate payments, or civil registration extracts.",
     },
     benefits: {
       eligible: (age, income) =>
@@ -140,7 +140,7 @@ function resolveCitizenInquiry(message, lang) {
   const m = message.toLowerCase()
   const T = TEXT[lang] || TEXT.en
 
-  if (m.includes('hours') || m.includes('municipal council') || m.includes('municipal office')) {
+  if (m.includes('hours') || m.includes('county office') || m.includes('municipal office')) {
     return { steps: stepsFor(lang, ['searchingKb']), text: T.citizen.officeHours, card: null }
   }
   if (m.includes('birth') || m.includes('death') || m.includes('marriage') || m.includes('extract')) {
@@ -183,7 +183,7 @@ function resolveBenefitsEligibility(message, lang) {
             type: 'eligibility',
             title: T.cardTitle,
             status: T.statusNotEligible,
-            badgeColor: 'maroon',
+            badgeColor: 'brand',
             fields: [
               { label: T.fields.age, value: String(age) },
               { label: T.fields.monthlyIncome, value: `$${income.toLocaleString()}` },
@@ -250,7 +250,7 @@ function resolveCaseManagement(message, lang, context) {
         type: 'security-notice',
         title: T.accessDeniedTitle,
         status: T.statusDenied,
-        badgeColor: 'maroon',
+        badgeColor: 'brand',
         fields: [
           { label: T.fields.caseId, value: caseId },
           { label: T.fields.assignedTo, value: record.ownerLabel },
@@ -436,7 +436,7 @@ function resolveRecordsFoia(message, lang) {
           type: 'exemption-notice',
           title: `${T.exemptCardTitlePrefix} ${recordId}`,
           status: T.statusExempt,
-          badgeColor: 'maroon',
+          badgeColor: 'brand',
           fields: [
             { label: T.fields.title, value: record.title },
             { label: T.fields.category, value: record.category },

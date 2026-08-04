@@ -10,8 +10,8 @@ export default function TickerBanner() {
 
   return (
     <div className="bg-gold-100 border-b border-gold-300 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 flex items-center h-8 gap-3">
-        <span className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold text-maroon uppercase tracking-wide">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center h-8 gap-3">
+        <span className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold text-brand uppercase tracking-wide">
           <Megaphone className="w-3.5 h-3.5" strokeWidth={2.5} />
           {label}
         </span>

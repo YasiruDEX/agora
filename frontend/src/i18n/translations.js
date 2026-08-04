@@ -43,7 +43,7 @@ export const translations = {
       viewServices: 'View services',
     },
     hero: {
-      kicker: 'Riverside County, United States',
+      kicker: 'Riverside County',
       searchPlaceholder: 'Search for a service (e.g. building permit, senior allowance, assessment rates)',
       searchButton: 'Search',
       slides: [
@@ -55,7 +55,7 @@ export const translations = {
         },
         {
           title: 'Riverside County Board of Supervisors',
-          subtitle: 'Track legislation, gazettes, and cabinet decisions that shape citizen services nationwide.',
+          subtitle: 'Track legislation, public notices, and Board decisions that shape citizen services countywide.',
           image: 'parliament',
         },
         {
@@ -88,20 +88,20 @@ export const translations = {
         { id: 'health', title: 'Health & Environment', description: 'Sanitation permits and environmental licenses.' },
         { id: 'education', title: 'Education', description: 'School admissions and scholarships.' },
         { id: 'transport', title: 'Transport & Motor Traffic', description: 'Vehicle registration and licensing.' },
-        { id: 'employment', title: 'Employment & Labour', description: 'Job registration and labour disputes.' },
+        { id: 'employment', title: 'Employment & Labor', description: 'Job registration and labor disputes.' },
         { id: 'justice', title: 'Justice & Legal Affairs', description: 'Court services and legal aid.' },
         { id: 'agriculture', title: 'Agriculture & Irrigation', description: 'Farmer subsidies and irrigation permits.' },
         { id: 'foreign', title: 'Foreign Affairs & Immigration', description: 'Passports and visa services.' },
       ],
     },
     gazette: {
-      title: 'Gazette Notices & Announcements',
+      title: 'Public Notices & Announcements',
       viewAll: 'View all notices',
       items: [
-        { tag: 'GAZETTE', title: 'County Register No. 2426/18 — Assessment Rate Revision 2026', date: '2026-07-24' },
-        { tag: 'CIRCULAR', title: 'County Administration Circular 05/2026 — Digital Service Delivery Standards', date: '2026-07-20' },
-        { tag: 'CABINET', title: 'Board of Supervisors Decision — Expansion of One-Stop Citizen Service Centers', date: '2026-07-15' },
-        { tag: 'NOTICE', title: 'Public Notice — Revised Office Hours for County Service Offices', date: '2026-07-10' },
+        { tag: 'NOTICE', title: 'County Register No. 2426/18 — Assessment Rate Revision 2026', date: '2026-07-24' },
+        { tag: 'ADVISORY', title: 'County Administrative Advisory 05/2026 — Digital Service Delivery Standards', date: '2026-07-20' },
+        { tag: 'BOARD', title: 'Board of Supervisors Decision — Expansion of One-Stop Citizen Service Centers', date: '2026-07-15' },
+        { tag: 'ALERT', title: 'Service Alert — Revised Office Hours for County Service Offices', date: '2026-07-10' },
       ],
     },
     footer: {
@@ -114,10 +114,8 @@ export const translations = {
       terms: 'Terms of Use',
       accessibility: 'Accessibility Statement',
       emergencyHeading: 'Emergency Contacts',
-      infoCenter: 'Riverside County Information Center',
-      police: 'Police Emergency',
-      ambulance: 'Ambulance / Fire',
-      disaster: 'Disaster Management',
+      infoCenter: 'County Information Center (non-emergency)',
+      emergency: 'Emergency — Police / Fire / Medical',
       copyright: 'Riverside County Government. All rights reserved. (Demo build)',
       builtWith: 'Built to demonstrate WSO2 Agent Manager multi-department agent instances.',
     },
@@ -239,7 +237,7 @@ export const translations = {
       'trade-tax': { title: 'Trade Tax Collection', description: 'Business trade tax tiers and payment.' },
       'foia-request': { title: 'Public Records Request', description: 'Submit a Freedom of Information Act (FOIA) request.' },
       'birth-death-marriage': { title: 'Birth / Death / Marriage Extracts', description: 'Request certified civil registration extracts.' },
-      grievance: { title: 'Public Complaints & Grievances', description: 'Lodge a formal complaint with the council.' },
+      grievance: { title: 'Public Complaints & Grievances', description: 'Lodge a formal complaint with the county.' },
     },
     quickReplyLabels: {
       'What are the opening hours for the Municipal Office?': 'What are the opening hours for the Municipal Office?',
@@ -264,13 +262,13 @@ export const translations = {
     },
     mockResponses: {
       citizenInquiry: {
-        hours: 'The Riverside County Municipal Council is open Mon-Fri, 8:30 AM - 4:15 PM. For urgent inquiries, call 311.',
+        hours: 'Riverside County Administration offices are open Mon-Fri, 8:30 AM - 4:15 PM. For urgent inquiries, call 311.',
         civilRegistration:
           'Birth, death, and marriage extracts are handled by the Department of Records & Compliance. Visit the Records & Compliance page to submit a request.',
         assessmentRates:
           'Assessment rates are paid quarterly through the Tax & Revenue Department — at the Payment Counter, or online via the Tax & Assessment Agent.',
         fallback:
-          "I'm not certain about that yet in this demo — try asking about council working hours, assessment rate payments, or civil registration extracts.",
+          "I'm not certain about that yet in this demo — try asking about county office hours, assessment rate payments, or civil registration extracts.",
       },
       benefitsEligibility: {
         askAgeIncome:

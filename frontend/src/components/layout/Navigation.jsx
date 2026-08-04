@@ -16,14 +16,14 @@ export default function Navigation() {
   const { t } = useLanguage()
 
   return (
-    <nav className="bg-maroon text-white">
-      <div className="mx-auto max-w-7xl px-4">
+    <nav className="bg-brand text-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <ul className="flex flex-wrap items-stretch">
           <li>
             <Link
               to="/"
               className={`inline-flex items-center h-11 px-4 text-sm font-semibold transition-colors ${
-                location.pathname === '/' ? 'bg-maroon-700' : 'hover:bg-maroon-600'
+                location.pathname === '/' ? 'bg-brand-700' : 'hover:bg-brand-600'
               }`}
             >
               {t('nav.home')}
@@ -34,7 +34,7 @@ export default function Navigation() {
               <Link
                 to={dept.route}
                 className={`inline-flex items-center gap-1 h-11 px-4 text-sm font-semibold transition-colors ${
-                  location.pathname === dept.route ? 'bg-maroon-700' : 'hover:bg-maroon-600'
+                  location.pathname === dept.route ? 'bg-brand-700' : 'hover:bg-brand-600'
                 }`}
               >
                 {t(`nav.${NAV_KEY_BY_DEPT[dept.id]}`)}
@@ -53,7 +53,7 @@ export default function Navigation() {
                     </li>
                   ))}
                 </ul>
-                <Link to={dept.route} className="block px-4 py-2 text-xs font-semibold text-maroon bg-surface hover:bg-slate-100 border-t border-slate-200">
+                <Link to={dept.route} className="block px-4 py-2 text-xs font-semibold text-brand bg-surface hover:bg-slate-100 border-t border-slate-200">
                   {t('nav.viewServices')} →
                 </Link>
               </div>

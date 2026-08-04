@@ -105,7 +105,7 @@ export default function ChatWidget({
   }, [messages, pending])
 
   if (!agent) {
-    return <div className="text-sm text-maroon">{t('chat.unknownAgent')}: {agentKey}</div>
+    return <div className="text-sm text-brand">{t('chat.unknownAgent')}: {agentKey}</div>
   }
 
   async function handleSend(text) {
@@ -190,7 +190,7 @@ export default function ChatWidget({
       }
     >
       {/* Header */}
-      <div className="bg-maroon px-3.5 py-3 flex flex-col gap-2">
+      <div className="bg-brand px-3.5 py-3 flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <DepartmentBadge department={localizedDepartment} agentName={localizedName} tier={agent.tier} />
           <div className="ml-auto flex items-center gap-1">
@@ -265,12 +265,12 @@ export default function ChatWidget({
           onChange={(e) => setInput(e.target.value)}
           placeholder={t('chat.typePlaceholder')}
           disabled={!!pending}
-          className="flex-1 text-sm rounded-full border border-slate-300 px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-gold focus:border-maroon disabled:bg-slate-100"
+          className="flex-1 text-sm rounded-full border border-slate-300 px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-gold focus:border-brand disabled:bg-slate-100"
         />
         <button
           type="submit"
           disabled={!!pending || !input.trim()}
-          className="w-9 h-9 shrink-0 rounded-full bg-maroon disabled:opacity-50 text-white flex items-center justify-center"
+          className="w-9 h-9 shrink-0 rounded-full bg-brand disabled:opacity-50 text-white flex items-center justify-center"
           aria-label={t('chat.send')}
         >
           <Send className="w-4 h-4" strokeWidth={2} />
@@ -282,7 +282,7 @@ export default function ChatWidget({
   const checkoutModal = checkout && (
     <div className="fixed inset-0 z-[60] bg-slateink/50 flex items-center justify-center p-4 animate-gov-fade-in">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
-        <div className="bg-maroon text-white px-4 py-3">
+        <div className="bg-brand text-white px-4 py-3">
           <p className="font-bold text-sm">{t('chat.checkoutTitle')}</p>
           <p className="text-white/70 text-xs">{t('chat.checkoutSubtitle')}</p>
         </div>
@@ -347,7 +347,7 @@ export default function ChatWidget({
       {open && panel}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-14 h-14 rounded-full bg-maroon text-white shadow-2xl flex items-center justify-center hover:bg-maroon-600 transition-colors"
+        className="w-14 h-14 rounded-full bg-brand text-white shadow-2xl flex items-center justify-center hover:bg-brand-600 transition-colors"
         aria-label={open ? t('chat.close') : t('chat.openChat')}
       >
         {open ? (
