@@ -20,6 +20,14 @@ single local server at http://localhost:9001/sse over the legacy SSE
 transport (see README "Start the local-kb MCP server",
 `MCP_TRANSPORT=sse`).
 
+LOCAL_KB_API_KEY is the credential the platform provisions for this specific
+MCP tool configuration (see the "local-kb" tool configuration's Environment
+Variables & Integration Guide) and is sent both as an `API-Key` header and as
+an `Authorization: Bearer <key>` header, since the gateway's policy engine
+for this route validates the bearer token in `Authorization` (confirmed via
+the gateway's own policy logs) rather than a separate API-key header --
+sending both covers either policy shape without guessing which one is live.
+
 FALLBACK BEHAVIOR: the agent must boot even if the local-kb MCP server is
 unreachable at startup (e.g. not deployed yet, mid-restart, network blip). If
 connecting fails, build_graph() binds a stub tool instead of raising, so the
@@ -175,7 +183,11 @@ async def _load_kb_tool() -> StructuredTool:
         # Agent Manager MCP proxy (see module docstring).
         urls = [u.strip() for u in raw_urls.split(",") if u.strip()]
         mcp_api_key = os.environ.get("LOCAL_KB_API_KEY", "").strip()
-        headers = {"API-Key": mcp_api_key, "Authorization": ""} if mcp_api_key else {}
+        headers = (
+            {"API-Key": mcp_api_key, "Authorization": f"Bearer {mcp_api_key}"}
+            if mcp_api_key
+            else {}
+        )
         server_configs: dict[str, dict[str, Any]] = {
             f"local_kb_{i}": {
                 "url": url,
