@@ -14,19 +14,13 @@ tool-configuration injection contract (see the "local-kb" tool
 configuration's Environment Variables & Integration Guide in the Agent
 Manager console) -- the platform's MCP proxy fronts the real backend and
 always speaks streamable-http to the agent regardless of the backend's own
-transport. LOCAL_KB_API_KEY, if set, is sent as an API-Key header. When
-KB_MCP_URL is unset (plain local dev, no platform), this falls back to a
-single local server at http://localhost:9001/sse over the legacy SSE
-transport (see README "Start the local-kb MCP server",
-`MCP_TRANSPORT=sse`).
-
-LOCAL_KB_API_KEY is the credential the platform provisions for this specific
-MCP tool configuration (see the "local-kb" tool configuration's Environment
-Variables & Integration Guide) and is sent both as an `API-Key` header and as
-an `Authorization: Bearer <key>` header, since the gateway's policy engine
-for this route validates the bearer token in `Authorization` (confirmed via
-the gateway's own policy logs) rather than a separate API-key header --
-sending both covers either policy shape without guessing which one is live.
+transport. LOCAL_KB_API_KEY, if set, is the credential the platform
+provisions for this specific MCP tool configuration and is sent as an
+`X-API-Key` header -- the default header the Agent Manager MCP proxy expects
+for API-key authentication. When KB_MCP_URL is unset (plain local dev, no
+platform), this falls back to a single local server at
+http://localhost:9001/sse over the legacy SSE transport (see README "Start
+the local-kb MCP server", `MCP_TRANSPORT=sse`).
 
 FALLBACK BEHAVIOR: the agent must boot even if the local-kb MCP server is
 unreachable at startup (e.g. not deployed yet, mid-restart, network blip). If
@@ -183,11 +177,7 @@ async def _load_kb_tool() -> StructuredTool:
         # Agent Manager MCP proxy (see module docstring).
         urls = [u.strip() for u in raw_urls.split(",") if u.strip()]
         mcp_api_key = os.environ.get("LOCAL_KB_API_KEY", "").strip()
-        headers = (
-            {"API-Key": mcp_api_key, "Authorization": f"Bearer {mcp_api_key}"}
-            if mcp_api_key
-            else {}
-        )
+        headers = {"X-API-Key": mcp_api_key} if mcp_api_key else {}
         server_configs: dict[str, dict[str, Any]] = {
             f"local_kb_{i}": {
                 "url": url,
