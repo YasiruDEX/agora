@@ -1,13 +1,24 @@
 """LangGraph runnable for the Citizen Inquiry Agent.
 
 Builds a StateGraph over `messages` that calls an LLM bound to the
-`search_knowledge_base` MCP tool, served remotely over SSE by a standalone
-local-kb MCP server (see mcp_servers/local_kb_mcp/server.py, run with
-MCP_TRANSPORT=sse), grounded in this department's KB_NAMESPACE, with
-MemorySaver checkpointing keyed by session_id.
+`search_knowledge_base` MCP tool, served by a standalone local-kb MCP server
+(see mcp_servers/local_kb_mcp/server.py), grounded in this department's
+KB_NAMESPACE, with MemorySaver checkpointing keyed by session_id.
 
 This agent container does not run the MCP server itself — it only holds its
-network address (KB_MCP_URL), configured via an environment variable.
+network address(es), configured via the KB_MCP_URL environment variable.
+
+MCP connection contract: KB_MCP_URL is a comma-separated list of
+streamable-http MCP endpoint URLs, matching the WSO2 Agent Manager
+tool-configuration injection contract (see the "local-kb" tool
+configuration's Environment Variables & Integration Guide in the Agent
+Manager console) -- the platform's MCP proxy fronts the real backend and
+always speaks streamable-http to the agent regardless of the backend's own
+transport. LOCAL_KB_API_KEY, if set, is sent as an API-Key header. When
+KB_MCP_URL is unset (plain local dev, no platform), this falls back to a
+single local server at http://localhost:9001/sse over the legacy SSE
+transport (see README "Start the local-kb MCP server",
+`MCP_TRANSPORT=sse`).
 
 FALLBACK BEHAVIOR: the agent must boot even if the local-kb MCP server is
 unreachable at startup (e.g. not deployed yet, mid-restart, network blip). If
@@ -16,7 +27,7 @@ FastAPI app still comes up and /chat still responds -- just with a clear
 "MCP server not available" message instead of grounded KB content. The same
 fallback also covers the MCP server going down *after* a successful startup
 (the real tool's call is wrapped too), since langchain_mcp_adapters only
-actually opens the SSE connection when the tool is invoked, not at get_tools()
+actually opens the connection when the tool is invoked, not at get_tools()
 time.
 """
 import logging
@@ -48,12 +59,11 @@ PROMPT_PATH = AGENT_DIR / "prompt.md"
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(AGENT_DIR / ".env", override=True)
 
-# Remote MCP server endpoint. Read AFTER load_dotenv() so a URL set in either
-# .env file actually takes effect. Defaults assume the server is running
-# locally for testing (`MCP_TRANSPORT=sse` on mcp_servers/local_kb_mcp/server.py);
-# in a real deployment this is injected by the platform (e.g. pointed at an
-# Agent Manager MCP proxy in front of the server).
-KB_MCP_URL = os.environ.get("KB_MCP_URL", "http://localhost:9001/sse")
+# Remote MCP server endpoint(s). Read AFTER load_dotenv() so a URL set in
+# either .env file actually takes effect. See the module docstring for the
+# KB_MCP_URL contract (comma-separated streamable-http URLs when set by the
+# platform, else a single local SSE server for plain local dev).
+KB_MCP_URL_DEFAULT = "http://localhost:9001/sse"
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -159,23 +169,36 @@ async def _load_kb_tool() -> StructuredTool:
     """
     namespace = os.environ["KB_NAMESPACE"]
 
-    client = MultiServerMCPClient(
-        {
-            "local-kb": {
-                "url": KB_MCP_URL,
-                "transport": "sse",
+    raw_urls = os.environ.get("KB_MCP_URL", "").strip()
+    if raw_urls:
+        # Platform-injected: one or more streamable-http endpoints behind the
+        # Agent Manager MCP proxy (see module docstring).
+        urls = [u.strip() for u in raw_urls.split(",") if u.strip()]
+        mcp_api_key = os.environ.get("LOCAL_KB_API_KEY", "").strip()
+        headers = {"API-Key": mcp_api_key, "Authorization": ""} if mcp_api_key else {}
+        server_configs: dict[str, dict[str, Any]] = {
+            f"local_kb_{i}": {
+                "url": url,
+                "transport": "streamable_http",
+                **({"headers": headers} if headers else {}),
             }
+            for i, url in enumerate(urls)
         }
-    )
+    else:
+        # Plain local dev, no platform: a single server over legacy SSE.
+        urls = [KB_MCP_URL_DEFAULT]
+        server_configs = {"local-kb": {"url": KB_MCP_URL_DEFAULT, "transport": "sse"}}
+
+    client = MultiServerMCPClient(server_configs)
 
     try:
         mcp_tools = await client.get_tools()
         raw_tool = next(t for t in mcp_tools if t.name == "search_knowledge_base")
     except Exception:
         logger.warning(
-            "Could not reach local-kb MCP server at %s -- falling back to a "
+            "Could not reach local-kb MCP server(s) at %s -- falling back to a "
             "'MCP server not available' response for search_knowledge_base.",
-            KB_MCP_URL,
+            urls,
             exc_info=True,
         )
         return _fallback_kb_tool(namespace)
@@ -185,8 +208,8 @@ async def _load_kb_tool() -> StructuredTool:
             raw_result = await raw_tool.ainvoke({"namespace": namespace, "query": query, "top_k": top_k})
         except Exception:
             logger.warning(
-                "local-kb MCP server at %s became unreachable during a search_knowledge_base call.",
-                KB_MCP_URL,
+                "local-kb MCP server(s) at %s became unreachable during a search_knowledge_base call.",
+                urls,
                 exc_info=True,
             )
             return mcp_unavailable_message()

@@ -12,6 +12,7 @@ import sys
 
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from openai import OpenAI
 
 import kb_index
@@ -37,7 +38,23 @@ print(f"[local-kb] index ready: {_namespace_counts}", file=sys.stderr)
 MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.environ.get("MCP_PORT", "9001"))
 
-mcp = FastMCP("local-kb", host=MCP_HOST, port=MCP_PORT)
+# DNS-rebinding protection defaults to only trusting Host/Origin headers of
+# localhost/127.0.0.1, which rejects every request arriving through a tunnel
+# (ngrok, etc.) since the Host header is the tunnel's public hostname. This is
+# a local test server behind a temporary tunnel, not a production deployment,
+# so allow any host/origin when a tunnel is in play (MCP_ALLOW_ANY_HOST=1).
+_transport_security = None
+if os.environ.get("MCP_ALLOW_ANY_HOST"):
+    _transport_security = TransportSecuritySettings(
+        enable_dns_rebinding_protection=False,
+    )
+
+mcp = FastMCP(
+    "local-kb",
+    host=MCP_HOST,
+    port=MCP_PORT,
+    transport_security=_transport_security,
+)
 
 
 @mcp.tool()
