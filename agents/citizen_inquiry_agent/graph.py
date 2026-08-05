@@ -6,9 +6,9 @@ Builds a StateGraph over `messages` that calls an LLM bound to the
 KB_NAMESPACE, with MemorySaver checkpointing keyed by session_id.
 
 This agent container does not run the MCP server itself — it only holds its
-network address(es), configured via the KB_MCP_URL environment variable.
+network address(es), configured via the LOCAL_KB_URL environment variable.
 
-MCP connection contract: KB_MCP_URL is a comma-separated list of
+MCP connection contract: LOCAL_KB_URL is a comma-separated list of
 streamable-http MCP endpoint URLs, matching the WSO2 Agent Manager
 tool-configuration injection contract (see the "local-kb" tool
 configuration's Environment Variables & Integration Guide in the Agent
@@ -17,7 +17,7 @@ always speaks streamable-http to the agent regardless of the backend's own
 transport. LOCAL_KB_API_KEY, if set, is the credential the platform
 provisions for this specific MCP tool configuration and is sent as an
 `X-API-Key` header -- the default header the Agent Manager MCP proxy expects
-for API-key authentication. When KB_MCP_URL is unset (plain local dev, no
+for API-key authentication. When LOCAL_KB_URL is unset (plain local dev, no
 platform), this falls back to a single local server at
 http://localhost:9001/sse over the legacy SSE transport (see README "Start
 the local-kb MCP server", `MCP_TRANSPORT=sse`).
@@ -63,9 +63,9 @@ load_dotenv(AGENT_DIR / ".env", override=True)
 
 # Remote MCP server endpoint(s). Read AFTER load_dotenv() so a URL set in
 # either .env file actually takes effect. See the module docstring for the
-# KB_MCP_URL contract (comma-separated streamable-http URLs when set by the
+# LOCAL_KB_URL contract (comma-separated streamable-http URLs when set by the
 # platform, else a single local SSE server for plain local dev).
-KB_MCP_URL_DEFAULT = "http://localhost:9001/sse"
+LOCAL_KB_URL_DEFAULT = "http://localhost:9001/sse"
 
 REQUIRED_ENV = [
     "OPENAI_API_KEY",
@@ -171,7 +171,7 @@ async def _load_kb_tool() -> StructuredTool:
     """
     namespace = os.environ["KB_NAMESPACE"]
 
-    raw_urls = os.environ.get("KB_MCP_URL", "").strip()
+    raw_urls = os.environ.get("LOCAL_KB_URL", "").strip()
     if raw_urls:
         # Platform-injected: one or more streamable-http endpoints behind the
         # Agent Manager MCP proxy (see module docstring).
@@ -188,8 +188,8 @@ async def _load_kb_tool() -> StructuredTool:
         }
     else:
         # Plain local dev, no platform: a single server over legacy SSE.
-        urls = [KB_MCP_URL_DEFAULT]
-        server_configs = {"local-kb": {"url": KB_MCP_URL_DEFAULT, "transport": "sse"}}
+        urls = [LOCAL_KB_URL_DEFAULT]
+        server_configs = {"local-kb": {"url": LOCAL_KB_URL_DEFAULT, "transport": "sse"}}
 
     client = MultiServerMCPClient(server_configs)
 
