@@ -1,0 +1,74 @@
+[
+  {
+    "permit_number": "BP-2026-00042",
+    "permit_type": "building_permit",
+    "status": "plan_check",
+    "applicant_name": "Maria Gutierrez",
+    "applicant_email": "maria.gutierrez@example.com",
+    "applicant_phone": "951-555-0142",
+    "property_address": "18420 Vista Del Sol Dr, Riverside County, CA",
+    "valuation": 185000.0,
+    "submitted_days_ago": 12,
+    "notes": "Room addition (2 bedrooms, 1 bath). First plan check comments issued; awaiting resubmittal."
+  },
+  {
+    "permit_number": "BP-2026-00043",
+    "permit_type": "adu_permit",
+    "status": "approved",
+    "applicant_name": "David Chen",
+    "applicant_email": "dchen@example.com",
+    "applicant_phone": "951-555-0198",
+    "property_address": "2210 Palm Canyon Rd, Riverside County, CA",
+    "valuation": 92000.0,
+    "submitted_days_ago": 40,
+    "notes": "Detached 650 sqft ADU. Approved under state ADU streamlining timeline; ready for permit issuance."
+  },
+  {
+    "permit_number": "BP-2026-00044",
+    "permit_type": "solar_pv",
+    "status": "issued",
+    "applicant_name": "Angela Ortiz",
+    "applicant_email": "angela.ortiz@example.com",
+    "applicant_phone": "951-555-0177",
+    "property_address": "745 Sunridge Ave, Riverside County, CA",
+    "valuation": 24000.0,
+    "submitted_days_ago": 8,
+    "notes": "6.2kW rooftop solar install. Over-the-counter permit issued same day."
+  },
+  {
+    "permit_number": "BP-2026-00045",
+    "permit_type": "pool_spa",
+    "status": "inspection_scheduled",
+    "applicant_name": "Robert Kim",
+    "applicant_email": "rkim@example.com",
+    "applicant_phone": "951-555-0163",
+    "property_address": "560 Desert Willow Ln, Riverside County, CA",
+    "valuation": 68000.0,
+    "submitted_days_ago": 55,
+    "notes": "In-ground pool and spa. Rough plumbing inspection scheduled."
+  },
+  {
+    "permit_number": "BL-2026-00012",
+    "permit_type": "business_license",
+    "status": "issued",
+    "applicant_name": "Jasmine Patel",
+    "applicant_email": "jasmine.patel@example.com",
+    "applicant_phone": "951-555-0129",
+    "property_address": "3901 Main St, Suite 4, Riverside County, CA",
+    "valuation": null,
+    "submitted_days_ago": 200,
+    "notes": "Retail boutique. Annual license issued, renewal due next year."
+  },
+  {
+    "permit_number": "BL-2026-00013",
+    "permit_type": "home_occupation_permit",
+    "status": "submitted",
+    "applicant_name": "Thomas Nguyen",
+    "applicant_email": "tnguyen@example.com",
+    "applicant_phone": "951-555-0184",
+    "property_address": "912 Rolling Hills Ct, Riverside County, CA",
+    "valuation": null,
+    "submitted_days_ago": 3,
+    "notes": "Home-based bookkeeping business. Awaiting zoning compatibility review."
+  }
+]

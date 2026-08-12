@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+data/permit_db.db
+.env

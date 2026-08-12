@@ -1,0 +1,73 @@
+# Agent kind catalog entry — see catalog/citizen-inquiry-agent.yaml for the convention this
+# follows. Published so department developers can instantiate this kind without touching code
+# (PLAN.md §5, §12 Phase 2).
+
+kind: amp:agent-kind
+name: permit-licensing-agent
+displayName: Permit & Licensing Agent
+description: >
+  Guides residents through permit and business license questions — status lookups, fee
+  estimates, and new application pre-fill — verifying applicant identity against an external
+  state ID service before creating any application. Same image and prompt across both
+  instances; only PERMIT_TYPE_FOCUS and prompt tuning differ.
+
+org: riverside-county
+publishedBy: dana.okafor@riverside-county.gov   # Platform Admin — amp:agent-kind:create
+
+runtime:
+  language: python
+  languageVersion: "3.11"
+  framework: langchain
+  startCommand: python main.py
+  appPath: agents/permit-licensing-agent
+  interface: chat-agent
+  port: 8000
+  openapi: agents/permit-licensing-agent/openapi.yaml
+
+llm:
+  tier: cloud
+  provider: azure-openai   # fronted by the Agent Manager LLM Proxy in production (PLAN.md §9)
+  model: gpt-4o-mini
+
+mcpServers:
+  - name: permit-db-mcp-server
+    role: dedicated-database
+    connectEnv:
+      url: PERMITDB_MCP_SERVER_URL
+      apiKey: PERMITDB_MCP_API_KEY
+    toolsExposed: [permit_lookup, fee_schedule_read, application_prefill]
+  - name: state-id-verification-mcp-server
+    role: external-integration
+    connectEnv:
+      url: STATEID_MCP_SERVER_URL
+      apiKey: STATEID_MCP_API_KEY
+    toolsExposed: [verify_state_id]
+
+guardrails:
+  - JSON Schema Guardrail (validates structured application data)
+  - Word Count Guardrail
+  - URL Guardrail (fee-schedule links)
+
+evaluators:
+  - Step Success Rate
+  - Sequence Adherence   # verify_state_id must precede application_prefill
+  - Instruction Following
+  - Completeness
+
+deploymentPipeline: permit-licensing-pipeline   # Dev -> Staging -> Prod, gated on Step Success Rate
+
+sandboxing: >
+  Fee calculations run in a hardened sandbox with no host/network/filesystem access
+  (PLAN.md §11) — this manifest doesn't encode the sandbox itself, just flags that any
+  agent-generated fee-calculation code for this kind must run there, not inline.
+
+# One row per running instance — same agent kind, different env. Both instances have
+# identical data access on the Permit DB server (no partitioning); only tone/prompt focus
+# differs, plus the API key each was minted (still full-access either way).
+instances:
+  - focus: Building Permits
+    envFile: agents/permit-licensing-agent/.env.building-permits
+    owner: priya.raman@riverside-county.gov
+  - focus: Business Licenses
+    envFile: agents/permit-licensing-agent/.env.business-licenses
+    owner: priya.raman@riverside-county.gov

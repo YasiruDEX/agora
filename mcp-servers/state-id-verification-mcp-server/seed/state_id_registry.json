@@ -1,0 +1,50 @@
+[
+  {
+    "state_id_number": "CA-DL-D1234567",
+    "id_type": "driver_license",
+    "full_name": "Maria Gutierrez",
+    "date_of_birth": "1985-03-14",
+    "status": "valid",
+    "expires_on": "2028-03-14"
+  },
+  {
+    "state_id_number": "CA-DL-D7654321",
+    "id_type": "driver_license",
+    "full_name": "David Chen",
+    "date_of_birth": "1979-11-02",
+    "status": "valid",
+    "expires_on": "2027-11-02"
+  },
+  {
+    "state_id_number": "CA-SID-S2233445",
+    "id_type": "state_id",
+    "full_name": "Angela Ortiz",
+    "date_of_birth": "1990-07-22",
+    "status": "expired",
+    "expires_on": "2024-07-22"
+  },
+  {
+    "state_id_number": "CA-DL-D9988776",
+    "id_type": "driver_license",
+    "full_name": "Robert Kim",
+    "date_of_birth": "1972-01-30",
+    "status": "suspended",
+    "expires_on": "2029-01-30"
+  },
+  {
+    "state_id_number": "CA-DL-D5566778",
+    "id_type": "driver_license",
+    "full_name": "Jasmine Patel",
+    "date_of_birth": "1988-09-09",
+    "status": "valid",
+    "expires_on": "2026-09-09"
+  },
+  {
+    "state_id_number": "CA-SID-S3344556",
+    "id_type": "state_id",
+    "full_name": "Thomas Nguyen",
+    "date_of_birth": "1995-05-18",
+    "status": "valid",
+    "expires_on": "2030-05-18"
+  }
+]

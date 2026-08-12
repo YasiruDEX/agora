@@ -1,0 +1,50 @@
+[
+  {
+    "permit_type": "building_permit",
+    "description": "New single-family residence or room addition",
+    "base_fee": 350.0,
+    "plan_check_fee": 220.0,
+    "valuation_rate_per_1000": 4.5,
+    "notes": "Valuation-based per Riverside County's adopted fee schedule (PLAN.md § Permits & Licensing)."
+  },
+  {
+    "permit_type": "adu_permit",
+    "description": "Accessory Dwelling Unit (ADU)",
+    "base_fee": 275.0,
+    "plan_check_fee": 180.0,
+    "valuation_rate_per_1000": 4.0,
+    "notes": "Eligible for expedited plan check (targeted 30 business days) per state ADU streamlining law."
+  },
+  {
+    "permit_type": "solar_pv",
+    "description": "Solar photovoltaic installation",
+    "base_fee": 95.0,
+    "plan_check_fee": 0.0,
+    "valuation_rate_per_1000": 0.0,
+    "notes": "Over-the-counter permit — no plan check fee for standard residential installs."
+  },
+  {
+    "permit_type": "pool_spa",
+    "description": "Pool / spa installation",
+    "base_fee": 300.0,
+    "plan_check_fee": 150.0,
+    "valuation_rate_per_1000": 4.0,
+    "notes": ""
+  },
+  {
+    "permit_type": "business_license",
+    "description": "Business license / tax certificate (annual)",
+    "base_fee": 85.0,
+    "plan_check_fee": 0.0,
+    "valuation_rate_per_1000": 0.0,
+    "notes": "Flat annual fee. Renewal fee is $60 unless business type or location has changed."
+  },
+  {
+    "permit_type": "home_occupation_permit",
+    "description": "Home-based business occupation permit",
+    "base_fee": 45.0,
+    "plan_check_fee": 0.0,
+    "valuation_rate_per_1000": 0.0,
+    "notes": "Required in addition to a business license for any home-based business."
+  }
+]
