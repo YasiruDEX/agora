@@ -24,6 +24,7 @@ runtime:
   appPath: agents/citizen-inquiry-agent
   interface: chat-agent
   port: 8000
+  openapi: agents/citizen-inquiry-agent/openapi.yaml
 
 llm:
   tier: cloud

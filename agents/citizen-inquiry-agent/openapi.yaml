@@ -1,0 +1,191 @@
+openapi: 3.1.0
+info:
+  title: Citizen Inquiry Agent
+  version: 0.1.0
+  description: >
+    Standard chat interface for the Citizen Inquiry Agent — answers Riverside County
+    resident questions from a department-scoped knowledge base (see
+    mcp-servers/unified-kb-mcp-server). Every deployed instance exposes this same contract;
+    which department it answers for is determined by its MCP_API_KEY, not by anything in
+    the request.
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /chat:
+    post:
+      summary: Chat with Agent
+      description: Send a resident's question to this instance's department knowledge base.
+      operationId: chat_chat_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            examples:
+              social_services_query:
+                summary: Social Services instance — CalFresh eligibility
+                value:
+                  message: "How much do I need to qualify for CalFresh with a household of 4?"
+                  session_id: "session_abc123"
+              tax_revenue_query:
+                summary: Tax & Revenue instance — property tax due dates
+                value:
+                  message: "When is my secured property tax bill due, and what happens if I pay late?"
+                  session_id: "session_abc124"
+                  context:
+                    user_id: "user_123"
+                    locale: "en-US"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+              examples:
+                social_services_response:
+                  summary: Grounded, cited answer from the caller's own namespace
+                  value:
+                    response: >-
+                      To qualify for CalFresh with a household of 4, your gross monthly
+                      income must be at or below $5,150 (source: "CalFresh Eligibility
+                      Guide").
+                    session_id: "session_abc123"
+                out_of_scope_response:
+                  summary: Question about another department — declined, not guessed
+                  value:
+                    response: >-
+                      I don't have information regarding CalFresh qualification. I
+                      recommend contacting the department that handles CalFresh for
+                      accurate details.
+                    session_id: "session_abc124"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "An unexpected error occurred"
+    get:
+      summary: Health check
+      description: Basic liveness check reporting which county/department this instance serves.
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Instance is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Resident's question or request
+          example: "How much do I need to qualify for CalFresh with a household of 4?"
+          minLength: 1
+        session_id:
+          type: string
+          title: SessionId
+          description: Optional session/conversation identifier, echoed back unchanged
+          example: "session_abc123"
+        context:
+          type: object
+          title: Context
+          description: Optional JSON context object passed through with the message
+          additionalProperties: true
+          example:
+            user_id: "user_123"
+            locale: "en-US"
+      title: ChatRequest
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+          title: Response
+          description: Agent's answer, grounded in the caller's department knowledge base
+          example: "To qualify for CalFresh with a household of 4, your gross monthly income must be at or below $5,150."
+        session_id:
+          type: string
+          title: SessionId
+          description: Echoes the session_id from the request, if one was provided
+          example: "session_abc123"
+      title: ChatResponse
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - county
+        - department
+      properties:
+        status:
+          type: string
+          example: "ok"
+        county:
+          type: string
+          example: "Riverside County"
+        department:
+          type: string
+          description: Branding label only — not the security boundary (that's MCP_API_KEY)
+          example: "Social Services"
+      title: HealthResponse
+
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+          title: Detail
+      title: HTTPValidationError
+
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          title: Location
+          description: The location of the validation error in the request
+        msg:
+          type: string
+          title: Message
+          description: Human-readable error message
+        type:
+          type: string
+          title: Error Type
+          description: The type of validation error
+      title: ValidationError

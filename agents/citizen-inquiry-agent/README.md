@@ -37,6 +37,55 @@ Resident → POST /chat → LangGraph ReAct agent → kb_search / kb_read / kb_w
   the enforcement layer; this agent's system prompt is a second, softer line of defense (say
   "that's not my department" instead of guessing), not the actual boundary.
 
+## Deploy in Agent Manager
+
+This agent kind is instantiated 5 times — once per department — from the *same* App Path and
+image, differing only in the environment variables below (PLAN.md §5/§6). Repeat Steps 2-4
+once per department to stand up all 5 instances.
+
+### Step 1: Access Agent Manager
+
+1. Navigate to the project for **Riverside County — Department of Citizen Services**
+2. Select **Platform-Hosted Agent** Card
+3. Pick **Source Code** as the source type of the agent
+
+### Step 2: Configure Agent Details
+
+| Field | Value |
+| --- | --- |
+| **Display Name** | `Citizen Inquiry Agent — <Department>` (e.g. `Citizen Inquiry Agent — Social Services`) |
+| **Description** | `Answers resident questions from the department's namespace-scoped knowledge base` |
+| **GitHub Repository** | this repository |
+| **Branch** | `main` |
+| **App Path** | `agents/citizen-inquiry-agent` |
+| **Language** | `Python` |
+| **Language Version** | `3.11` |
+| **Start Command** | `python main.py` |
+| **Port** | `8000` |
+
+### Step 3: Select Agent Interface
+
+- Choose **"Chat Agent"** as the agent interface type (standard `POST /chat` on port `8000`,
+  contract documented in [`openapi.yaml`](openapi.yaml))
+
+### Step 4: Configure Environment Variables
+
+One department's values per instance — see the table below and the matching
+`.env.<department>` file for the exact values used in this demo:
+
+```env
+COUNTY_NAME=Riverside County
+DEPARTMENT_NAME=<Social Services|Permits & Licensing|Tax & Revenue|Records & Compliance|Contact Center>
+MCP_SERVER_URL=<Unified KB MCP server URL — same for every instance>
+MCP_API_KEY=<this instance's department key, minted under amp:mcp-server:api-key-manage>
+OPENAI_API_KEY=<your-openai-api-key>
+```
+
+### Step 5: Deploy
+
+Review and click **Deploy**. Marcus/Priya (Department Developer) can push to Dev/Staging;
+only Dana (Platform Admin) can promote to Production (PLAN.md §3).
+
 ## Setup
 
 Uses the shared root virtualenv (`../../.venv`):
