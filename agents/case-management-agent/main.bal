@@ -16,13 +16,17 @@ import ballerina/mcp;
 import ballerinax/amp as _;
 import ballerinax/openai.chat;
 
-configurable string countyName = "Riverside County";
+// AM's chat-agent interface is always POST /chat on port 8000 — this must be a literal/
+// configurable expression (not computed from os:getEnv) so AM's build-time OpenAPI/server
+// generation can statically resolve it. Override locally with BAL_CONFIG_VAR_PORT=<port> if
+// you need a non-default port (e.g. running multiple agents side by side).
+configurable int port = 8000;
 
+final string countyName = osGetEnv("COUNTY_NAME", "Riverside County");
 final string mcpServerUrl = osGetEnv("MCP_SERVER_URL", "http://127.0.0.1:8103/mcp");
 final string mcpApiKey = osGetEnv("MCP_API_KEY", "");
 final string openAiApiKey = osGetEnv("OPENAI_API_KEY", "");
 final string openAiModel = osGetEnv("OPENAI_MODEL", "gpt-4o-mini");
-final int listenPort = checkpanic int:fromString(osGetEnv("PORT", "8000"));
 
 function osGetEnv(string name, string fallback) returns string {
     string val = os:getEnv(name);
@@ -209,7 +213,7 @@ function runChatLoop(string userMessage, string? oboToken) returns string|error 
     return "I wasn't able to finish that within my step budget — please try rephrasing or ask about one case at a time.";
 }
 
-service / on new http:Listener(listenPort) {
+service / on new http:Listener(port) {
 
     resource function get health() returns HealthResponse {
         return {status: "ok", county: countyName};

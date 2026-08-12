@@ -63,7 +63,7 @@ Start the [Case Management MCP Server](../../mcp-servers/case-management-mcp-ser
 ## Run
 
 ```bash
-./run.sh                       # builds if needed, loads .env, runs on $PORT (default 8000)
+./run.sh                       # builds if needed, loads .env, runs on port 8000
 ENV_FILE=.env.staging ./run.sh # load a different env file
 ```
 
@@ -71,6 +71,14 @@ Or manually: `bal build && JAVA_HOME=$(brew --prefix openjdk) java -jar target/b
 (Ballerina has no bundled JDK on this platform — `bal build`/`bal run` resolve it
 automatically, but running the built jar directly needs `JAVA_HOME` pointed at Homebrew's
 `openjdk`, not the JRE stub at `/usr/bin/java`.)
+
+**Port is a Ballerina `configurable`, not a plain env var.** AM's build step needs a
+statically-resolvable port to generate the OpenAPI/server info for a Ballerina agent — a
+port computed from `os:getEnv(...)` at runtime fails that build step
+(`Unsupported expression found for the server port value`). So `port` in `main.bal` is
+`configurable int port = 8000;`, and the only supported override is
+`BAL_CONFIG_VAR_PORT=<port>` (not `PORT`) — see `.env.example`. AM always deploys on the
+default 8000; the override is only for running multiple local instances side by side.
 
 | Env var | Purpose |
 |---|---|
