@@ -1,0 +1,78 @@
+# Agent kind catalog entry — the demo's stand-in for `amp:agent-kind:create` /
+# `amp:catalog:read`. In a real Agent Manager org, the Platform Admin (Dana) publishes this
+# so department developers can instantiate it under `amp:agent:create` without touching code
+# (PLAN.md §5, §12 Phase 2). Locally, this file is the source of truth for what "publishing to
+# the catalog" means for this agent kind: one image, one prompt, instantiated 5 times with
+# different env vars.
+
+kind: amp:agent-kind
+name: citizen-inquiry-agent
+displayName: Citizen Inquiry Agent
+description: >
+  Answers resident questions and routes requests using a department's namespace-scoped
+  knowledge base. Same image and prompt across every department — only the injected
+  MCP_API_KEY differs, and that's what scopes it to one department's data.
+
+org: riverside-county
+publishedBy: dana.okafor@riverside-county.gov   # Platform Admin — amp:agent-kind:create
+
+runtime:
+  language: python
+  languageVersion: "3.11"
+  framework: langchain
+  startCommand: python main.py
+  appPath: agents/citizen-inquiry-agent
+  interface: chat-agent
+  port: 8000
+
+llm:
+  tier: cloud
+  provider: azure-openai   # fronted by the Agent Manager LLM Proxy in production (PLAN.md §9)
+  model: gpt-4o-mini
+
+mcpServers:
+  - name: unified-kb-mcp-server
+    role: knowledge-base
+    connectEnv:
+      url: MCP_SERVER_URL
+      apiKey: MCP_API_KEY
+    toolsExposed: [kb_search, kb_read, kb_write, kb_list_sources]
+
+guardrails:
+  - PII Masking Regex
+  - Content Length Guardrail
+  - Prompt Decorator (department branding)
+
+evaluators:
+  - Latency Performance
+  - Length Compliance
+  - Helpfulness
+  - Tone
+
+deploymentPipeline: citizen-inquiry-pipeline   # Dev -> Staging -> Prod, gated on Tone evaluator
+
+# One row per running instance — same agent kind, different env, different MCP_API_KEY.
+# `namespace` is descriptive only: which KB namespace an instance actually reaches is
+# determined server-side by the MCP server resolving that instance's API key, not by this
+# manifest.
+instances:
+  - department: Social Services
+    namespace: social-services
+    envFile: agents/citizen-inquiry-agent/.env.social-services
+    owner: marcus.lee@riverside-county.gov
+  - department: Permits & Licensing
+    namespace: permits-licensing
+    envFile: agents/citizen-inquiry-agent/.env.permits-licensing
+    owner: priya.raman@riverside-county.gov
+  - department: Tax & Revenue
+    namespace: tax-revenue
+    envFile: agents/citizen-inquiry-agent/.env.tax-revenue
+    owner: platform-team
+  - department: Records & Compliance
+    namespace: records-compliance
+    envFile: agents/citizen-inquiry-agent/.env.records-compliance
+    owner: platform-team
+  - department: Contact Center
+    namespace: contact-center
+    envFile: agents/citizen-inquiry-agent/.env.contact-center
+    owner: platform-team
