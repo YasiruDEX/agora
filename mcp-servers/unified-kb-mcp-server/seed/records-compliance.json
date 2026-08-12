@@ -1,0 +1,32 @@
+[
+  {
+    "doc_id": "rc-001",
+    "source": "Requesting Vital Records (Birth & Death Certificates)",
+    "content": "The Riverside County Assessor-County Clerk-Recorder issues certified copies of birth and death certificates for events that occurred in Riverside County. Two types are available: an 'authorized' certified copy (available to the registrant, immediate family, legal guardians, and certain other authorized parties per California Health & Safety Code §103526) and an 'informational' certified copy (available to anyone, stamped 'INFORMATIONAL, NOT A VALID DOCUMENT TO ESTABLISH IDENTITY'). Requests can be made in person, by mail with a notarized sworn statement, or online through the county's authorized vendor. Processing typically takes 2-4 weeks for mail requests."
+  },
+  {
+    "doc_id": "rc-002",
+    "source": "California Public Records Act (CPRA) Requests",
+    "content": "Any person can request access to Riverside County public records under the California Public Records Act (Government Code §7920.000 et seq.). Requests can be informal (verbal or email) or formal (written). The county must respond within 10 calendar days, stating whether it will comply and, if more time is needed to locate/review records, an additional 14 calendar days is permitted for unusual circumstances. Certain records are exempt from disclosure, including active investigation files, attorney-client privileged material, and some personnel records. Requesters can appeal a denial or seek clarification through the Records & Compliance office."
+  },
+  {
+    "doc_id": "rc-003",
+    "source": "Recorder's Office — Recording a Deed",
+    "content": "Real property documents (grant deeds, quitclaim deeds, deeds of trust, liens) are recorded with the Riverside County Recorder to create a public record of ownership and encumbrances. Documents must meet formatting requirements (minimum font size, margins, and a Preliminary Change of Ownership Report for most transfers) and be signed and notarized as required. Recording fees are per California Government Code, plus additional per-page fees for non-conforming documents. Recorded documents are typically available in the online index within 1-2 business days."
+  },
+  {
+    "doc_id": "rc-004",
+    "source": "Notary Public Services",
+    "content": "The Riverside County Clerk-Recorder's office maintains the official record of Notary Public bonds and oaths of office filed in the county, as required for notaries commissioned to practice in Riverside County. The office does not provide notarization of documents for the public directly; residents seeking a document notarized should use a private notary public, many of whom are listed with the California Secretary of State's notary public license search."
+  },
+  {
+    "doc_id": "rc-005",
+    "source": "Marriage License & Ceremony Information",
+    "content": "Couples can obtain a marriage license from the Riverside County Clerk's office; both public licenses (become part of the public record) and confidential licenses (for cohabitating couples, sealed from public inspection) are available. A license is valid for 90 days from issuance and must be solemnized within that window by an authorized officiant. The Clerk's office also offers civil ceremony services by appointment for couples who want to be married on-site immediately after obtaining their license."
+  },
+  {
+    "doc_id": "rc-006",
+    "source": "Records Retention & Compliance Audits",
+    "content": "Riverside County departments follow a records retention schedule adopted by the Board of Supervisors, specifying minimum retention periods for categories such as financial records (typically 7 years), personnel files (duration of employment plus a statutory period), and case records for regulated programs. The Records & Compliance office periodically audits department retention practices and coordinates legal holds when records are subject to pending litigation or a public records request, overriding routine destruction schedules until the hold is lifted."
+  }
+]

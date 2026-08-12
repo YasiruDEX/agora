@@ -1,0 +1,27 @@
+[
+  {
+    "doc_id": "cc-001",
+    "source": "Riverside County Department Directory & Routing",
+    "content": "Riverside County's Department of Citizen Services routes resident inquiries to the correct department: Social Services (DPSS) for CalFresh, CalWORKs, Medi-Cal, IHSS, and General Relief; Permits & Licensing (Building & Safety, Planning) for construction permits, business licenses, and zoning; Tax & Revenue (Treasurer-Tax Collector, Assessor) for property tax bills, payment plans, and assessment appeals; Records & Compliance (Clerk-Recorder) for birth/death certificates, public records requests, and recorded deeds. Contact Center agents should confirm the resident's need before transferring or providing a callback number, since several services (e.g., property tax vs. business license) are handled by different divisions."
+  },
+  {
+    "doc_id": "cc-002",
+    "source": "County Office Hours & Holiday Schedule",
+    "content": "Most Riverside County public-facing offices are open Monday through Friday, 8:00 AM to 5:00 PM, excluding county-observed holidays (New Year's Day, MLK Day, Presidents' Day, Memorial Day, Juneteenth, Independence Day, Labor Day, Veterans Day, Thanksgiving and the day after, and Christmas Day). Some DPSS offices offer extended hours or Saturday appointments for CalFresh recertification during peak periods. The Contact Center itself operates a phone line Monday-Friday 7:00 AM to 6:00 PM to accommodate residents outside standard office hours."
+  },
+  {
+    "doc_id": "cc-003",
+    "source": "Language Access & Interpretation Services",
+    "content": "Riverside County provides free interpretation services in over 200 languages via a telephonic interpretation line available at all public-facing counters and through the Contact Center. Spanish-language service is available at every DPSS and Clerk-Recorder location without needing to request an interpreter in advance. Vital documents and applications (CalFresh, CalWORKs, Medi-Cal) are available in threshold languages including Spanish, per state language-access requirements for public benefits programs."
+  },
+  {
+    "doc_id": "cc-004",
+    "source": "211 Riverside County Referral Line",
+    "content": "211 Riverside County is a free, confidential referral service (dial 2-1-1) for residents seeking food banks, emergency shelter, utility assistance, mental health crisis support, and other community resources that may fall outside direct county program eligibility. Contact Center agents should offer a 211 referral when a resident's need doesn't map to a specific county department program, or as a same-day resource while a formal application (e.g., CalFresh) is processed."
+  },
+  {
+    "doc_id": "cc-005",
+    "source": "Escalation Path for Unresolved Inquiries",
+    "content": "If a Contact Center inquiry cannot be resolved with published knowledge-base information, agents should escalate: (1) case-specific benefits questions (CalFresh/CalWORKs/Medi-Cal status) escalate to the resident's assigned DPSS caseworker via a warm transfer or case-note flag; (2) permit or licensing disputes escalate to Building & Safety supervisor review; (3) tax bill disputes escalate to the Treasurer-Tax Collector's taxpayer assistance line; (4) records requests denied or delayed beyond statutory timelines escalate to the Records & Compliance office for CPRA compliance review."
+  }
+]

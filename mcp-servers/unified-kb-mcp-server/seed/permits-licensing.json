@@ -1,0 +1,27 @@
+[
+  {
+    "doc_id": "pl-001",
+    "source": "Residential Building Permit Process",
+    "content": "Most construction, alteration, or demolition work in unincorporated Riverside County requires a building permit from the Riverside County Department of Building and Safety. The typical process is: (1) submit plans and application through the Online Permit Portal or in person, (2) plan check review (2-4 weeks for standard residential, longer for complex projects), (3) pay permit fees, (4) schedule inspections at each construction milestone, (5) receive final approval and Certificate of Occupancy if applicable. Homeowners may act as their own contractor for some minor projects but must still pull the correct permits. Work started without a permit is subject to a penalty fee, typically double the standard permit fee."
+  },
+  {
+    "doc_id": "pl-002",
+    "source": "Business License Application Guide",
+    "content": "Businesses operating in unincorporated Riverside County must obtain a business license (also called a business tax certificate in some jurisdictions) before opening. Requirements vary by business type: home-based businesses need a Home Occupation Permit, food establishments require Environmental Health approval, and businesses selling alcohol need a separate ABC license coordinated with the state. Applications are submitted to the County Clerk or the relevant department, along with proof of a Fictitious Business Name (DBA) filing if applicable. Renewal is typically annual."
+  },
+  {
+    "doc_id": "pl-003",
+    "source": "Zoning Variance & Conditional Use Permit",
+    "content": "A zoning variance allows a property owner to deviate from standard zoning requirements (setbacks, height, lot coverage) when strict compliance would create an unnecessary hardship. A Conditional Use Permit (CUP) is required for land uses that are only allowed in a zone with special review, such as a daycare in a residential zone or a drive-through restaurant. Both require a public hearing before the Planning Commission, a completed application with a site plan, and payment of the applicable review fee. Decisions can be appealed to the Board of Supervisors within 10 calendar days."
+  },
+  {
+    "doc_id": "pl-004",
+    "source": "Contractor License Verification",
+    "content": "Before hiring a contractor for any project over $500 in labor and materials, Riverside County recommends verifying an active California contractor's license through the Contractors State License Board (CSLB). Unlicensed contracting is illegal for jobs above that threshold. County permit staff will check that the license classification matches the scope of work (e.g., a B general contractor for a full remodel, or a C-36 for plumbing) before issuing a permit that names the contractor."
+  },
+  {
+    "doc_id": "pl-005",
+    "source": "Plan Check & Permit Fee Schedule",
+    "content": "Riverside County Building and Safety fees are calculated primarily from the project's valuation using the county's adopted fee schedule, plus a flat plan-check fee for first submittal and reduced fees for re-submittals within the review cycle. Typical categories include: new single-family residence, room addition, accessory dwelling unit (ADU), solar photovoltaic installation, and pool/spa. ADU permits receive expedited plan check (targeted 30 business days) per state ADU streamlining law. Fee estimates are available through the online permit fee calculator prior to formal submittal."
+  }
+]

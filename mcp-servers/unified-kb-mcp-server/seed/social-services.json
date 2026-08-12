@@ -1,0 +1,32 @@
+[
+  {
+    "doc_id": "ss-001",
+    "source": "CalFresh Eligibility Guide",
+    "content": "CalFresh (California's SNAP food benefits program) helps low-income Riverside County households buy groceries. Eligibility is based on household size, gross monthly income (generally at or below 200% of the federal poverty level), and citizenship/immigration status of applicants. A household of 1 must have gross monthly income at or below $2,510; a household of 4 at or below $5,150 (amounts adjust annually with federal guidelines). Applications can be submitted online via BenefitsCal, by phone, or in person at any Riverside County Department of Public Social Services (DPSS) office. Most households must complete an interview within 30 days of applying. Benefits are issued on an EBT card on a staggered schedule based on the last digit of the case number."
+  },
+  {
+    "doc_id": "ss-002",
+    "source": "CalWORKs Program Overview",
+    "content": "CalWORKs provides cash aid and employment services to eligible low-income families with children. Riverside County DPSS administers the program locally. Recipients are generally required to participate in Welfare-to-Work activities (job search, vocational training, or subsidized employment) unless exempt (e.g., caring for a child under 12 months, or a documented disability). Cash aid has a 48-month lifetime limit for the adult portion of the grant (some exceptions apply). Applicants must provide proof of income, residency, and identity for all household members. Redeterminations occur every 12 months."
+  },
+  {
+    "doc_id": "ss-003",
+    "source": "Medi-Cal Application Process",
+    "content": "Medi-Cal is California's Medicaid program providing free or low-cost health coverage. Riverside County residents can apply through Covered California, BenefitsCal, or in person at a DPSS office. There is no asset test for most Medi-Cal categories under the Affordable Care Act expansion. Coverage includes doctor visits, hospital care, prescriptions, mental health services, and dental (Medi-Cal Dental / Denti-Cal). Annual renewals are required; failure to complete a renewal packet within 90 days can result in a coverage gap that must be restored via a new application or reasonable-cause request."
+  },
+  {
+    "doc_id": "ss-004",
+    "source": "In-Home Supportive Services (IHSS)",
+    "content": "IHSS pays for in-home caregiving services for eligible aged, blind, or disabled Riverside County residents who would otherwise require out-of-home care. An in-person needs assessment by a county social worker determines the monthly hours authorized across tasks such as meal preparation, bathing, housework, and transportation to medical appointments. Recipients may hire a family member (with some exceptions) as their IHSS provider. Providers must complete an enrollment and background check through the Public Authority before submitting timesheets."
+  },
+  {
+    "doc_id": "ss-005",
+    "source": "General Relief (GR) Program",
+    "content": "General Relief is a county-funded, last-resort cash assistance program for indigent adults who do not qualify for CalWORKs, CalFresh cash aid, SSI, or other state/federal programs. Riverside County GR grants are issued monthly and capped at a maximum of 3 months in a 12-month period unless the recipient is actively pursuing SSI or is otherwise exempted. Applicants must complete an intake interview and, where applicable, comply with workfare or job-search requirements."
+  },
+  {
+    "doc_id": "ss-006",
+    "source": "Homeless Services & Emergency Shelter Referrals",
+    "content": "Riverside County's Department of Public Social Services and the Continuum of Care coordinate emergency shelter, rapid re-housing, and homeless prevention services. Individuals experiencing homelessness should first contact the county's Coordinated Entry System, which conducts a standardized vulnerability assessment (VI-SPDAT) to prioritize housing referrals. Emergency motel vouchers may be available for families with children on a case-by-case basis. Homeless Prevention funds can help with one-time rent or utility arrears to avoid eviction."
+  }
+]

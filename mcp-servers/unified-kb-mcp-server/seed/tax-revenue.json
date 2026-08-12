@@ -1,0 +1,32 @@
+[
+  {
+    "doc_id": "tr-001",
+    "source": "Property Tax Due Dates & Delinquency",
+    "content": "Riverside County secured property tax bills are mailed in October and payable in two installments: the first installment is due November 1 and delinquent after December 10; the second installment is due February 1 and delinquent after April 10. A 10% penalty applies to any installment paid after its delinquency date, plus a $10-$20 cost on the second installment. If a property has unpaid taxes for five years, it becomes subject to the county's tax-defaulted property auction. Taxpayers can look up and pay bills online through the Treasurer-Tax Collector's parcel lookup tool."
+  },
+  {
+    "doc_id": "tr-002",
+    "source": "Unsecured Property Tax Bills",
+    "content": "Unsecured property tax bills apply to personal property such as boats, aircraft, and business equipment/fixtures that are not tied to real estate. Unsecured bills are mailed in July and due August 31; payments after that date accrue a 10% penalty immediately, followed by an additional 1.5% monthly penalty if unpaid after October 31. Unlike secured tax, unsecured tax delinquency can result in a lien against the owner's other property and referral to a collection agency."
+  },
+  {
+    "doc_id": "tr-003",
+    "source": "Property Tax Payment Plans (4-Pay Plan)",
+    "content": "Property owners with defaulted secured taxes can enter a 5-year installment plan (commonly called the 4-Pay Plan for the four subsequent annual payments after the initial 20% down payment) to avoid losing the property to a tax sale. The plan requires an initial payment of at least 20% of the total redemption amount plus current-year taxes, then annual payments of at least 20% of the remaining balance for four more years, plus interest at 1.5% per month on the unpaid balance. Missing two consecutive installments defaults the plan."
+  },
+  {
+    "doc_id": "tr-004",
+    "source": "Penalty Cancellation Requests",
+    "content": "Taxpayers may request cancellation of a late-payment penalty if the delay was due to reasonable cause beyond their control and occurred without willful neglect (e.g., a documented USPS mail delay, a bank/electronic payment system error, or a taxpayer's serious illness/hospitalization during the payment window). Requests must be submitted in writing to the Treasurer-Tax Collector within one year of the penalty, with supporting documentation. Penalty cancellation is not granted for forgetting a due date or for financial hardship alone."
+  },
+  {
+    "doc_id": "tr-005",
+    "source": "Transient Occupancy Tax (TOT)",
+    "content": "Riverside County levies a Transient Occupancy Tax on short-term lodging (hotels, motels, vacation rentals) in unincorporated areas for stays of 30 days or less. Operators must register with the county, collect TOT from guests at the point of sale, and remit collected tax quarterly along with a TOT return. Short-term rental hosts using platforms like Airbnb or Vrbo are independently responsible for county registration even if the platform collects tax on their behalf in some cases; failure to register can result in penalties and potential permit revocation."
+  },
+  {
+    "doc_id": "tr-006",
+    "source": "Assessment Appeals Process",
+    "content": "Property owners who disagree with the Assessor's determination of their property's taxable value can file an Assessment Appeal Application with the Clerk of the Board during the regular filing period (July 2 - November 30 for the annual roll) or within 60 days of a supplemental/escape assessment notice. The Assessment Appeals Board holds a hearing and can lower, raise, or leave unchanged the assessed value. Filing an appeal does not postpone the obligation to pay taxes as billed while the appeal is pending; overpayments are refunded with interest if the appeal succeeds."
+  }
+]
