@@ -1,0 +1,75 @@
+# Agent kind catalog entry — see catalog/citizen-inquiry-agent.yaml for the convention this
+# follows. This is the MCP-scoping centerpiece agent kind (PLAN.md §7-8): deliberately not
+# fanned out, deliberately a different runtime (Ballerina) than the other two agent kinds.
+
+kind: amp:agent-kind
+name: case-management-agent
+displayName: Case Management Agent
+description: >
+  Summarizes a caseworker's own cases and drafts next-step notes. Built in Ballerina (native
+  MCP client) to prove Agent Manager's governance layer is language-agnostic. Scoped into
+  exactly 3 of the Case Management MCP Server's 7 tools; every call also carries an
+  on-behalf-of token identifying the caseworker, so the same instance returns different case
+  lists for different caseworkers.
+
+org: riverside-county
+publishedBy: dana.okafor@riverside-county.gov   # Platform Admin — amp:agent-kind:create
+
+runtime:
+  language: ballerina
+  languageVersion: "2201.13.5"
+  framework: native (ballerina/mcp, ballerinax/openai.chat)
+  startCommand: ./run.sh
+  appPath: agents/case-management-agent
+  interface: chat-agent
+  port: 8000
+  tracingExtension: ballerinax/amp   # required import for AM tracing on Ballerina agents
+
+llm:
+  tier: data-resident   # AWS Bedrock GovCloud via OpenAI->Bedrock Transformer in production (PLAN.md §9)
+  provider: aws-bedrock-govcloud
+  model: gpt-4o-mini   # local/dev only; production pins to the GovCloud-hosted model
+
+mcpServers:
+  - name: case-management-mcp-server
+    role: dedicated-database
+    connectEnv:
+      url: MCP_SERVER_URL
+      apiKey: MCP_API_KEY
+    toolsExposed: [case_search, case_read, case_notes_write]   # scope: amp:scope — 3 of 7
+    toolsDeniedByScope: [case_status_update, citizen_profile_read, citizen_profile_write, case_close]
+
+identity:
+  onBehalfOf: true
+  tokenHeader: X-OBO-Token
+  introspection: opaque-token (RFC 7662 stand-in)   # PLAN.md §8
+
+guardrails:
+  - PII Masking Regex
+  - Opaque Token Auth (on-behalf-of introspection)
+  - mcp-ratelimit
+
+evaluators:
+  - Tool Coverage      # flags any attempt to call an out-of-scope tool
+  - Content Safety     # backstop behind PII Masking Regex
+  - Groundedness
+  - Safety
+
+deploymentPipeline: case-management-pipeline
+# Dev -> Staging -> Prod, gated on Tool Coverage + Content Safety pass + Admin sign-off
+# (PLAN.md §2) — the pipeline visibly stalls at Staging until Dana approves it.
+
+sandboxing: none   # this agent kind does no code execution; sandboxing (PLAN.md §11) applies to Permit & Licensing only
+
+# Single instance — Social Services only, on purpose (PLAN.md §5): keeping it singular is
+# what makes the MCP scoping story legible (one agent kind, one department, one MCP server
+# with a visibly restricted tool surface).
+instances:
+  - department: Social Services
+    envFile: agents/case-management-agent/.env
+    owner: marcus.lee@riverside-county.gov
+    caseworkers:
+      - name: Joan Ellis
+        oboToken: obo_joan_ellis_4a7c9f
+      - name: Renee Alvarez
+        oboToken: obo_renee_alvarez_1e6b2d

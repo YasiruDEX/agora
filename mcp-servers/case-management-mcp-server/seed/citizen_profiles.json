@@ -1,0 +1,46 @@
+[
+  {
+    "citizen_id": "CIT-3001",
+    "full_name": "Elena Vasquez",
+    "date_of_birth": "1988-04-12",
+    "ssn_last4": "4471",
+    "address": "1420 Magnolia Ave, Riverside County, CA",
+    "phone": "951-555-0211",
+    "email": "elena.vasquez@example.com",
+    "household_size": 3,
+    "notes": "Single parent, two children ages 4 and 7. Works part-time at a grocery store."
+  },
+  {
+    "citizen_id": "CIT-3002",
+    "full_name": "Walter Briggs",
+    "date_of_birth": "1955-09-30",
+    "ssn_last4": "8823",
+    "address": "77 Copper Ridge Rd, Riverside County, CA",
+    "phone": "951-555-0244",
+    "email": "walter.briggs@example.com",
+    "household_size": 1,
+    "notes": "Lives alone, mobility-limited following hip surgery."
+  },
+  {
+    "citizen_id": "CIT-3003",
+    "full_name": "Samantha Reyes",
+    "date_of_birth": "1997-01-08",
+    "ssn_last4": "1190",
+    "address": "902 Fig Tree Ln, Riverside County, CA",
+    "phone": "951-555-0267",
+    "email": "samantha.reyes@example.com",
+    "household_size": 2,
+    "notes": "Recently separated from spouse, currently between jobs."
+  },
+  {
+    "citizen_id": "CIT-3004",
+    "full_name": "George Palmer",
+    "date_of_birth": "1963-06-19",
+    "ssn_last4": "5567",
+    "address": "233 Sundown Trl, Riverside County, CA",
+    "phone": "951-555-0288",
+    "email": "george.palmer@example.com",
+    "household_size": 1,
+    "notes": "Veteran, receiving partial VA benefits, seeking supplemental assistance."
+  }
+]

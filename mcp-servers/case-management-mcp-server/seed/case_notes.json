@@ -1,0 +1,32 @@
+[
+  {
+    "case_id": "CASE-1001",
+    "author": "joan.ellis",
+    "content": "Initial intake complete. Referred to job-search Welfare-to-Work activity starting next week.",
+    "days_ago": 20
+  },
+  {
+    "case_id": "CASE-1001",
+    "author": "joan.ellis",
+    "content": "Client attended orientation. No barriers to participation identified.",
+    "days_ago": 12
+  },
+  {
+    "case_id": "CASE-1002",
+    "author": "joan.ellis",
+    "content": "Home visit completed. Needs assessment scored at 62 hours/month pending supervisor sign-off.",
+    "days_ago": 8
+  },
+  {
+    "case_id": "CASE-1004",
+    "author": "renee.alvarez",
+    "content": "Intake interview completed. Awaiting pay stubs from most recent employer.",
+    "days_ago": 13
+  },
+  {
+    "case_id": "CASE-1005",
+    "author": "renee.alvarez",
+    "content": "VA benefits statement received; calculating net countable income for CalFresh eligibility.",
+    "days_ago": 5
+  }
+]
