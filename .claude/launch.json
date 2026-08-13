@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "citizen-portal",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd citizen-portal && npm run dev -- --host"],
+      "port": 5173
+    }
+  ]
+}
