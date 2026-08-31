@@ -4,8 +4,9 @@ Implements the AM chat-agent contract: ``POST /chat`` on port 8000 accepting
 ``{session_id, message, context}`` and returning ``{response, session_id}``.
 ``GET /health`` is provided for local checks (AM does not require it).
 
-MCP tools are loaded once at startup against this instance's MCP_SERVER_URL/MCP_API_KEY —
-which department namespace that resolves to is entirely up to the MCP server, not this agent.
+MCP tools are loaded once at startup against this instance's MCP_SERVER_URL, authenticating
+via an OAuth2 AgentID token (see mcp_tools.py) — which department namespace that resolves to
+is entirely up to the MCP server/proxy, not this agent.
 """
 
 from __future__ import annotations

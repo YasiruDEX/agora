@@ -3,10 +3,14 @@
 One image, one codebase — every one of the 5 department instances (Social Services, Permits
 & Licensing, Tax & Revenue, Records & Compliance, Contact Center) is this same agent, told
 apart only by the env vars Agent Manager injects at deploy time (PLAN.md §5/§6):
-``MCP_SERVER_URL``/``MCP_API_KEY`` point it at the Unified KB MCP server and resolve it to one
-department namespace server-side; ``DEPARTMENT_NAME`` only affects tone/branding in the
-prompt, never which KB namespace is reachable — that boundary is enforced by the MCP server,
-not by this agent trusting its own env.
+``MCP_SERVER_URL`` points at the (proxied) Unified KB MCP endpoint; ``DEPARTMENT_NAME`` only
+affects tone/branding in the prompt, never which KB namespace is reachable.
+
+Authentication to the MCP proxy in front of the Unified KB MCP server is OAuth2 client
+credentials (RFC 6749) with a resource indicator (RFC 8707), using the AgentID service
+account Agent Manager injects: ``AMP_AGENTID_CLIENT_ID`` / ``AMP_AGENTID_CLIENT_SECRET`` /
+``AMP_AGENTID_TOKEN_ENDPOINT`` / ``AMP_AGENTID_SCOPES``. The MCP server itself is unchanged —
+namespace resolution still happens there, keyed off whatever credential the proxy forwards.
 """
 
 from __future__ import annotations
@@ -27,7 +31,10 @@ class Config:
     county_name: str
     department_name: str
     mcp_server_url: str
-    mcp_api_key: str
+    agentid_client_id: str
+    agentid_client_secret: str
+    agentid_token_endpoint: str
+    agentid_scopes: str
     tone: str
     additional_guidance: str
     use_llm_provider: bool
@@ -51,7 +58,10 @@ class Config:
             county_name=_env("COUNTY_NAME", "Riverside County"),
             department_name=_env("DEPARTMENT_NAME"),
             mcp_server_url=_env("MCP_SERVER_URL"),
-            mcp_api_key=_env("MCP_API_KEY"),
+            agentid_client_id=_env("AMP_AGENTID_CLIENT_ID"),
+            agentid_client_secret=_env("AMP_AGENTID_CLIENT_SECRET"),
+            agentid_token_endpoint=_env("AMP_AGENTID_TOKEN_ENDPOINT"),
+            agentid_scopes=_env("AMP_AGENTID_SCOPES"),
             tone=_env("TONE", "clear, courteous, and plain-language"),
             additional_guidance=_env("ADDITIONAL_GUIDANCE", ""),
             use_llm_provider=use_llm_provider,
