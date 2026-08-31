@@ -146,11 +146,24 @@ curl -s -X POST http://127.0.0.1:8001/chat -H 'Content-Type: application/json' \
   -d '{"message": "How much do I need to qualify for CalFresh with a household of 4?"}'
 ```
 
-> **Note:** the isolation/grounding behavior below was verified against the old static
-> `X-MCP-API-Key` header scheme. The code now speaks OAuth2 to an MCP proxy instead (see
-> "How it's wired" above) — the MCP server side and its namespace enforcement are unchanged,
-> but re-verifying this agent end-to-end requires a real OAuth2 token endpoint/proxy, which
-> isn't available locally. Retest once pointed at the actual proxy.
+**OAuth2 flow verified end-to-end** against the real (unchanged) Unified KB MCP server, using
+a throwaway local stand-in for the AgentID token endpoint (the real MCP proxy isn't reachable
+from this environment): the agent minted a token via client-credentials, called the MCP
+server with `Authorization: Bearer <token>`, and got a correctly-grounded answer back. Also
+verified the token cache does the right thing — 2 chat requests within the token's TTL
+triggered exactly 1 token-endpoint call, not 2.
+
+**Bug found and fixed along the way:** the original OAuth2 port fetched the access token once
+at process startup and built the LangGraph agent once, reusing both for the process's
+lifetime. Since client-credentials tokens are short-lived, any `/chat` call after the token
+expired failed — not with a clean auth-denied message, but as an opaque
+`ExceptionGroup: unhandled errors in a TaskGroup`, because the failure happened deep inside
+`langchain-mcp-adapters`' per-tool-call connection setup, outside this app's own error
+handling, and never even reached the MCP server (confirmed via the server's own access logs —
+the failing requests never showed up). Fixed by caching the token with expiry-aware refresh
+(`mcp_tools.py`'s `_TokenCache`) and rebuilding the tool set/agent on every `/chat` request
+instead of once at startup (`app.py`), so a request is never served against a token that was
+already stale when the process started.
 
 Previously verified end-to-end with two instances running side by side (pre-OAuth2):
 - Social Services (8001) correctly answers CalFresh questions with a citation to the source
