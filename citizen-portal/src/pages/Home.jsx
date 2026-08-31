@@ -74,7 +74,7 @@ export default function Home() {
             <span className="text-xs text-slate-500">{t('pages.home.askInquirySub')}</span>
           </div>
           <div className="max-w-2xl">
-            <ChatWidget agentKey="citizen-inquiry" mode="embedded" seal="/images/department_seals/contact_center_seal.svg" />
+            <ChatWidget agentKey="citizen-inquiry-contact-center" mode="embedded" seal="/images/department_seals/contact_center_seal.svg" />
           </div>
         </section>
       </div>

@@ -1,41 +1,22 @@
 import { Link } from 'react-router-dom'
-import {
-  Home as HomeIcon,
-  Landmark,
-  HeartHandshake,
-  Building2,
-  FileText,
-  Stethoscope,
-  GraduationCap,
-  Car,
-  Briefcase,
-  Scale,
-  Wheat,
-  Plane,
-} from 'lucide-react'
+import { Phone, HeartHandshake, Building2, Landmark, FileText } from 'lucide-react'
 import { useLanguage } from '../../i18n/LanguageContext'
 
+// One category per department this portal actually serves — matches the 5 Citizen Inquiry
+// Agent instances (PLAN.md §5/§6), not an aspirational full service catalog.
 const CATEGORY_ICONS = {
-  housing: HomeIcon,
-  tax: Landmark,
+  'contact-center': Phone,
   social: HeartHandshake,
   permits: Building2,
+  tax: Landmark,
   records: FileText,
-  health: Stethoscope,
-  education: GraduationCap,
-  transport: Car,
-  employment: Briefcase,
-  justice: Scale,
-  agriculture: Wheat,
-  foreign: Plane,
 }
 
-// Categories that map to a live department page in this demo; the rest are
-// shown for directory completeness but are illustrative-only (no live agent).
 const CATEGORY_ROUTES = {
-  tax: '/tax-revenue',
+  'contact-center': '/contact-center',
   social: '/social-services',
   permits: '/permits',
+  tax: '/tax-revenue',
   records: '/records',
 }
 
@@ -49,7 +30,7 @@ export default function ServiceGrid() {
         <h2 className="text-xl font-bold text-slateink">{t('serviceGrid.title')}</h2>
       </div>
       <p className="text-sm text-slate-500 mb-4">{t('serviceGrid.subtitle')}</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {categories.map((cat) => {
           const Icon = CATEGORY_ICONS[cat.id] || FileText
           const route = CATEGORY_ROUTES[cat.id]

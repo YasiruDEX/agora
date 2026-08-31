@@ -8,7 +8,7 @@
  *   VITE_AGENT_<KEY>_URL      — the agent's Agent Manager invoke URL (no trailing /chat)
  *   VITE_AGENT_<KEY>_API_KEY  — the API key shown on that agent's Overview page
  * where <KEY> is the agentKey from src/mock/departmentData.js AGENTS, dashes -> underscores,
- * uppercased (e.g. 'benefits-eligibility' -> VITE_AGENT_BENEFITS_ELIGIBILITY_URL).
+ * uppercased (e.g. 'citizen-inquiry-social-services' -> VITE_AGENT_CITIZEN_INQUIRY_SOCIAL_SERVICES_URL).
  *
  * An agent with no configured URL/API key (or a placeholder value starting with
  * REPLACE_WITH) automatically falls back to the scripted mock engine — so partially

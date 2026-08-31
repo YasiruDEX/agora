@@ -1,12 +1,13 @@
 import { CheckCircle, ShieldAlert } from 'lucide-react'
 import { useLanguage } from '../../i18n/LanguageContext'
 
-export default function DepartmentBadge({ department, agentName, tier }) {
+export default function DepartmentBadge({ department, agentName, tier, seal }) {
   const { t } = useLanguage()
   const TierIcon = tier?.key === 'onprem' ? ShieldAlert : CheckCircle
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {seal && <img src={seal} alt="" className="w-7 h-7 rounded-full shrink-0" />}
       <div className="leading-tight">
         <p className="text-white font-semibold text-sm">{agentName}</p>
         <p className="text-white/70 text-xs">{department}</p>

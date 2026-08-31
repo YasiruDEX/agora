@@ -12,25 +12,23 @@ import PermitsLicensing from './pages/PermitsLicensing'
 import TaxRevenue from './pages/TaxRevenue'
 import RecordsCompliance from './pages/RecordsCompliance'
 
-// The floating assistant is always functionally the Citizen Inquiry Agent
-// (agentKey="citizen-inquiry"), but re-brands its displayed name/department
-// per department route — a "Welfare & Eligibility Assistant" persona on
-// /social-services, a "Tax & Revenue Rate Assistant" persona on /tax-revenue,
-// etc. — per the department-specific agent rebranding requirement.
-const ROUTE_BRANDING = {
-  '/': 'citizenInquiry',
-  '/contact-center': 'citizenInquiry',
-  '/social-services': 'welfareEligibility',
-  '/permits': 'planningPermits',
-  '/tax-revenue': 'taxRevenueAssistant',
-  '/records': 'recordsFoiaBrand',
+// The floating assistant is always the Citizen Inquiry Agent kind, but which *instance* it
+// talks to — and its displayed persona name — both switch per department route, matching
+// PLAN.md §6: same agent kind, one deployed instance (and namespace) per department.
+const ROUTE_AGENT = {
+  '/': { agentKey: 'citizen-inquiry-contact-center', brandI18nKey: 'citizenInquiry' },
+  '/contact-center': { agentKey: 'citizen-inquiry-contact-center', brandI18nKey: 'citizenInquiry' },
+  '/social-services': { agentKey: 'citizen-inquiry-social-services', brandI18nKey: 'welfareEligibility' },
+  '/permits': { agentKey: 'citizen-inquiry-permits-licensing', brandI18nKey: 'planningPermits' },
+  '/tax-revenue': { agentKey: 'citizen-inquiry-tax-revenue', brandI18nKey: 'taxRevenueAssistant' },
+  '/records': { agentKey: 'citizen-inquiry-records-compliance', brandI18nKey: 'recordsFoiaBrand' },
 }
 
 function FloatingAssistant() {
   const location = useLocation()
-  const brandI18nKey = ROUTE_BRANDING[location.pathname] || 'citizenInquiry'
-  // Remount on route change so the greeting/session refreshes for the new persona.
-  return <ChatWidget key={brandI18nKey} agentKey="citizen-inquiry" mode="floating" brandI18nKey={brandI18nKey} />
+  const { agentKey, brandI18nKey } = ROUTE_AGENT[location.pathname] || ROUTE_AGENT['/']
+  // Remount on route change so the greeting/session refreshes for the new instance/persona.
+  return <ChatWidget key={agentKey} agentKey={agentKey} mode="floating" brandI18nKey={brandI18nKey} />
 }
 
 export default function App() {

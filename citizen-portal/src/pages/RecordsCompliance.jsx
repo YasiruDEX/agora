@@ -33,7 +33,7 @@ export default function RecordsCompliance() {
           <div className="bg-white rounded-lg border border-slate-200 p-3 text-xs text-slate-500">{t('records.tryIt')}</div>
         </div>
         <div className="lg:col-span-2">
-          <ChatWidget agentKey="records-foia" mode="embedded" seal={dept.seal} />
+          <ChatWidget agentKey="citizen-inquiry-records-compliance" mode="embedded" seal={dept.seal} />
         </div>
       </div>
     </div>

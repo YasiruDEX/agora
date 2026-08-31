@@ -76,7 +76,7 @@ const TEXT = {
       accessDenied: (id, owner) =>
         `Security Notice: Access Denied. Case ${id} is assigned to ${owner}, not to you. You may only view cases assigned to your own caseload.`,
       summary: (id, citizen, status) => `Case ${id}: ${citizen}'s case is currently ${status}.`,
-      fallback: 'Please provide a case ID (e.g. CASE-2026-001) so I can look it up.',
+      fallback: 'Please provide a case ID (e.g. CASE-1001) so I can look it up.',
       accessDeniedTitle: 'Access Denied',
       caseTitlePrefix: 'Case',
       statusDenied: 'DENIED',
@@ -210,27 +210,61 @@ function resolveBenefitsEligibility(message, lang) {
 // ---------------------------------------------------------------------------
 // Case Management Agent (On-Behalf-Of scoping demo)
 // ---------------------------------------------------------------------------
+// Mirrors the real seed data in mcp-servers/case-management-mcp-server/seed/cases.json —
+// same case IDs, citizens, and caseworker assignments as the actual deployed agent.
 const CASES = {
-  'CASE-2026-001': {
+  'CASE-1001': {
     owner: 'joan.ellis',
     ownerLabel: 'Joan Ellis',
-    citizen: 'Sandra Wells',
-    caseType: 'BENEFITS_REVIEW',
+    citizen: 'Elena Vasquez',
+    caseType: 'CALWORKS',
     status: 'OPEN',
-    notes: 'Initial intake complete. Awaiting income verification.',
+    notes: 'CalWORKs cash aid + Welfare-to-Work plan for a single parent of two.',
   },
-  'CASE-2026-002': {
-    owner: 'marcus.lee',
-    ownerLabel: 'Marcus Lee',
-    citizen: 'David Cole',
-    caseType: 'MEDICAL_AID_ASSESSMENT',
+  'CASE-1002': {
+    owner: 'joan.ellis',
+    ownerLabel: 'Joan Ellis',
+    citizen: 'Walter Briggs',
+    caseType: 'IHSS',
     status: 'PENDING_REVIEW',
-    notes: 'Medical report received.',
+    notes: 'IHSS needs assessment following hip surgery; awaiting authorized-hours determination.',
+  },
+  'CASE-1003': {
+    owner: 'joan.ellis',
+    ownerLabel: 'Joan Ellis',
+    citizen: 'Elena Vasquez',
+    caseType: 'CALFRESH',
+    status: 'OPEN',
+    notes: 'CalFresh recertification due this month.',
+  },
+  'CASE-1004': {
+    owner: 'renee.alvarez',
+    ownerLabel: 'Renee Alvarez',
+    citizen: 'Samantha Reyes',
+    caseType: 'GENERAL_RELIEF',
+    status: 'OPEN',
+    notes: 'General Relief application while awaiting CalWORKs eligibility determination.',
+  },
+  'CASE-1005': {
+    owner: 'renee.alvarez',
+    ownerLabel: 'Renee Alvarez',
+    citizen: 'George Palmer',
+    caseType: 'CALFRESH',
+    status: 'PENDING_REVIEW',
+    notes: 'CalFresh application for a veteran on partial VA benefits; income verification pending.',
+  },
+  'CASE-1006': {
+    owner: 'renee.alvarez',
+    ownerLabel: 'Renee Alvarez',
+    citizen: 'Samantha Reyes',
+    caseType: 'CALWORKS',
+    status: 'CLOSED',
+    notes: 'Prior CalWORKs case, closed after applicant secured full-time employment.',
   },
 }
 
 function resolveCaseManagement(message, lang, context) {
-  const match = message.match(/CASE-\d{4}-\d{3}/i)
+  const match = message.match(/CASE-\d{4}/i)
   if (!match) return null
 
   const T = (TEXT[lang] || TEXT.en).case
@@ -281,25 +315,26 @@ function resolveCaseManagement(message, lang, context) {
 // ---------------------------------------------------------------------------
 // Permit & Licensing Agent (Building / Business divisions)
 // ---------------------------------------------------------------------------
+// Mirrors the real seed data in mcp-servers/permit-db-mcp-server/seed/permit_applications.json.
 const PERMIT_APPLICATIONS = {
-  '198204100V': {
+  'BP-2026-00042': {
     division: 'building',
-    appId: 'APP-BP-2026-104',
-    name: 'Robert Hayes',
-    status: 'APPROVED',
-    permitType: 'BUILDING_PLAN',
+    appId: 'BP-2026-00042',
+    name: 'Maria Gutierrez',
+    status: 'PLAN_CHECK',
+    permitType: 'BUILDING_PERMIT',
   },
-  '199012300V': {
+  'BL-2026-00012': {
     division: 'business',
-    appId: 'APP-TL-2026-601',
-    name: 'Maria Alvarez',
-    status: 'PENDING_INSPECTION',
-    permitType: 'TRADE_LICENSE',
+    appId: 'BL-2026-00012',
+    name: 'Jasmine Patel',
+    status: 'ISSUED',
+    permitType: 'BUSINESS_LICENSE',
   },
 }
 
 function resolvePermits(message, lang, division) {
-  const match = message.match(/\d{9}[VvXx]/)
+  const match = message.match(/B[PL]-\d{4}-\d{5}/i)
   if (!match) return null
 
   const T = (TEXT[lang] || TEXT.en).permits
@@ -318,7 +353,7 @@ function resolvePermits(message, lang, division) {
       type: 'application-status',
       title: division === 'building' ? T.cardTitleBuilding : T.cardTitleTrade,
       status: record.status,
-      badgeColor: record.status === 'APPROVED' ? 'emerald' : 'gold',
+      badgeColor: record.status === 'ISSUED' ? 'emerald' : 'gold',
       fields: [
         { label: T.fields.applicationId, value: record.appId },
         { label: T.fields.applicant, value: record.name },
@@ -475,31 +510,33 @@ function resolveRecordsFoia(message, lang) {
 // Registry & runner
 // ---------------------------------------------------------------------------
 const RESOLVERS = {
-  'citizen-inquiry': (msg, lang) => resolveCitizenInquiry(msg, lang),
-  'benefits-eligibility': (msg, lang) => resolveBenefitsEligibility(msg, lang),
+  'citizen-inquiry-contact-center': (msg, lang) => resolveCitizenInquiry(msg, lang),
+  'citizen-inquiry-social-services': (msg, lang) => resolveBenefitsEligibility(msg, lang),
+  'citizen-inquiry-permits-licensing': (msg, lang) => resolveCitizenInquiry(msg, lang),
+  'citizen-inquiry-tax-revenue': (msg, lang) => resolveTaxAssistance(msg, lang),
+  'citizen-inquiry-records-compliance': (msg, lang) => resolveRecordsFoia(msg, lang),
   'case-management': (msg, lang, context) => resolveCaseManagement(msg, lang, context),
-  'permits-building': (msg, lang) => resolvePermits(msg, lang, 'building'),
-  'permits-business': (msg, lang) => resolvePermits(msg, lang, 'business'),
-  'tax-assistance': (msg, lang) => resolveTaxAssistance(msg, lang),
-  'records-foia': (msg, lang) => resolveRecordsFoia(msg, lang),
+  'permit-licensing-building': (msg, lang) => resolvePermits(msg, lang, 'building'),
+  'permit-licensing-business': (msg, lang) => resolvePermits(msg, lang, 'business'),
 }
 
 function fallbackFor(agentKey, lang) {
   const T = TEXT[lang] || TEXT.en
   switch (agentKey) {
-    case 'citizen-inquiry':
+    case 'citizen-inquiry-contact-center':
+    case 'citizen-inquiry-permits-licensing':
       return T.citizen.fallback
-    case 'benefits-eligibility':
+    case 'citizen-inquiry-social-services':
       return T.benefits.fallback
     case 'case-management':
       return T.case.fallback
-    case 'permits-building':
+    case 'permit-licensing-building':
       return T.permits.fallbackBuilding
-    case 'permits-business':
+    case 'permit-licensing-business':
       return T.permits.fallbackBusiness
-    case 'tax-assistance':
+    case 'citizen-inquiry-tax-revenue':
       return T.tax.fallback
-    case 'records-foia':
+    case 'citizen-inquiry-records-compliance':
       return T.records.fallback
     default:
       return TEXT.en.citizen.fallback
@@ -532,7 +569,7 @@ export async function runMockAgent({ agentKey, message, context = {}, lang = 'en
  * Handle a card action (e.g. clicking "Pay Online" on the tax payment card).
  */
 export async function runMockCardAction({ agentKey, actionId, lang = 'en', onStep }) {
-  if (agentKey === 'tax-assistance' && actionId === 'PAY_ONLINE') {
+  if (agentKey === 'citizen-inquiry-tax-revenue' && actionId === 'PAY_ONLINE') {
     const result = resolveTaxPaymentSettlement(lang)
     for (const step of result.steps) {
       onStep?.(step)

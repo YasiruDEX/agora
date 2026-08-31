@@ -3,6 +3,13 @@
  * navigation links, home page directory, and department page headers/badges.
  * `services` is descriptive text shown on each department page (what the
  * agent can help with) — not links to separate pages.
+ *
+ * Agent catalog matches PLAN.md §5 exactly — 3 agent kinds, 8 running instances:
+ *   - Citizen Inquiry Agent  — one instance per department (5): Social Services,
+ *     Permits & Licensing, Tax & Revenue, Records & Compliance, Contact Center.
+ *   - Case Management Agent  — 1 instance, Social Services only (caseworker view).
+ *   - Permit & Licensing Agent — 2 instances, both under Permits & Licensing:
+ *     Building Permits and Business & Trade Licenses.
  */
 
 export const LLM_TIERS = {
@@ -15,12 +22,12 @@ export const LLM_TIERS = {
 }
 
 export const AGENTS = {
-  'citizen-inquiry': {
-    key: 'citizen-inquiry',
+  // --- Citizen Inquiry Agent — same agent kind, 5 department instances ---
+  'citizen-inquiry-contact-center': {
+    key: 'citizen-inquiry-contact-center',
     i18nKey: 'citizenInquiry',
     name: 'Citizen Inquiry Agent',
     department: 'Contact Center',
-    port: 8001,
     tier: LLM_TIERS.CLOUD,
     quickReplies: [
       'What are the opening hours for the Municipal Office?',
@@ -28,63 +35,73 @@ export const AGENTS = {
       'How do I request a birth certificate extract?',
     ],
   },
-  'benefits-eligibility': {
-    key: 'benefits-eligibility',
+  'citizen-inquiry-social-services': {
+    key: 'citizen-inquiry-social-services',
     i18nKey: 'benefitsEligibility',
-    name: 'Benefits Eligibility Agent',
+    name: 'Citizen Inquiry Agent',
     department: 'Riverside County Department of Social Services',
-    port: 8000,
     tier: LLM_TIERS.CLOUD,
     quickReplies: [
-      'Am I eligible for the Senior Citizen Allowance?',
-      'What documents do I need for medical low-income aid?',
-      'Check my application status',
+      'How much do I need to qualify for CalFresh with a household of 4?',
+      'What documents do I need for Medi-Cal?',
+      'What is the CalWORKs Welfare-to-Work requirement?',
     ],
   },
+  'citizen-inquiry-permits-licensing': {
+    key: 'citizen-inquiry-permits-licensing',
+    i18nKey: 'citizenInquiryPermits',
+    name: 'Citizen Inquiry Agent',
+    department: 'Riverside County Permits & Licensing',
+    tier: LLM_TIERS.CLOUD,
+    quickReplies: [
+      'What permits do I need for an ADU?',
+      'What are the office hours for Building & Safety?',
+      'How long does a plan check take?',
+    ],
+  },
+  'citizen-inquiry-tax-revenue': {
+    key: 'citizen-inquiry-tax-revenue',
+    i18nKey: 'taxAssistance',
+    name: 'Citizen Inquiry Agent',
+    department: 'Riverside County Tax & Revenue',
+    tier: LLM_TIERS.CLOUD,
+    quickReplies: ['Check my rates balance', 'Pay Q1 assessment rates for PROP-RVC-2026-88', 'What are the trade tax tiers?'],
+  },
+  'citizen-inquiry-records-compliance': {
+    key: 'citizen-inquiry-records-compliance',
+    i18nKey: 'recordsFoia',
+    name: 'Citizen Inquiry Agent',
+    department: 'Riverside County Records & Compliance',
+    tier: LLM_TIERS.CLOUD,
+    quickReplies: ['Retrieve public record REC-2026-101', 'Retrieve public record REC-2026-102', 'Submit a FOIA request'],
+  },
+
+  // --- Case Management Agent — 1 instance, Social Services only ---
   'case-management': {
     key: 'case-management',
     i18nKey: 'caseManagement',
     name: 'Case Management Agent',
     department: 'Riverside County Department of Social Services (Caseworker)',
-    port: 8005,
     tier: LLM_TIERS.ONPREM,
-    quickReplies: ['Summarize case CASE-2026-001', 'Summarize case CASE-2026-002', 'Draft next steps'],
+    quickReplies: ['List my current cases', 'Summarize case CASE-1001', 'Add a note to case CASE-1003'],
   },
-  'permits-building': {
-    key: 'permits-building',
+
+  // --- Permit & Licensing Agent — 2 instances, both under Permits & Licensing ---
+  'permit-licensing-building': {
+    key: 'permit-licensing-building',
     i18nKey: 'permitsBuilding',
     name: 'Permit & Licensing Agent — Building Permits',
     department: 'Riverside County Permits & Licensing',
-    port: 8002,
     tier: LLM_TIERS.CLOUD,
-    quickReplies: ['Check status for Applicant ID 198204100V', 'What documents do I need for a Building Plan?'],
+    quickReplies: ['Check status for permit BP-2026-00042', 'What would an ADU permit cost for a $90,000 project?'],
   },
-  'permits-business': {
-    key: 'permits-business',
+  'permit-licensing-business': {
+    key: 'permit-licensing-business',
     i18nKey: 'permitsBusiness',
     name: 'Permit & Licensing Agent — Business & Trade Licenses',
     department: 'Riverside County Permits & Licensing',
-    port: 8003,
     tier: LLM_TIERS.CLOUD,
-    quickReplies: ['Check status for Applicant ID 199012300V', 'What documents do I need for a Trade License?'],
-  },
-  'tax-assistance': {
-    key: 'tax-assistance',
-    i18nKey: 'taxAssistance',
-    name: 'Tax & Assessment Agent',
-    department: 'Riverside County Tax & Revenue',
-    port: 8004,
-    tier: LLM_TIERS.CLOUD,
-    quickReplies: ['Check my rates balance', 'Pay Q1 assessment rates for PROP-RVC-2026-88', 'What are the trade tax tiers?'],
-  },
-  'records-foia': {
-    key: 'records-foia',
-    i18nKey: 'recordsFoia',
-    name: 'Records / FOIA Agent',
-    department: 'Riverside County Records & Compliance',
-    port: 8006,
-    tier: LLM_TIERS.CLOUD,
-    quickReplies: ['Retrieve public record REC-2026-101', 'Retrieve public record REC-2026-102', 'Submit a FOIA request'],
+    quickReplies: ['Check status for business license BL-2026-00012', 'What is the annual fee for a business license?'],
   },
 }
 
@@ -98,7 +115,7 @@ export const DEPARTMENTS = [
     description: 'General inquiries, service directory, and SLA information for all departments.',
     hotline: '311',
     seal: '/images/department_seals/contact_center_seal.svg',
-    agentKey: 'citizen-inquiry',
+    agentKey: 'citizen-inquiry-contact-center',
     services: [
       { id: 'general-faq', title: 'General FAQs', description: 'Common questions about municipal services.' },
       { id: 'service-directory', title: 'Service Directory', description: 'Find the right department for your need.' },
@@ -111,15 +128,15 @@ export const DEPARTMENTS = [
     shortName: 'Social Services',
     route: '/social-services',
     color: 'govgreen',
-    description: 'Welfare benefits, senior citizen allowances, medical aid, and caseworker case management.',
+    description: 'CalFresh, CalWORKs, Medi-Cal, IHSS, General Relief, and caseworker case management.',
     hotline: '311',
     seal: '/images/department_seals/social_services_seal.svg',
-    agentKey: 'benefits-eligibility',
+    agentKey: 'citizen-inquiry-social-services',
     caseworkerAgentKey: 'case-management',
     services: [
-      { id: 'senior-allowance', title: 'Senior Citizen Allowance', description: 'Monthly allowance for citizens aged 60+.' },
-      { id: 'medical-aid', title: 'Medical Low-Income Aid', description: 'Support for medical equipment and treatment costs.' },
-      { id: 'public-assistance', title: 'Public Assistance Allowance', description: 'Income-based household support.' },
+      { id: 'senior-allowance', title: 'IHSS (In-Home Supportive Services)', description: 'In-home caregiving support for aged, blind, or disabled residents.' },
+      { id: 'medical-aid', title: 'Medi-Cal', description: 'Free or low-cost health coverage.' },
+      { id: 'public-assistance', title: 'CalFresh / CalWORKs / General Relief', description: 'Food benefits, cash aid, and Welfare-to-Work.' },
     ],
   },
   {
@@ -128,17 +145,18 @@ export const DEPARTMENTS = [
     shortName: 'Permits & Licensing',
     route: '/permits',
     color: 'gold',
-    description: 'Building plan approvals, street line certificates, and trade/business licenses.',
+    description: 'Building permit approvals, fee estimates, and business/trade licenses.',
     hotline: '311',
     seal: '/images/department_seals/permits_seal.svg',
+    agentKey: 'citizen-inquiry-permits-licensing',
     divisions: [
-      { id: 'building', label: 'Building Permits Division', agentKey: 'permits-building' },
-      { id: 'business', label: 'Business & Trade Licenses Division', agentKey: 'permits-business' },
+      { id: 'building', label: 'Building Permits Division', agentKey: 'permit-licensing-building' },
+      { id: 'business', label: 'Business & Trade Licenses Division', agentKey: 'permit-licensing-business' },
     ],
     services: [
-      { id: 'building-plan', title: 'Building Plan Approval', description: 'Submit and track building plan applications.' },
-      { id: 'street-line', title: 'Street Line Certificate', description: 'Boundary and road reservation certification.' },
-      { id: 'trade-license', title: 'Trade Business License', description: 'Register and renew a trade license.' },
+      { id: 'building-plan', title: 'Building Permit Approval', description: 'Submit and track building/ADU/solar/pool permit applications.' },
+      { id: 'street-line', title: 'Fee Schedule Lookup', description: 'Estimate fees for any permit type.' },
+      { id: 'trade-license', title: 'Business License', description: 'Register and renew a business license.' },
     ],
   },
   {
@@ -150,7 +168,7 @@ export const DEPARTMENTS = [
     description: 'Property assessment rates, trade tax tiers, and online rate payments.',
     hotline: '311',
     seal: '/images/department_seals/tax_revenue_seal.svg',
-    agentKey: 'tax-assistance',
+    agentKey: 'citizen-inquiry-tax-revenue',
     services: [
       { id: 'assessment-rates', title: 'Assessment Rates Payment', description: 'Pay quarterly property assessment rates online.' },
       { id: 'non-arrears', title: 'Non-Arrears Certificate', description: 'Confirm your property has no outstanding balance.' },
@@ -163,12 +181,12 @@ export const DEPARTMENTS = [
     shortName: 'Records & Compliance',
     route: '/records',
     color: 'govgreen',
-    description: 'Public records (FOIA) requests, disclosure exemption checks, and civil registration extracts.',
+    description: 'Public records (CPRA) requests, vital records, and civil registration extracts.',
     hotline: '311',
     seal: '/images/department_seals/records_seal.svg',
-    agentKey: 'records-foia',
+    agentKey: 'citizen-inquiry-records-compliance',
     services: [
-      { id: 'foia-request', title: 'Public Records Request', description: 'Submit a Freedom of Information Act (FOIA) request.' },
+      { id: 'foia-request', title: 'Public Records Request', description: 'Submit a California Public Records Act (CPRA) request.' },
       { id: 'birth-death-marriage', title: 'Birth / Death / Marriage Extracts', description: 'Request certified civil registration extracts.' },
       { id: 'grievance', title: 'Public Complaints & Grievances', description: 'Lodge a formal complaint with the county.' },
     ],

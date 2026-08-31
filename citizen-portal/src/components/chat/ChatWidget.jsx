@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Send, X, MessageCircle, RefreshCw } from 'lucide-react'
 import ChatMessage from './ChatMessage'
 import DepartmentBadge from './DepartmentBadge'
-import OfficerBadge from './OfficerBadge'
 import { AGENTS } from '../../mock/departmentData'
-import { assignOfficer } from '../../mock/officerPersonas'
 import { sendAgentMessage, sendCardAction, isAgentReal } from '../../services/agentApi'
 import { useLanguage } from '../../i18n/LanguageContext'
 
@@ -43,7 +41,7 @@ function TypingBubble({ steps }) {
  * @param {object} [props.context] - extra context passed to the agent (e.g. { division: 'building' })
  * @param {string} [props.welcomeText] - override the default greeting
  * @param {boolean} [props.startOpen] - only applies to floating mode
- * @param {string} [props.seal] - department seal image path, shown next to the officer persona
+ * @param {string} [props.seal] - department seal image path, shown in the header badge
  * @param {string} [props.brandI18nKey] - override the displayed name/department (e.g. for the
  *   roaming floating assistant, which stays functionally agentKey="citizen-inquiry" everywhere
  *   but re-brands itself per department route — see App.jsx's ROUTE_BRANDING).
@@ -67,7 +65,6 @@ export default function ChatWidget({
   const scrollRef = useRef(null)
 
   const [open, setOpen] = useState(mode === 'embedded' || startOpen)
-  const [officer, setOfficer] = useState(() => assignOfficer(agentKey, sessionIdRef.current, userId))
   const [messages, setMessages] = useState(() => [
     {
       id: uid(),
@@ -81,12 +78,10 @@ export default function ChatWidget({
   const [input, setInput] = useState('')
   const [checkout, setCheckout] = useState(null) // { messageId, actionId, card } | null
 
-  // Reset the conversation whenever we switch to a different agent/persona
-  // (e.g. toggling Benefits vs Case Management, or Joan vs Marcus) — this
-  // also assigns a fresh human-officer persona for the new session.
+  // Reset the conversation whenever we switch to a different agent/identity
+  // (e.g. toggling Citizen Inquiry vs Case Management, or Joan vs Renee).
   useEffect(() => {
     sessionIdRef.current = `session-${agentKey}-${userId || 'anon'}-${Date.now()}`
-    setOfficer(assignOfficer(agentKey, sessionIdRef.current, userId))
     setMessages([
       {
         id: uid(),
@@ -169,7 +164,6 @@ export default function ChatWidget({
   }
 
   function clearChat() {
-    setOfficer(assignOfficer(agentKey, sessionIdRef.current, userId))
     setMessages([
       {
         id: uid(),
@@ -192,7 +186,7 @@ export default function ChatWidget({
       {/* Header */}
       <div className="bg-brand px-3.5 py-3 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <DepartmentBadge department={localizedDepartment} agentName={localizedName} tier={agent.tier} />
+          <DepartmentBadge department={localizedDepartment} agentName={localizedName} tier={agent.tier} seal={seal} />
           <div className="ml-auto flex items-center gap-1">
             <button
               onClick={clearChat}
@@ -212,7 +206,6 @@ export default function ChatWidget({
             )}
           </div>
         </div>
-        <OfficerBadge persona={officer} seal={seal} department={localizedDepartment} />
       </div>
 
       {isAgentReal(agentKey) && (

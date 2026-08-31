@@ -31,7 +31,7 @@ export default function ContactCenter() {
       </div>
 
       <div className="lg:col-span-2">
-        <ChatWidget agentKey="citizen-inquiry" mode="embedded" seal={dept.seal} />
+        <ChatWidget agentKey="citizen-inquiry-contact-center" mode="embedded" seal={dept.seal} />
       </div>
     </div>
   )

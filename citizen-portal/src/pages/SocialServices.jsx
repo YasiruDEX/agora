@@ -4,9 +4,13 @@ import ChatWidget from '../components/chat/ChatWidget'
 import { getDepartmentById } from '../mock/departmentData'
 import { useLanguage } from '../i18n/LanguageContext'
 
+// Matches the two caseworkers seeded in the Case Management MCP Server (see
+// mcp-servers/case-management-mcp-server/seed/cases.json) — on-behalf-of identity drives
+// which cases each one can see, not the agent's own credentials. In real mode, `id` is sent
+// verbatim as the X-OBO-Token header, so it must match a token the MCP server recognizes.
 const PERSONAS = [
-  { id: 'joan.ellis', label: 'Joan Ellis', hint: 'Assigned: CASE-2026-001 (Sunethra Dias)' },
-  { id: 'marcus.lee', label: 'Marcus Lee', hint: 'Assigned: CASE-2026-002 (Nimal Silva)' },
+  { id: 'joan.ellis', label: 'Joan Ellis', hint: 'Assigned: CASE-1001, CASE-1002, CASE-1003' },
+  { id: 'renee.alvarez', label: 'Renee Alvarez', hint: 'Assigned: CASE-1004, CASE-1005, CASE-1006' },
 ]
 
 export default function SocialServices() {
@@ -14,7 +18,7 @@ export default function SocialServices() {
   const { t } = useLanguage()
   const [params, setParams] = useSearchParams()
   const view = params.get('view') === 'caseworker' ? 'caseworker' : 'citizen'
-  const persona = params.get('persona') === 'marcus.lee' ? 'marcus.lee' : 'joan.ellis'
+  const persona = params.get('persona') === 'renee.alvarez' ? 'renee.alvarez' : 'joan.ellis'
 
   function setView(next) {
     const p = new URLSearchParams(params)
@@ -67,7 +71,7 @@ export default function SocialServices() {
             ))}
           </div>
           <div className="lg:col-span-2">
-            <ChatWidget agentKey="benefits-eligibility" mode="embedded" seal={dept.seal} />
+            <ChatWidget agentKey="citizen-inquiry-social-services" mode="embedded" seal={dept.seal} />
           </div>
         </div>
       ) : (
