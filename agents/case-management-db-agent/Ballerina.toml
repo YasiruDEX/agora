@@ -1,0 +1,15 @@
+[package]
+org = "riverside_county"
+name = "case_management_db_agent"
+version = "0.1.0"
+distribution = "2201.13.5"
+
+[build-options]
+observabilityIncluded = true
+
+# The DB is handled inside this agent, so it needs a JDBC driver of its own. SQLite has no
+# ballerinax connector — java.jdbc + the xerial driver is the supported route.
+[[platform.java21.dependency]]
+groupId = "org.xerial"
+artifactId = "sqlite-jdbc"
+version = "3.46.1.3"

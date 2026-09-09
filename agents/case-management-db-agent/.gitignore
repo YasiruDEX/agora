@@ -1,0 +1,24 @@
+# Ballerina generates this directory during the compilation of a package.
+# It contains compiler-generated artifacts and the final executable if this is an application package.
+target/
+
+# Ballerina maintains the compiler-generated source code here.
+# Remove this if you want to commit generated sources.
+generated/
+
+# Contains configuration values used during development time.
+# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+#
+# Anchored to the package root on purpose: an unanchored `Config.toml` also matches
+# tests/Config.toml, which is a committed part of the test suite (it pins the test listener
+# off port 8000 so `./test.sh` doesn't collide with a running instance).
+/Config.toml
+
+.env
+.env.*
+# ...but the template has to survive a fresh clone: README.md opens with `cp .env.example .env`,
+# and `.env.*` would otherwise swallow it.
+!.env.example
+
+# Self-seeded local SQLite database (recreated on startup from seed/*.json)
+data/

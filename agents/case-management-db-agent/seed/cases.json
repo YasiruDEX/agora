@@ -1,0 +1,56 @@
+[
+  {
+    "case_id": "CASE-1001",
+    "citizen_id": "CIT-3001",
+    "case_type": "calworks",
+    "status": "open",
+    "assigned_caseworker_id": "joan.ellis",
+    "summary": "CalWORKs cash aid + Welfare-to-Work plan for a single parent of two.",
+    "opened_days_ago": 21
+  },
+  {
+    "case_id": "CASE-1002",
+    "citizen_id": "CIT-3002",
+    "case_type": "ihss",
+    "status": "pending_review",
+    "assigned_caseworker_id": "joan.ellis",
+    "summary": "IHSS needs assessment following hip surgery; awaiting authorized-hours determination.",
+    "opened_days_ago": 9
+  },
+  {
+    "case_id": "CASE-1003",
+    "citizen_id": "CIT-3001",
+    "case_type": "calfresh",
+    "status": "open",
+    "assigned_caseworker_id": "joan.ellis",
+    "summary": "CalFresh recertification due this month.",
+    "opened_days_ago": 3
+  },
+  {
+    "case_id": "CASE-1004",
+    "citizen_id": "CIT-3003",
+    "case_type": "general_relief",
+    "status": "open",
+    "assigned_caseworker_id": "renee.alvarez",
+    "summary": "General Relief application while awaiting CalWORKs eligibility determination.",
+    "opened_days_ago": 14
+  },
+  {
+    "case_id": "CASE-1005",
+    "citizen_id": "CIT-3004",
+    "case_type": "calfresh",
+    "status": "pending_review",
+    "assigned_caseworker_id": "renee.alvarez",
+    "summary": "CalFresh application for a veteran on partial VA benefits; income verification pending.",
+    "opened_days_ago": 6
+  },
+  {
+    "case_id": "CASE-1006",
+    "citizen_id": "CIT-3003",
+    "case_type": "calworks",
+    "status": "closed",
+    "assigned_caseworker_id": "renee.alvarez",
+    "summary": "Prior CalWORKs case, closed after applicant secured full-time employment.",
+    "opened_days_ago": 120
+  }
+]

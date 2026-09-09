@@ -1,0 +1,19 @@
+# Copy to Config.toml to configure logging and the port through Ballerina's configurable
+# system instead of env vars. Config.toml is gitignored.
+#
+# `level` accepts ERROR | WARN | INFO | DEBUG. observability.bal documents what this agent
+# emits at each level. `format = "json"` switches every log line in the package to structured
+# JSON with no code change — use it when shipping to a log aggregator.
+
+[ballerina.log]
+level = "DEBUG"
+# format = "json"
+
+# Quieten the HTTP module's own access logging while keeping this agent at DEBUG.
+[[ballerina.log.modules]]
+name = "ballerina/http"
+level = "WARN"
+
+# Agent Manager always deploys on 8000; override only to run several agents side by side.
+# [riverside_county.case_management_db_agent]
+# port = 8001

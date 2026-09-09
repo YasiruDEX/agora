@@ -18,14 +18,23 @@ instances talk to the same two MCP servers:
 
 ```
 Resident → POST /chat → LangGraph ReAct agent → permit_lookup / fee_schedule_read / application_prefill
-                                     │                          (Permit DB MCP)
+                                     │                          (Permit DB MCP, via proxy)
                                      └──────────────────→ verify_state_id
-                                                           (State ID Verification MCP, external)
+                                                           (State ID Verification MCP, via proxy)
 ```
 
-- **Tool binding**: `mcp_tools.py` loads both MCP servers' tools in one
-  `MultiServerMCPClient`, sending both `X-MCP-API-Key` and `API-Key` headers (same
-  dual-header trick as the Citizen Inquiry Agent, for direct-vs-proxied compatibility).
+- **Auth**: `mcp_tools.py` mints OAuth2 access tokens via client-credentials grant against
+  `AMP_AGENTID_TOKEN_ENDPOINT`, using the single `AMP_AGENTID_CLIENT_ID`/`CLIENT_SECRET`
+  Agent Manager injects for this instance. One identity, two MCP resources — a separate token
+  is requested per server (the `resource` parameter, RFC 8707, differs between
+  `PERMITDB_MCP_SERVER_URL` and `STATEID_MCP_SERVER_URL`), each cached and refreshed
+  independently ahead of its own expiry. Both are sent as `Authorization: Bearer <token>`.
+  Tools are (re)loaded fresh on every `/chat` request rather than once at startup — see
+  `app.py`'s docstring for why that matters (a token baked in at startup goes stale).
+- **Resilience**: a tool call that fails at the transport level (e.g. the gateway rejecting a
+  request outside this identity's granted scope) gets retried a few times before the resident
+  ever sees anything go wrong; if it's still failing after retries, they get a plain-language
+  "I don't have access to that right now" instead of a raw error.
 - **Identity check before write**: the system prompt in `agent.py` requires calling
   `verify_state_id` before `application_prefill` — an unverified name/DOB/ID combination
   blocks the application rather than being silently accepted.
@@ -58,8 +67,11 @@ ENV_FILE=.env.business-licenses python main.py   # port 8012
 |---|---|
 | `COUNTY_NAME` | Branding in the system prompt |
 | `PERMIT_TYPE_FOCUS` | Branding/tone only — both instances have identical data access |
-| `PERMITDB_MCP_SERVER_URL` / `PERMITDB_MCP_API_KEY` | Permit DB MCP server connection |
-| `STATEID_MCP_SERVER_URL` / `STATEID_MCP_API_KEY` | State ID Verification MCP server connection |
+| `PERMITDB_MCP_SERVER_URL` | Permit DB MCP proxy endpoint — also the OAuth2 resource indicator for that token |
+| `STATEID_MCP_SERVER_URL` | State ID Verification MCP proxy endpoint — same, its own resource indicator |
+| `AMP_AGENTID_CLIENT_ID`, `AMP_AGENTID_CLIENT_SECRET` | This instance's AgentID service-account credentials (shared across both MCP resources) |
+| `AMP_AGENTID_TOKEN_ENDPOINT` | Where to request access tokens |
+| `AMP_AGENTID_SCOPES` | Scopes requested on each token |
 | `TONE`, `ADDITIONAL_GUIDANCE` | Per-instance prompt tuning |
 | `PORT` | Local port for this instance |
 | `OPENAI_API_KEY` | Direct OpenAI (dev/local) |
@@ -67,8 +79,15 @@ ENV_FILE=.env.business-licenses python main.py   # port 8012
 
 ## Testing
 
-Verified end-to-end in the codebase (no Agent Manager involved) with both MCP servers and
-the Building Permits instance running locally:
+**OAuth2 flow verified end-to-end** against both real (unchanged) MCP servers, using a
+throwaway local stand-in for the AgentID token endpoint that issues a distinct token per
+`resource` requested — confirmed both `PERMITDB_MCP_SERVER_URL` and `STATEID_MCP_SERVER_URL`
+each got their own correct token, and both a fee-estimate question (Permit DB only) and a new
+application (which requires `verify_state_id` against State ID Verification, then
+`application_prefill` against Permit DB) worked correctly end-to-end.
+
+Previously verified end-to-end in the codebase (no Agent Manager involved, pre-OAuth2) with
+both MCP servers and the Building Permits instance running locally:
 
 ```bash
 curl -s http://127.0.0.1:8011/health

@@ -25,20 +25,42 @@ only (not fanned out, on purpose).
 ```
 Caseworker → POST /chat (X-OBO-Token header) → LLM tool loop (3 tools only)
                                                         │
-                                                        ▼ (X-MCP-API-Key + X-OBO-Token)
+                                                        ▼ (Authorization: Bearer + X-OBO-Token)
                                       Case Management MCP Server (scope + identity enforced)
 ```
 
 - `main.bal` builds a manual OpenAI function-calling loop (`ballerinax/openai.chat`) bound to
   exactly `SCOPED_TOOLS` — no dynamic tool discovery from the MCP server, so there's no path
   by which the model could be offered a 4th tool.
+- **Auth**: `requestAccessToken`/`getAccessToken` mint and cache an OAuth2 access token via
+  client-credentials grant (RFC 6749) against `AMP_AGENTID_TOKEN_ENDPOINT`, using the
+  `AMP_AGENTID_CLIENT_ID`/`CLIENT_SECRET` Agent Manager injects for this instance, with
+  `MCP_SERVER_URL` sent as the `resource` indicator (RFC 8707). The token is cached and
+  refreshed ahead of its own expiry (Ballerina equivalent of the Python agents'
+  `_TokenCache`). This is layered on top of, not instead of, the existing on-behalf-of
+  mechanism — every MCP call still carries `X-OBO-Token` for the caseworker identity. Every
+  `callMcpTool` invocation re-checks the token cache, so a token minted at process startup
+  never goes stale mid-session.
+- The access token is sent as **both** `Authorization: Bearer <token>` and `X-MCP-API-Key:
+  <token>` — the Case Management MCP Server is deliberately left unmodified (per this repo's
+  standing rule) and only understands the latter header, unlike the other three MCP servers
+  in this repo, which also accept `Authorization: Bearer` as a fallback for the same static
+  key. Sending both keeps this correct against a real OAuth2-validating proxy in production
+  and working against this specific backend today. See `mcpHeaders()`.
+- **Resilience**: a genuine transport/platform-level failure (token endpoint down, the MCP
+  proxy rejecting a request outside this identity's granted scope, a connection error) is
+  retried a few times before the caseworker ever sees anything go wrong; if it's still
+  failing after retries, they get a plain-language "I don't have access to that right now"
+  instead of an error. This is distinct from an in-band MCP scope/ownership denial (e.g.
+  asking for `case_close`, or another caseworker's case) — the server returns those as a
+  normal tool result, and the LLM relays the specific reason instead of a generic fallback.
 - Every MCP call goes through `callMcpTool`, using `ballerina/mcp`'s native
-  `StreamableHttpClient`, sending both the agent's fixed `MCP_API_KEY` and the per-request
-  on-behalf-of token.
+  `StreamableHttpClient`.
 - `POST /debug/mcpCall` is a **test-only** escape hatch that calls any named MCP tool directly
   with the same credentials the agent itself uses — it exists purely so a test script can
   prove the out-of-scope tools are denied by the *server*, not just "never offered" by this
-  agent's own prompt. The `/chat` path never touches this route.
+  agent's own prompt. The `/chat` path never touches this route, and this route is
+  deliberately not retry/degrade-wrapped so a test script sees the raw denial.
 - `import ballerinax/amp as _;` wires in Agent Manager's tracing extension, per its Build
   Details panel for Ballerina-based agents (Ballerina 2201.13.x+).
 
@@ -54,7 +76,8 @@ bal version
 ```bash
 cd agents/case-management-agent
 cp .env.example .env
-# fill in OPENAI_API_KEY; MCP_SERVER_URL/MCP_API_KEY already match the local MCP server defaults
+# fill in OPENAI_API_KEY and the 4 AMP_AGENTID_* vars from your MCP proxy's registered
+# service-account; MCP_SERVER_URL already matches the local MCP server default
 ```
 
 Start the [Case Management MCP Server](../../mcp-servers/case-management-mcp-server) first
@@ -83,9 +106,12 @@ default 8000; the override is only for running multiple local instances side by 
 | Env var | Purpose |
 |---|---|
 | `COUNTY_NAME` | Branding in the system prompt |
-| `MCP_SERVER_URL` / `MCP_API_KEY` | Case Management MCP server connection (this agent's fixed identity) |
+| `MCP_SERVER_URL` | Case Management MCP server connection — also the OAuth2 resource indicator for the AgentID token |
+| `AMP_AGENTID_CLIENT_ID`, `AMP_AGENTID_CLIENT_SECRET` | This instance's AgentID service-account credentials |
+| `AMP_AGENTID_TOKEN_ENDPOINT` | Where to request access tokens |
+| `AMP_AGENTID_SCOPES` | Scopes requested on each token |
 | `OPENAI_API_KEY`, `OPENAI_MODEL` | Direct OpenAI (dev/local) |
-| `PORT` | Local port |
+| `BAL_CONFIG_VAR_PORT` | Local port override (see note above — not `PORT`) |
 
 ## Credentials for testing (fictional, local dev only)
 
@@ -95,7 +121,24 @@ for the full table. In short: `obo_joan_ellis_4a7c9f` (Joan Ellis, cases 1001-10
 
 ## Testing
 
-Verified end-to-end locally against the running MCP server (real OpenAI calls):
+**OAuth2 flow verified end-to-end** against the real (unmodified) MCP server, using a
+throwaway local stand-in for the AgentID token endpoint. Confirmed: `bal build` succeeds with
+the OAuth2 changes; the agent mints exactly one token across five back-to-back requests (token
+caching works — see the fake IDP's request log); Joan and Renee still get correct, disjoint
+case lists; a note write succeeds; `case_close` is still denied as an MCP scope violation with
+the token-based auth in place; a missing `X-OBO-Token` is still denied. Also caught and fixed
+a real bug in the process: the token-fetch HTTP client hit the same HTTP/2 h2c-upgrade failure
+against the (Python/uvicorn-based) local test IDP that the MCP client hit earlier against the
+Case Management MCP Server — fixed the same way, forcing `httpVersion = http:HTTP_1_1` on the
+token client too (see `requestAccessToken`).
+
+Separately, verified graceful degradation by pointing `AMP_AGENTID_TOKEN_ENDPOINT` at an
+unreachable host: the agent retried 3 times with backoff, then returned a normal `200` with
+the plain-language "I don't have access to that right now" message — never a raw error to the
+caseworker.
+
+Previously verified end-to-end locally against the running MCP server (real OpenAI calls,
+pre-OAuth2):
 
 ```bash
 # Same instance, two caseworkers, two case lists — PLAN.md §13.5's visual

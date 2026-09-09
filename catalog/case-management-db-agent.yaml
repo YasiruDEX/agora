@@ -1,0 +1,115 @@
+# Agent kind catalog entry — see catalog/case-management-agent.yaml for the convention this
+# follows, and for the MCP-backed twin of this kind.
+#
+# This is the *direct-database* variant of the Case Management Agent kind: same Ballerina
+# runtime, same chat contract, same two governance boundaries (tool scope + on-behalf-of
+# identity) — but no MCP server. The agent owns its encrypted case store and implements the
+# tools in-process, and therefore enforces both boundaries itself.
+#
+# Both kinds exist on purpose. Together they answer the question a platform team actually
+# asks: what does Agent Manager's governance story look like when the agent talks to a
+# governed MCP proxy, versus when it holds the data itself? The MCP twin gets scope
+# enforcement from the platform; this one has to prove its own, in code and in its logs.
+
+kind: amp:agent-kind
+name: case-management-db-agent
+displayName: Case Management Agent (Direct DB)
+description: >
+  Summarizes a caseworker's own cases and drafts next-step notes. Built in Ballerina with the
+  encrypted case database handled inside the agent — no MCP server in the path. Implements all
+  seven case-system operations but is granted exactly 3 (case_search, case_read,
+  case_notes_write); the other 4 are refused by the agent's own scope gate before any SQL
+  runs. Every call also carries an on-behalf-of token identifying the caseworker, so the same
+  instance returns different case lists for different caseworkers.
+
+org: riverside-county
+publishedBy: dana.okafor@riverside-county.gov   # Platform Admin — amp:agent-kind:create
+
+runtime:
+  language: ballerina
+  languageVersion: "2201.13.5"
+  framework: native (ballerinax/java.jdbc + sqlite, ballerinax/openai.chat)
+  startCommand: ./run.sh
+  appPath: agents/case-management-db-agent
+  interface: chat-agent
+  port: 8000
+  tracingExtension: ballerinax/amp   # required import for AM tracing on Ballerina agents
+  platformDependencies:
+    - org.xerial:sqlite-jdbc:3.46.1.3   # resolved from Maven at build time
+
+llm:
+  tier: data-resident   # AWS Bedrock GovCloud via OpenAI->Bedrock Transformer in production (PLAN.md §9)
+  provider: aws-bedrock-govcloud
+  model: gpt-4o-mini   # local/dev only; production pins to the GovCloud-hosted model
+
+# No mcpServers block, and that is the whole point of this kind. The case store is embedded and
+# owned by the agent, so there is no MCP proxy in the path and no AgentID service account to
+# mint tokens for — the AMP_AGENTID_* variables the MCP twin requires are absent here.
+mcpServers: []
+
+datastore:
+  kind: embedded-sqlite
+  path: CASEMGMT_DB_PATH            # default agents/case-management-db-agent/data/case_mgmt.db
+  encryptionAtRest: fernet-field-level   # citizen PII + case note content
+  encryptionKeyEnv: CASEMGMT_ENCRYPTION_KEY
+  seededFrom: agents/case-management-db-agent/seed/*.json   # idempotent, on startup
+  # Byte-compatible with mcp-servers/case-management-mcp-server's database (same schema, same
+  # Fernet format), so the two kinds can be pointed at one file and compared directly.
+  compatibleWith: case-management-mcp-server
+
+tools:
+  provider: in-agent   # Ballerina functions in tools.bal, not MCP
+  toolsImplemented: [case_search, case_read, case_notes_write, case_status_update,
+                     citizen_profile_read, citizen_profile_write, case_close]
+  toolsGranted: [case_search, case_read, case_notes_write]   # what the LLM is offered AND what the gate allows
+  toolsDeniedByScope: [case_status_update, citizen_profile_read, citizen_profile_write, case_close]
+  enforcement: in-agent-scope-gate   # tools.bal authorizeTool(); denials logged at WARN
+  # Two independent layers, as in the MCP twin: the granted subset is derived from one table,
+  # so the model is never offered an ungranted tool, and a call arriving by any other path
+  # (e.g. POST /debug/toolCall) is still refused before reaching the store.
+
+identity:
+  onBehalfOf: true
+  tokenHeader: X-OBO-Token
+  introspection: opaque-token (RFC 7662 stand-in)   # PLAN.md §8 — performed by the agent itself
+  ownershipCheck: per-case-id   # a known case_id belonging to another caseworker is denied, not just filtered
+
+observability:
+  logLevels: [ERROR, WARN, INFO, DEBUG]
+  logLevelEnv: LOG_LEVEL              # run.sh maps it to BAL_CONFIG_VAR_BALLERINA_LOG_LEVEL
+  format: logfmt | json               # ballerina/log; set format = "json" in Config.toml
+  correlationField: requestId         # on every line served under a request
+  policyDenialsAt: WARN               # a refusal means the boundary worked — ERROR stays alertable
+  piiRedaction: in-log                # note bodies truncated, secrets fingerprinted, errors summarised
+  healthEndpoint: /health             # readiness: queries the store, 503 if unreadable
+
+guardrails:
+  - PII Masking Regex
+  - Opaque Token Auth (on-behalf-of introspection)
+
+evaluators:
+  - Tool Coverage      # flags any attempt to call an out-of-scope tool
+  - Content Safety     # backstop behind PII Masking Regex
+  - Groundedness
+  - Safety
+
+deploymentPipeline: case-management-pipeline
+# Dev -> Staging -> Prod, gated on Tool Coverage + Content Safety pass + Admin sign-off
+# (PLAN.md §2), same pipeline as the MCP twin so the two are promoted on identical gates.
+
+sandboxing: none   # this agent kind does no code execution
+
+tests:
+  command: ./test.sh   # bal test against a throwaway SQLite database; 65 tests
+  groups: [fernet, interop, policy, scope, identity, store, encryption, concurrency, observability]
+
+# Single instance — Social Services only, matching the MCP twin (PLAN.md §5).
+instances:
+  - department: Social Services
+    envFile: agents/case-management-db-agent/.env
+    owner: marcus.lee@riverside-county.gov
+    caseworkers:
+      - name: Joan Ellis
+        oboToken: obo_joan_ellis_4a7c9f
+      - name: Renee Alvarez
+        oboToken: obo_renee_alvarez_1e6b2d

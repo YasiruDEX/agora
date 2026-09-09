@@ -16,7 +16,7 @@ paths:
   /chat:
     post:
       summary: Chat with Agent
-      description: Send a resident's permit/licensing question or request.
+      description: Send a resident permit/licensing question or request.
       operationId: chat_chat_post
       requestBody:
         required: true
@@ -33,7 +33,7 @@ paths:
               status_query:
                 summary: Business Licenses instance — application status
                 value:
-                  message: "What's the status of business license BL-2026-00012?"
+                  message: "What is the status of business license BL-2026-00012?"
                   session_id: "session_abc124"
       responses:
         '200':
@@ -90,7 +90,7 @@ components:
         message:
           type: string
           title: Message
-          description: Resident's permit/licensing question or request
+          description: Resident permit/licensing question or request
           example: "What would it cost to build a 650 sqft ADU worth about $90,000?"
           minLength: 1
         session_id:
@@ -113,7 +113,7 @@ components:
         response:
           type: string
           title: Response
-          description: Agent's answer, grounded in the Permit DB and State ID Verification tools
+          description: Agent answer, grounded in the Permit DB and State ID Verification tools
         session_id:
           type: string
           title: SessionId
@@ -135,7 +135,7 @@ components:
           example: "Riverside County"
         focus:
           type: string
-          description: Which permit types this instance's prompt emphasizes (branding only)
+          description: Which permit types the prompt for this instance emphasizes (branding only)
           example: "Building Permits"
       title: HealthResponse
 

@@ -1,0 +1,11 @@
+# Configurable values for `bal test` (see test.sh, which supplies the env vars).
+#
+# The port is not 8000: the module-level http:Listener is created during a test run too, so a
+# locally running instance of this agent would otherwise make the whole suite fail on
+# "Address already in use".
+port = 18107
+
+# WARN keeps the assertion output readable. Flip to DEBUG when a test is failing and you want
+# the SQL and LLM-turn trace for it.
+[ballerina.log]
+level = "WARN"

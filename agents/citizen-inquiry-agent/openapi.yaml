@@ -17,7 +17,7 @@ paths:
   /chat:
     post:
       summary: Chat with Agent
-      description: Send a resident's question to this instance's department knowledge base.
+      description: Send a resident question to the department knowledge base for this instance.
       operationId: chat_chat_post
       requestBody:
         required: true
@@ -48,7 +48,7 @@ paths:
                 $ref: "#/components/schemas/ChatResponse"
               examples:
                 social_services_response:
-                  summary: Grounded, cited answer from the caller's own namespace
+                  summary: Grounded, cited answer from the own namespace of the caller
                   value:
                     response: >-
                       To qualify for CalFresh with a household of 4, your gross monthly
@@ -59,7 +59,7 @@ paths:
                   summary: Question about another department — declined, not guessed
                   value:
                     response: >-
-                      I don't have information regarding CalFresh qualification. I
+                      I do not have information regarding CalFresh qualification. I
                       recommend contacting the department that handles CalFresh for
                       accurate details.
                     session_id: "session_abc124"
@@ -101,7 +101,7 @@ components:
         message:
           type: string
           title: Message
-          description: Resident's question or request
+          description: Resident question or request
           example: "How much do I need to qualify for CalFresh with a household of 4?"
           minLength: 1
         session_id:
@@ -127,7 +127,7 @@ components:
         response:
           type: string
           title: Response
-          description: Agent's answer, grounded in the caller's department knowledge base
+          description: Agent answer, grounded in the department knowledge base of the caller
           example: "To qualify for CalFresh with a household of 4, your gross monthly income must be at or below $5,150."
         session_id:
           type: string
@@ -151,7 +151,7 @@ components:
           example: "Riverside County"
         department:
           type: string
-          description: Branding label only — not the security boundary (that's MCP_API_KEY)
+          description: Branding label only — not the security boundary (that is MCP_API_KEY)
           example: "Social Services"
       title: HealthResponse
 

@@ -4,6 +4,13 @@ One image, one codebase — both instances (Building Permits, Business Licenses)
 agent, told apart only by ``PERMIT_TYPE_FOCUS`` and the prompt tuning fields (PLAN.md §5/§6).
 Both instances point at the same dedicated Permit DB MCP server (full access, no partitioning)
 and the same external State ID Verification MCP server.
+
+Authentication to both MCP proxies is OAuth2 client credentials (RFC 6749) with a resource
+indicator (RFC 8707), using the single AgentID service account Agent Manager injects for this
+instance: ``AMP_AGENTID_CLIENT_ID`` / ``AMP_AGENTID_CLIENT_SECRET`` /
+``AMP_AGENTID_TOKEN_ENDPOINT`` / ``AMP_AGENTID_SCOPES``. One identity, two resources — a
+separate token is minted per MCP server URL (the ``resource`` parameter differs), but both
+requests use the same client credentials. See mcp_tools.py.
 """
 
 from __future__ import annotations
@@ -25,10 +32,12 @@ class Config:
     permit_type_focus: str
 
     permitdb_mcp_server_url: str
-    permitdb_mcp_api_key: str
-
     stateid_mcp_server_url: str
-    stateid_mcp_api_key: str
+
+    agentid_client_id: str
+    agentid_client_secret: str
+    agentid_token_endpoint: str
+    agentid_scopes: str
 
     tone: str
     additional_guidance: str
@@ -53,9 +62,11 @@ class Config:
             county_name=_env("COUNTY_NAME", "Riverside County"),
             permit_type_focus=_env("PERMIT_TYPE_FOCUS"),
             permitdb_mcp_server_url=_env("PERMITDB_MCP_SERVER_URL"),
-            permitdb_mcp_api_key=_env("PERMITDB_MCP_API_KEY"),
             stateid_mcp_server_url=_env("STATEID_MCP_SERVER_URL"),
-            stateid_mcp_api_key=_env("STATEID_MCP_API_KEY"),
+            agentid_client_id=_env("AMP_AGENTID_CLIENT_ID"),
+            agentid_client_secret=_env("AMP_AGENTID_CLIENT_SECRET"),
+            agentid_token_endpoint=_env("AMP_AGENTID_TOKEN_ENDPOINT"),
+            agentid_scopes=_env("AMP_AGENTID_SCOPES"),
             tone=_env("TONE", "clear, procedural, and precise about fees and timelines"),
             additional_guidance=_env("ADDITIONAL_GUIDANCE", ""),
             use_llm_provider=use_llm_provider,

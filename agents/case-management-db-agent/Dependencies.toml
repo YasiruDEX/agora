@@ -46,6 +46,9 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"}
 ]
+modules = [
+	{org = "ballerina", packageName = "crypto", moduleName = "crypto"}
+]
 
 [[package]]
 org = "ballerina"
@@ -66,11 +69,14 @@ dependencies = [
 	{org = "ballerina", name = "os"},
 	{org = "ballerina", name = "time"}
 ]
+modules = [
+	{org = "ballerina", packageName = "file", moduleName = "file"}
+]
 
 [[package]]
 org = "ballerina"
 name = "http"
-version = "2.16.6"
+version = "2.17.0"
 dependencies = [
 	{org = "ballerina", name = "auth"},
 	{org = "ballerina", name = "cache"},
@@ -107,6 +113,9 @@ version = "1.8.1"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"}
+]
+modules = [
+	{org = "ballerina", packageName = "io", moduleName = "io"}
 ]
 
 [[package]]
@@ -146,11 +155,23 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.__internal"}
 ]
+modules = [
+	{org = "ballerina", packageName = "lang.array", moduleName = "lang.array"}
+]
 
 [[package]]
 org = "ballerina"
 name = "lang.decimal"
 version = "0.0.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
+name = "lang.error"
+version = "0.0.0"
+scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -205,6 +226,9 @@ version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
+modules = [
+	{org = "ballerina", packageName = "lang.value", moduleName = "lang.value"}
+]
 
 [[package]]
 org = "ballerina"
@@ -218,19 +242,6 @@ dependencies = [
 ]
 modules = [
 	{org = "ballerina", packageName = "log", moduleName = "log"}
-]
-
-[[package]]
-org = "ballerina"
-name = "mcp"
-version = "1.2.0"
-dependencies = [
-	{org = "ballerina", name = "http"},
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "uuid"}
-]
-modules = [
-	{org = "ballerina", packageName = "mcp", moduleName = "mcp"}
 ]
 
 [[package]]
@@ -260,7 +271,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "observe"
-version = "1.7.1"
+version = "1.7.2"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -279,12 +290,52 @@ modules = [
 
 [[package]]
 org = "ballerina"
+name = "random"
+version = "1.7.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "random", moduleName = "random"}
+]
+
+[[package]]
+org = "ballerina"
+name = "sql"
+version = "1.19.0"
+dependencies = [
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.object"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "sql", moduleName = "sql"}
+]
+
+[[package]]
+org = "ballerina"
 name = "task"
 version = "2.11.2"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerina", name = "uuid"}
+]
+
+[[package]]
+org = "ballerina"
+name = "test"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.array"},
+	{org = "ballerina", name = "lang.error"}
+]
+modules = [
+	{org = "ballerina", packageName = "test", moduleName = "test"}
 ]
 
 [[package]]
@@ -305,9 +356,6 @@ version = "2.6.2"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
-modules = [
-	{org = "ballerina", packageName = "url", moduleName = "url"}
-]
 
 [[package]]
 org = "ballerina"
@@ -318,6 +366,9 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.int"},
 	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "uuid", moduleName = "uuid"}
 ]
 
 [[package]]
@@ -347,6 +398,21 @@ modules = [
 
 [[package]]
 org = "ballerinax"
+name = "java.jdbc"
+version = "1.15.1"
+dependencies = [
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.string"},
+	{org = "ballerina", name = "sql"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerinax", packageName = "java.jdbc", moduleName = "java.jdbc"}
+]
+
+[[package]]
+org = "ballerinax"
 name = "openai.chat"
 version = "5.0.0"
 dependencies = [
@@ -364,21 +430,29 @@ modules = [
 
 [[package]]
 org = "riverside_county"
-name = "case_management_agent"
+name = "case_management_db_agent"
 version = "0.1.0"
 dependencies = [
+	{org = "ballerina", name = "crypto"},
+	{org = "ballerina", name = "file"},
 	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "lang.runtime"},
+	{org = "ballerina", name = "lang.value"},
 	{org = "ballerina", name = "log"},
-	{org = "ballerina", name = "mcp"},
 	{org = "ballerina", name = "os"},
+	{org = "ballerina", name = "random"},
+	{org = "ballerina", name = "sql"},
+	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
-	{org = "ballerina", name = "url"},
+	{org = "ballerina", name = "uuid"},
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinax", name = "amp"},
+	{org = "ballerinax", name = "java.jdbc"},
 	{org = "ballerinax", name = "openai.chat"}
 ]
 modules = [
-	{org = "riverside_county", packageName = "case_management_agent", moduleName = "case_management_agent"}
+	{org = "riverside_county", packageName = "case_management_db_agent", moduleName = "case_management_db_agent"}
 ]
 
