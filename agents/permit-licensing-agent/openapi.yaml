@@ -1,12 +1,12 @@
 openapi: 3.1.0
 info:
-  title: Permit & Licensing Agent
+  title: Permit and Licensing Agent
   version: 0.1.0
   description: >
-    Standard chat interface for the Permit & Licensing Agent — checks permit/license status,
+    Standard chat interface for the Permit and Licensing Agent. Checks permit/license status,
     reads fee schedules, verifies applicant identity via the external State ID Verification
     service, and pre-fills new applications against the dedicated Permit DB MCP server. Both
-    deployed instances (Building Permits, Business Licenses) expose this same contract.
+    deployed instances, Building Permits and Business Licenses, expose this same contract.
 
 servers:
   - url: http://localhost:8000
@@ -26,12 +26,12 @@ paths:
               $ref: "#/components/schemas/ChatRequest"
             examples:
               fee_estimate_query:
-                summary: Building Permits instance — ADU fee estimate
+                summary: Building Permits instance, ADU fee estimate
                 value:
                   message: "What would it cost to build a 650 sqft ADU worth about $90,000?"
                   session_id: "session_abc123"
               status_query:
-                summary: Business Licenses instance — application status
+                summary: Business Licenses instance, application status
                 value:
                   message: "What is the status of business license BL-2026-00012?"
                   session_id: "session_abc124"
@@ -48,8 +48,8 @@ paths:
                   value:
                     response: >-
                       For an ADU permit with a project valuation of $90,000, the estimated
-                      total fee is $815 (base $275 + plan check $180 + $4.00/$1,000 of
-                      valuation), per the ADU Permit fee schedule. This is an estimate —
+                      total fee is $815: base $275, plan check $180, and $4.00 per $1,000 of
+                      valuation, per the ADU Permit fee schedule. This is an estimate;
                       final figures are confirmed at plan check.
                     session_id: "session_abc123"
         '422':
@@ -135,7 +135,7 @@ components:
           example: "Riverside County"
         focus:
           type: string
-          description: Which permit types the prompt for this instance emphasizes (branding only)
+          description: Which permit types the prompt for this instance emphasizes, branding only
           example: "Building Permits"
       title: HealthResponse
 

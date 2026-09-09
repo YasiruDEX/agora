@@ -3,10 +3,10 @@ info:
   title: Citizen Inquiry Agent
   version: 0.1.0
   description: >
-    Standard chat interface for the Citizen Inquiry Agent — answers Riverside County
-    resident questions from a department-scoped knowledge base (see
-    mcp-servers/unified-kb-mcp-server). Every deployed instance exposes this same contract;
-    which department it answers for is determined by its MCP_API_KEY, not by anything in
+    Standard chat interface for the Citizen Inquiry Agent. Answers Riverside County
+    resident questions from a department-scoped knowledge base, defined in
+    mcp-servers/unified-kb-mcp-server. Every deployed instance exposes this same contract;
+    which department it answers for is determined by MCP_API_KEY, not by anything in
     the request.
 
 servers:
@@ -27,12 +27,12 @@ paths:
               $ref: "#/components/schemas/ChatRequest"
             examples:
               social_services_query:
-                summary: Social Services instance — CalFresh eligibility
+                summary: Social Services instance, CalFresh eligibility
                 value:
                   message: "How much do I need to qualify for CalFresh with a household of 4?"
                   session_id: "session_abc123"
               tax_revenue_query:
-                summary: Tax & Revenue instance — property tax due dates
+                summary: Tax and Revenue instance, property tax due dates
                 value:
                   message: "When is my secured property tax bill due, and what happens if I pay late?"
                   session_id: "session_abc124"
@@ -52,11 +52,11 @@ paths:
                   value:
                     response: >-
                       To qualify for CalFresh with a household of 4, your gross monthly
-                      income must be at or below $5,150 (source: "CalFresh Eligibility
-                      Guide").
+                      income must be at or below $5,150, per the CalFresh Eligibility
+                      Guide.
                     session_id: "session_abc123"
                 out_of_scope_response:
-                  summary: Question about another department — declined, not guessed
+                  summary: Question about another department, declined and not guessed
                   value:
                     response: >-
                       I do not have information regarding CalFresh qualification. I
@@ -151,7 +151,7 @@ components:
           example: "Riverside County"
         department:
           type: string
-          description: Branding label only — not the security boundary (that is MCP_API_KEY)
+          description: Branding label only, not the security boundary, which is MCP_API_KEY
           example: "Social Services"
       title: HealthResponse
 
