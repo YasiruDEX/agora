@@ -36,7 +36,7 @@ paths:
                   message: "What is the status of business license BL-2026-00012?"
                   session_id: "session_abc124"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
@@ -52,13 +52,13 @@ paths:
                       valuation, per the ADU Permit fee schedule. This is an estimate;
                       final figures are confirmed at plan check.
                     session_id: "session_abc123"
-        '422':
+        "422":
           description: Validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/HTTPValidationError"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -73,7 +73,7 @@ paths:
       description: Basic liveness check reporting which county/permit focus this instance serves.
       operationId: health_health_get
       responses:
-        '200':
+        "200":
           description: Instance is healthy
           content:
             application/json:

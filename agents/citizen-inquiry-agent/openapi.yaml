@@ -40,7 +40,7 @@ paths:
                     user_id: "user_123"
                     locale: "en-US"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
@@ -63,13 +63,13 @@ paths:
                       recommend contacting the department that handles CalFresh for
                       accurate details.
                     session_id: "session_abc124"
-        '422':
+        "422":
           description: Validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/HTTPValidationError"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -84,7 +84,7 @@ paths:
       description: Basic liveness check reporting which county/department this instance serves.
       operationId: health_health_get
       responses:
-        '200':
+        "200":
           description: Instance is healthy
           content:
             application/json:
