@@ -10,6 +10,7 @@ isolation and tool behavior, which is the point of this server.
 
 from __future__ import annotations
 
+import os
 import re
 import sqlite3
 import time
@@ -39,6 +40,10 @@ class KBStore:
 
     def __init__(self, db_path: str, encryption_key: str) -> None:
         self._fernet = Fernet(encryption_key.encode())
+        # The data/ directory is gitignored, so it is absent in a fresh deployment
+        # checkout; SQLite will not create a missing parent directory itself.
+        parent = os.path.dirname(os.path.abspath(db_path))
+        os.makedirs(parent, exist_ok=True)
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._init_schema()
