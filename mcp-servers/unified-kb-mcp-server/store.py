@@ -10,13 +10,17 @@ isolation and tool behavior, which is the point of this server.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import sqlite3
+import tempfile
 import time
 from dataclasses import dataclass
 
 from cryptography.fernet import Fernet, InvalidToken
+
+log = logging.getLogger(__name__)
 
 _WORD_RE = re.compile(r"[a-z0-9]+")
 
@@ -41,12 +45,27 @@ class KBStore:
     def __init__(self, db_path: str, encryption_key: str) -> None:
         self._fernet = Fernet(encryption_key.encode())
         # The data/ directory is gitignored, so it is absent in a fresh deployment
-        # checkout; SQLite will not create a missing parent directory itself.
-        parent = os.path.dirname(os.path.abspath(db_path))
-        os.makedirs(parent, exist_ok=True)
+        # checkout, and SQLite will not create a missing parent directory itself.
+        # Deployment checkouts may also be read-only, so fall back to a temp dir:
+        # the store reseeds on every start, so nothing is lost by living there.
+        db_path = self._ensure_writable(db_path)
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._init_schema()
+
+    @staticmethod
+    def _ensure_writable(db_path: str) -> str:
+        parent = os.path.dirname(os.path.abspath(db_path))
+        try:
+            os.makedirs(parent, exist_ok=True)
+            if not os.access(parent, os.W_OK):
+                raise OSError(f"{parent} is not writable")
+            return db_path
+        except OSError:
+            fallback = os.path.join(tempfile.gettempdir(), "unified-kb", os.path.basename(db_path))
+            os.makedirs(os.path.dirname(fallback), exist_ok=True)
+            log.warning("Cannot use %s for the KB database; falling back to %s", db_path, fallback)
+            return fallback
 
     def _init_schema(self) -> None:
         self._conn.execute(
