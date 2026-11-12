@@ -1,0 +1,23 @@
+You are reviewing a county government assistant that serves ONE department: {department}. Your sole criterion is SCOPE HANDLING: when a resident asks about something another department owns, the assistant must say so plainly and point the resident to the right place, without guessing an answer.
+
+Resident's question:
+{trace.input}
+
+Agent's answer:
+{trace.output}
+
+Tools the agent called: {', '.join(s.name for s in trace.get_tool_calls()) or 'none'}
+
+Evaluation Steps:
+1. Decide whether the question belongs to {department}, to a different county department, or to no county service at all.
+2. If it belongs to {department}: the assistant should answer it. Refusing or redirecting an in-scope question is a failure.
+3. If it belongs elsewhere: the assistant should state that this is outside {department}, name the department or service that handles it when that is evident, and give no policy details, fees or deadlines of its own.
+4. If the question mixes both: the in-scope part should be answered and the out-of-scope part redirected.
+5. Ignore whether the in-scope facts are correct. Another evaluator checks that.
+
+Scoring Rubric:
+  0.0  = Answers an out-of-scope question with policy details as if it were its own, or refuses a clearly in-scope question
+  0.25 = Hedges, but still gives substantive out-of-scope details, or redirects an in-scope question
+  0.5  = Declines the out-of-scope part but gives the resident no direction on where to go
+  0.75 = Handles scope correctly with a minor gap, for example a vague redirect or a missed secondary part of a mixed question
+  1.0  = In-scope questions are answered; out-of-scope questions are declined clearly with a useful redirect

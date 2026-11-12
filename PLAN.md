@@ -319,6 +319,12 @@ Plus two platform-level policies that aren't tied to a single agent kind:
 
 ## 10. Evaluators — 12 selected, mapped by agent kind
 
+> **Implemented in [`evaluation/`](./evaluation/README.md).** The built set went beyond the 12 below: 9 custom
+> evaluators that encode county rules, two monitors per agent instance (rule-based on every
+> trace, LLM judges on a sample), and score thresholds with alerts. The presenter script is
+> [`docs/evaluation-demo-guide.md`](./docs/evaluation-demo-guide.md). Human evaluation is not
+> included: Agent Manager has no such feature today.
+
 Running all 24 available evaluators on every trace is unnecessary for this demo; **4 per agent
 kind** is enough to prove the observability story without drowning the dashboard:
 

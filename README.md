@@ -20,8 +20,11 @@ models for PII, full auditing).
 agora/
 ├── README.md                    # you are here
 ├── PLAN.md                      # the full demo blueprint — the working source of truth
+├── deploy/                      # one-command bootstrap: MCP servers, agents, monitors, portal
+├── evaluation/                  # evaluators, monitors, thresholds, traffic — see evaluation/README.md
 └── docs/
-    └── demo-blueprint.html      # visual (civic-report) version of the plan
+    ├── demo-blueprint.html      # visual (civic-report) version of the plan
+    └── evaluation-demo-guide.md # presenter script for the evaluation demo
 ```
 
 ## Status

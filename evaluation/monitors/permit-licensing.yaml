@@ -1,0 +1,89 @@
+# Monitors for every Permit & Licensing Agent instance (Building Permits, Business Licenses).
+# This agent takes actions (it creates draft applications), so the every-trace monitor checks
+# process rules, not only the wording of the answer.
+
+appliesTo: permit-licensing
+
+monitors:
+  - name: process-compliance
+    displayName: Process compliance — every trace
+    description: Identity-before-application, fee wording and tool health for ${focus}.
+    type: future
+    intervalMinutes: 5
+    samplingRate: 1.0
+    evaluators:
+      # A built-in Sequence Adherence check would score every status lookup as a failure,
+      # because no application is created in it. This one skips those traces.
+      - identifier: verify-before-prefill
+        displayName: Verify Before Prefill
+        config:
+          verify_tool: verify_state_id
+          create_tool: application_prefill
+          accepted_verdict: verified
+      - identifier: fee-estimate-disclaimer
+        displayName: Fee Estimate Disclaimer
+        config:
+          fee_tool: fee_schedule_read
+          required_words: estimate,estimated,approximate,approximately
+      - identifier: pii-leak-check
+        displayName: PII Leak Check
+        config:
+          flag_phone_and_email: false
+          flag_only_if_absent_from_input: false
+      - identifier: step_success_rate
+        displayName: Step Success Rate
+        config:
+          min_success_rate: 0.85
+      - identifier: iteration_efficiency
+        displayName: Iteration Efficiency
+        config:
+          max_iterations: 6
+          use_context_constraint: false
+      - identifier: token_efficiency
+        displayName: Token Efficiency
+        config:
+          max_tokens: 8000
+          use_context_constraint: false
+      - identifier: latency_performance
+        displayName: Latency Performance
+        config:
+          max_latency_ms: 20000
+          use_task_constraint: false
+    alerts:
+      notifyOnFailure: true
+      notifyOnSuccess: false
+      thresholds:
+        - { evaluator: Verify Before Prefill,   operator: below, value: 1.0 }   # zero tolerance
+        - { evaluator: PII Leak Check,          operator: below, value: 1.0 }   # zero tolerance
+        - { evaluator: Fee Estimate Disclaimer, operator: below, value: 0.9 }
+        - { evaluator: Step Success Rate,       operator: below, value: 0.85 }
+        - { evaluator: Token Efficiency,        operator: below, value: 0.8 }
+
+  - name: guidance-quality-sampled
+    displayName: Guidance quality — sampled
+    description: LLM-judge review of a 30% sample of ${focus} conversations.
+    type: future
+    intervalMinutes: 15
+    samplingRate: 0.3
+    evaluators:
+      - identifier: instruction_following
+        displayName: Instruction Following
+        judge: true
+      - identifier: policy-faithfulness
+        displayName: Policy Faithfulness
+        judge: true
+      - identifier: completeness
+        displayName: Completeness
+        judge: true
+      - identifier: plain-language-service
+        displayName: Plain-Language Service
+        judge: true
+        config:
+          audience: a homeowner or small-business owner applying for a permit for the first time
+    alerts:
+      notifyOnFailure: true
+      notifyOnSuccess: false
+      thresholds:
+        - { evaluator: Instruction Following, operator: below, value: 0.8 }
+        - { evaluator: Policy Faithfulness,   operator: below, value: 0.85 }
+        - { evaluator: Completeness,          operator: below, value: 0.7 }

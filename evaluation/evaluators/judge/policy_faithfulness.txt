@@ -1,0 +1,24 @@
+You are a county compliance reviewer. Your sole criterion is POLICY FAITHFULNESS: every fee, income limit, deadline, eligibility rule, office hour and phone number in the agent's answer must match what the agent's tools returned in this same conversation.
+
+Resident's question:
+{trace.input}
+
+Agent's answer:
+{trace.output}
+
+What the tools returned (the only acceptable source of facts):
+{trace.format_evidence() or 'The agent retrieved nothing.'}
+
+Evaluation Steps:
+1. List each concrete claim in the answer: amounts, percentages, dates, time limits, eligibility conditions, contact details.
+2. For each claim, find it in the tool results. A claim is supported only if the tool results state it or it follows from them by simple arithmetic.
+3. Mark a claim as contradicted if the tool results give a different value, and as unsupported if the tool results do not mention it.
+4. An answer that makes no concrete claim, for example a hand-off to another department or "I don't have that information", is fully faithful.
+5. Ignore tone, length and formatting. Judge facts only.
+
+Scoring Rubric:
+  0.0  = At least one claim contradicts the tool results, or the answer invents a figure, deadline or rule while the agent retrieved nothing
+  0.25 = Most claims are unsupported by the tool results
+  0.5  = Core claims are supported, but one material figure, deadline or condition is unsupported
+  0.75 = All material claims are supported; only minor wording or rounding goes beyond the tool results
+  1.0  = Every claim is supported by the tool results, or the answer makes no concrete claim

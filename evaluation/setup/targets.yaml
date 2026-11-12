@@ -1,0 +1,56 @@
+# Where the evaluation setup lands in Agent Manager, and which running agents it covers.
+# Edit this file per demo environment. Secrets never go here: they come from environment
+# variables (see ../README.md).
+
+org: riverside-county              # organization handle in Agent Manager
+project: citizen-services          # project that holds the agents
+environment: Development           # environment the monitors watch
+
+# LLM judge evaluators run through an org-level LLM provider (Resources -> LLM Service
+# Providers). `llmProvider` is its handle; `judgeModel` is sent as each judge's `model`.
+llmProvider: azure-openai-gov
+judgeModel: gpt-4o-mini
+
+# Where threshold alerts are delivered. Created once at org level if it does not exist.
+#   kind: webhook  -> config.url is read from the env var named in urlEnv
+#   kind: notify   -> also set `service` (for example slack); urlEnv holds the service URL
+# Leave urlEnv unset in your shell to skip alerts; monitors are still created.
+alertDestination:
+  name: agora-quality-alerts
+  description: Evaluation threshold alerts for the Agora demo
+  kind: webhook
+  urlEnv: AMP_ALERT_WEBHOOK_URL
+
+# One row per running agent instance.
+#   name       agent name in Agent Manager
+#   kind       which ../monitors/<kind>.yaml applies
+#   vars       values for ${...} placeholders in that monitor file
+#   invokeUrl  where traffic/run.py sends requests (local defaults shown; replace with the
+#              instance's invoke URL from its Overview page)
+#   apiKeyEnv  env var holding that instance's API key, if the endpoint needs one
+agents:
+  - name: citizen-inquiry-social-services
+    kind: citizen-inquiry
+    vars: { department: Social Services }
+    scenarios: social-services
+    invokeUrl: http://127.0.0.1:8000/chat
+    apiKeyEnv: AGORA_KEY_SOCIAL_SERVICES
+
+  - name: citizen-inquiry-tax-revenue
+    kind: citizen-inquiry
+    vars: { department: Tax & Revenue }
+    scenarios: tax-revenue
+    invokeUrl: http://127.0.0.1:8003/chat
+    apiKeyEnv: AGORA_KEY_TAX_REVENUE
+
+  - name: permit-licensing-building-permits
+    kind: permit-licensing
+    vars: { focus: Building Permits }
+    scenarios: building-permits
+    invokeUrl: http://127.0.0.1:8011/chat
+    apiKeyEnv: AGORA_KEY_BUILDING_PERMITS
+
+  - name: case-management-social-services
+    kind: case-management
+    vars: {}
+    # No scripted traffic: this agent needs a caseworker's on-behalf-of token per request.

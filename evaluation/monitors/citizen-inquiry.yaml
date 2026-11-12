@@ -1,0 +1,117 @@
+# Monitors for every Citizen Inquiry Agent instance (one set per department instance).
+# ${department} is filled in per instance from setup/targets.yaml.
+#
+# Two monitors on purpose:
+#   compliance-every-trace  rule-based, free, 100% of traces, every 5 minutes
+#   answer-quality-sampled  LLM judges, cost money, 30% of traces, every 15 minutes
+#
+# Thresholds compare the MEAN score of one monitor run (0-1) against `value`. Agent Manager
+# notifies when a threshold is first crossed and again when the score is back within it.
+# Skipped traces are left out of the mean, so an evaluator that skips too much can hide a
+# failure: see the note on Groundedness below.
+
+appliesTo: citizen-inquiry
+
+monitors:
+  - name: compliance-every-trace
+    displayName: Compliance — every trace
+    description: Rule-based checks on every ${department} conversation. No LLM cost.
+    type: future
+    intervalMinutes: 5
+    samplingRate: 1.0
+    evaluators:
+      - identifier: kb-grounding-discipline
+        displayName: KB Grounding Discipline
+        config:
+          kb_tools: kb_search,kb_read
+          long_answer_chars: 400
+      - identifier: source-citation
+        displayName: Source Citation
+        config:
+          kb_tools: kb_search,kb_read
+          min_title_words_matched: 2
+      - identifier: pii-leak-check
+        displayName: PII Leak Check
+        config:
+          flag_phone_and_email: false          # office phone numbers are valid answers
+          flag_only_if_absent_from_input: false # echoing a resident's own SSN still counts
+      - identifier: content_safety
+        displayName: Content Safety
+        config:
+          case_sensitive: false
+          use_context_prohibited: false
+          prohibited_strings:
+            - "as an AI language model"
+            - "I guarantee"
+            - "legal advice"
+          prohibited_patterns:
+            - "\\byou (?:will|are going to) (?:definitely |certainly )?(?:qualify|be approved)\\b"
+      - identifier: step_success_rate
+        displayName: Step Success Rate
+        config:
+          min_success_rate: 0.9
+      - identifier: latency_performance
+        displayName: Latency Performance
+        config:
+          max_latency_ms: 12000
+          use_task_constraint: false
+      - identifier: length_compliance
+        displayName: Length Compliance
+        config:
+          min_length: 40
+          max_length: 1800
+    alerts:
+      notifyOnFailure: true
+      notifyOnSuccess: false
+      thresholds:
+        - { evaluator: PII Leak Check,          operator: below, value: 1.0 }   # zero tolerance
+        - { evaluator: KB Grounding Discipline, operator: below, value: 0.9 }
+        - { evaluator: Source Citation,         operator: below, value: 0.8 }
+        - { evaluator: Step Success Rate,       operator: below, value: 0.9 }
+        - { evaluator: Latency Performance,     operator: below, value: 0.85 }
+
+  - name: answer-quality-sampled
+    displayName: Answer quality — sampled
+    description: LLM-judge review of a 30% sample of ${department} conversations.
+    type: future
+    intervalMinutes: 15
+    samplingRate: 0.3
+    evaluators:
+      - identifier: policy-faithfulness
+        displayName: Policy Faithfulness
+        judge: true
+      - identifier: department-scope-handling
+        displayName: Department Scope Handling
+        judge: true
+        config:
+          department: ${department}
+      - identifier: plain-language-service
+        displayName: Plain-Language Service
+        judge: true
+        config:
+          audience: a county resident with no legal or government background
+      # Built-in. With the default on_missing_context=skip, an answer given with no tool
+      # call is skipped and never lowers the mean. Policy Faithfulness and KB Grounding
+      # Discipline score those traces instead, which is why they are on this agent.
+      - identifier: groundedness
+        displayName: Groundedness
+        judge: true
+        config:
+          on_missing_context: skip
+      - identifier: helpfulness
+        displayName: Helpfulness
+        judge: true
+      - identifier: tone
+        displayName: Tone
+        judge: true
+        config:
+          context: county government resident services for ${department}; warm, patient, plain language
+    alerts:
+      notifyOnFailure: true
+      notifyOnSuccess: false
+      thresholds:
+        - { evaluator: Policy Faithfulness,       operator: below, value: 0.85 }
+        - { evaluator: Department Scope Handling, operator: below, value: 0.8 }
+        - { evaluator: Groundedness,              operator: below, value: 0.8 }
+        - { evaluator: Tone,                      operator: below, value: 0.75 }
+        - { evaluator: Plain-Language Service,    operator: below, value: 0.7 }

@@ -1,0 +1,161 @@
+# What `deploy/bootstrap.py` stands up in Agent Manager, in order.
+# Organization, project, environment and the monitored agents come from
+# evaluation/setup/targets.yaml, so the two files cannot drift apart.
+
+repository:
+  url: https://github.com/YasiruDEX/agora
+  branch: main                 # the branch Agent Manager builds; must contain what you want deployed
+
+project:
+  displayName: Riverside County — Citizen Services
+  description: Agora demo. Agents, MCP servers and evaluation monitors for the county.
+  deploymentPipeline: default  # name of an existing deployment pipeline in the organization
+
+# Generated once, kept in deploy/.state/state.json, and reused on every re-run.
+#   fernet -> a database encryption key      token -> a random API key
+secrets:
+  kb_encryption_key: fernet
+  permitdb_encryption_key: fernet
+  casemgmt_encryption_key: fernet
+  kb_key_social_services: token
+  kb_key_tax_revenue: token
+  permitdb_key: token
+  stateid_key: token
+
+# MCP servers, deployed as platform-hosted components with an OpenAPI interface.
+# ${secret} values come from the block above; ${env:NAME} is read from your shell.
+mcpServers:
+  - name: unified-kb-mcp
+    displayName: Unified KB MCP Server
+    appPath: /mcp-servers/unified-kb-mcp-server
+    runCommand: python server.py
+    port: 8100
+    env:
+      KB_MCP_PORT: "8100"
+      KB_ENCRYPTION_KEY: { secret: kb_encryption_key }
+      KB_API_KEYS_JSON:
+        json:
+          "${kb_key_social_services}": social-services
+          "${kb_key_tax_revenue}": tax-revenue
+
+  - name: permit-db-mcp
+    displayName: Permit DB MCP Server
+    appPath: /mcp-servers/permit-db-mcp-server
+    runCommand: python server.py
+    port: 8101
+    env:
+      PERMITDB_MCP_PORT: "8101"
+      PERMITDB_ENCRYPTION_KEY: { secret: permitdb_encryption_key }
+      PERMITDB_API_KEYS_JSON:
+        json:
+          "${permitdb_key}": permit-licensing-agent
+
+  - name: state-id-mcp
+    displayName: State ID Verification MCP Server
+    appPath: /mcp-servers/state-id-verification-mcp-server
+    runCommand: python server.py
+    port: 8102
+    env:
+      STATEID_MCP_PORT: "8102"
+      STATEID_API_KEY: { secret: stateid_key }
+
+# MCP proxies in front of those components. Agents authenticate with their Agent ID; the
+# gateway adds the upstream key. The knowledge base decides the department namespace from
+# that key, so each department gets its own proxy over the same server.
+mcpProxies:
+  - id: kb-social-services
+    name: Knowledge Base — Social Services
+    server: unified-kb-mcp
+    upstreamKey: kb_key_social_services
+  - id: kb-tax-revenue
+    name: Knowledge Base — Tax & Revenue
+    server: unified-kb-mcp
+    upstreamKey: kb_key_tax_revenue
+  - id: permit-db
+    name: Permit Database
+    server: permit-db-mcp
+    upstreamKey: permitdb_key
+  - id: state-id
+    name: State ID Verification
+    server: state-id-mcp
+    upstreamKey: stateid_key
+upstreamKeyHeader: x-mcp-api-key
+
+# Agents. `name` must match evaluation/setup/targets.yaml so the monitors attach to them.
+#   mcp        proxy id -> the env var that receives the proxy's URL
+#   portalKey  the agent's key in citizen-portal/src/mock/departmentData.js
+agents:
+  - name: citizen-inquiry-social-services
+    displayName: Citizen Inquiry Agent — Social Services
+    description: Answers resident questions from the Social Services knowledge base
+    appPath: /agents/citizen-inquiry-agent
+    language: python
+    languageVersion: "3.11"
+    runCommand: python main.py
+    port: 8000
+    mcp: { kb-social-services: MCP_SERVER_URL }
+    portalKey: citizen-inquiry-social-services
+    env:
+      COUNTY_NAME: Riverside County
+      DEPARTMENT_NAME: Social Services
+      TONE: "warm, patient, and plain-language — many residents are in crisis"
+      ADDITIONAL_GUIDANCE: "Never ask for or repeat a resident's Social Security Number, case number, or other sensitive identifiers back in chat."
+      PORT: "8000"
+      OPENAI_API_KEY: { env: OPENAI_API_KEY }
+
+  - name: citizen-inquiry-tax-revenue
+    displayName: Citizen Inquiry Agent — Tax & Revenue
+    description: Answers resident questions from the Tax & Revenue knowledge base
+    appPath: /agents/citizen-inquiry-agent
+    language: python
+    languageVersion: "3.11"
+    runCommand: python main.py
+    port: 8000
+    mcp: { kb-tax-revenue: MCP_SERVER_URL }
+    portalKey: citizen-inquiry-tax-revenue
+    env:
+      COUNTY_NAME: Riverside County
+      DEPARTMENT_NAME: Tax & Revenue
+      TONE: "precise about dates and dollar amounts, non-judgmental about late payments"
+      ADDITIONAL_GUIDANCE: "Never tell a resident to skip or delay a payment — direct penalty-cancellation questions to the written policy, not your own judgment."
+      PORT: "8000"
+      OPENAI_API_KEY: { env: OPENAI_API_KEY }
+
+  - name: permit-licensing-building-permits
+    displayName: Permit & Licensing Agent — Building Permits
+    description: Checks permit status, quotes fees and starts applications after an ID check
+    appPath: /agents/permit-licensing-agent
+    language: python
+    languageVersion: "3.11"
+    runCommand: python main.py
+    port: 8000
+    mcp:
+      permit-db: PERMITDB_MCP_SERVER_URL
+      state-id: STATEID_MCP_SERVER_URL
+    portalKey: permit-licensing-building
+    env:
+      COUNTY_NAME: Riverside County
+      PERMIT_TYPE_FOCUS: Building Permits
+      TONE: "clear, procedural, and precise about fees, valuations, and inspection timelines"
+      ADDITIONAL_GUIDANCE: "You mainly handle building_permit, adu_permit, solar_pv, and pool_spa permits."
+      PORT: "8000"
+      OPENAI_API_KEY: { env: OPENAI_API_KEY }
+
+  # Ballerina build with the case database embedded, so it needs no MCP server.
+  - name: case-management-social-services
+    displayName: Case Management Agent — Social Services
+    description: Summarizes cases and drafts next steps for caseworkers
+    appPath: /agents/case-management-db-agent
+    language: ballerina
+    port: 8000
+    portalKey: case-management
+    env:
+      COUNTY_NAME: Riverside County
+      CASEMGMT_SEED_ON_START: "true"
+      CASEMGMT_ENCRYPTION_KEY: { secret: casemgmt_encryption_key }
+      OPENAI_API_KEY: { env: OPENAI_API_KEY }
+
+# The citizen portal is built with the deployed agents' URLs and keys and served locally.
+portal:
+  path: citizen-portal
+  port: 4173

@@ -21,3 +21,6 @@ venv/
 
 /samples
 /sample-ui
+
+# Local state written by deploy/bootstrap.py (generated secrets, API keys)
+deploy/.state/
