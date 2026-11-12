@@ -64,11 +64,11 @@ mcpServers:
 # that key, so each department gets its own proxy over the same server.
 mcpProxies:
   - id: kb-social-services
-    name: Knowledge Base — Social Services
+    name: Knowledge Base - Social Services
     server: unified-kb-mcp
     upstreamKey: kb_key_social_services
   - id: kb-tax-revenue
-    name: Knowledge Base — Tax & Revenue
+    name: Knowledge Base - Tax and Revenue
     server: unified-kb-mcp
     upstreamKey: kb_key_tax_revenue
   - id: permit-db

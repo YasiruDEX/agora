@@ -102,13 +102,19 @@ async def load_kb_tools(cfg: Config) -> list[BaseTool]:
     if not cfg.mcp_server_url:
         return []
 
-    access_token = _token_cache.get(cfg)
+    # Project MCP proxies only support API-key security (identity security is rejected there),
+    # so when Agent Manager injected the proxy's key, send that. The AgentID OAuth2 path stays
+    # for identity-secured proxies.
+    if cfg.mcp_proxy_api_key:
+        headers = {"X-API-Key": cfg.mcp_proxy_api_key}
+    else:
+        headers = {"Authorization": f"Bearer {_token_cache.get(cfg)}"}
 
     server_configs: dict[str, dict[str, Any]] = {
         "unified-kb": {
             "url": cfg.mcp_server_url,
             "transport": "streamable_http",
-            "headers": {"Authorization": f"Bearer {access_token}"},
+            "headers": headers,
         }
     }
 

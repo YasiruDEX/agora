@@ -26,11 +26,25 @@ def _env(name: str, default: str | None = None) -> str:
     return val
 
 
+def _mcp_proxy_api_key() -> str:
+    """The MCP proxy API key Agent Manager injects when the proxy is attached to this agent.
+
+    Its name is derived from the agent (e.g. INQUIRY_SOCIAL_SERVICES_MCP_CONFIG_API_KEY), so
+    take an explicit MCP_PROXY_API_KEY first and otherwise the one *_MCP_CONFIG_API_KEY var.
+    """
+    explicit = os.environ.get("MCP_PROXY_API_KEY")
+    if explicit:
+        return explicit
+    injected = sorted(k for k in os.environ if k.endswith("_MCP_CONFIG_API_KEY") and os.environ[k])
+    return os.environ[injected[0]] if injected else ""
+
+
 @dataclass(frozen=True)
 class Config:
     county_name: str
     department_name: str
     mcp_server_url: str
+    mcp_proxy_api_key: str
     agentid_client_id: str
     agentid_client_secret: str
     agentid_token_endpoint: str
@@ -58,10 +72,12 @@ class Config:
             county_name=_env("COUNTY_NAME", "Riverside County"),
             department_name=_env("DEPARTMENT_NAME"),
             mcp_server_url=_env("MCP_SERVER_URL"),
-            agentid_client_id=_env("AMP_AGENTID_CLIENT_ID"),
-            agentid_client_secret=_env("AMP_AGENTID_CLIENT_SECRET"),
-            agentid_token_endpoint=_env("AMP_AGENTID_TOKEN_ENDPOINT"),
-            agentid_scopes=_env("AMP_AGENTID_SCOPES"),
+            mcp_proxy_api_key=_mcp_proxy_api_key(),
+            # Only needed when no proxy API key is injected (identity-secured proxies).
+            agentid_client_id=_env("AMP_AGENTID_CLIENT_ID", ""),
+            agentid_client_secret=_env("AMP_AGENTID_CLIENT_SECRET", ""),
+            agentid_token_endpoint=_env("AMP_AGENTID_TOKEN_ENDPOINT", ""),
+            agentid_scopes=_env("AMP_AGENTID_SCOPES", ""),
             tone=_env("TONE", "clear, courteous, and plain-language"),
             additional_guidance=_env("ADDITIONAL_GUIDANCE", ""),
             use_llm_provider=use_llm_provider,
