@@ -8,7 +8,7 @@ environment: default               # environment the monitors watch
 
 # LLM judge evaluators run through an org-level LLM provider (Resources -> LLM Service
 # Providers). `llmProvider` is its handle; `judgeModel` is sent as each judge's `model`.
-llmProvider: azure-openai-gov
+llmProvider: provider
 judgeModel: gpt-4o-mini
 
 # Where threshold alerts are delivered. Created once at org level if it does not exist.
