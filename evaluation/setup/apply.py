@@ -26,7 +26,7 @@ import string
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import requests
 import yaml
@@ -45,7 +45,14 @@ class Api:
         self.base = os.environ.get("AMP_API_URL", "").rstrip("/")
         self._token: str | None = os.environ.get("AMP_TOKEN")
         if not self.base and not dry_run:
-            sys.exit("AMP_API_URL is not set (for example https://<host>/api/v1)")
+            sys.exit("AMP_API_URL is not set (for example http://localhost:9000/api/v1)")
+        if self.base:
+            parsed = urlparse(self.base)
+            if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.hostname in ("http", "https"):
+                sys.exit(
+                    f"AMP_API_URL is not a valid URL: {self.base}\n"
+                    "Use one scheme and the API host, for example http://localhost:9000/api/v1"
+                )
 
     def _headers(self) -> dict[str, str]:
         if not self._token:
@@ -67,11 +74,29 @@ class Api:
         """GET. Returns None on 404, and always None in a dry run with no API URL."""
         if self.dry_run and not self.base:
             return None
-        resp = requests.get(self.base + path, headers=self._headers(), params=params, timeout=60)
+        resp = self._send("GET", path, params=params, timeout=60)
         if resp.status_code == 404:
             return None
         _check(resp)
-        return resp.json() if resp.content else {}
+        return self._json(resp)
+
+    def _send(self, method: str, path: str, **kwargs) -> requests.Response:
+        try:
+            return requests.request(method, self.base + path, headers=self._headers(), **kwargs)
+        except requests.ConnectionError as exc:
+            sys.exit(f"Cannot reach Agent Manager at {self.base}: {type(exc).__name__}.\nCheck AMP_API_URL and that the API is running.")
+
+    def _json(self, resp: requests.Response) -> dict:
+        if not resp.content:
+            return {}
+        try:
+            return resp.json()
+        except ValueError:
+            sys.exit(
+                f"{resp.request.method} {resp.url} returned {resp.headers.get('Content-Type', 'no content type')}, not JSON.\n"
+                "AMP_API_URL probably points at the console instead of the API "
+                "(a local install serves the console on port 3000 and the API on port 9000)."
+            )
 
     def write(self, method: str, path: str, body: dict | None = None) -> dict:
         if self.dry_run:
@@ -79,10 +104,10 @@ class Api:
             if body is not None:
                 print(json.dumps(_shorten(body), indent=2, ensure_ascii=False))
             return {}
-        resp = requests.request(method, self.base + path, headers=self._headers(), json=body, timeout=120)
+        resp = self._send(method, path, json=body, timeout=120)
         _check(resp)
         print(f"  {method} {path} -> {resp.status_code}")
-        return resp.json() if resp.content else {}
+        return self._json(resp)
 
 
 def _check(resp: requests.Response) -> None:

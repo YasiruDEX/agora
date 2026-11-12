@@ -43,7 +43,7 @@ agent instances.
 2. Export credentials:
 
    ```bash
-   export AMP_API_URL="https://<agent-manager-host>/api/v1"
+   export AMP_API_URL="https://<agent-manager-host>/api/v1"   # local install: http://localhost:9000/api/v1 (3000 is the console)
    export AMP_TOKEN="<bearer token>"   # or AMP_TOKEN_URL + AMP_CLIENT_ID + AMP_CLIENT_SECRET
    export AMP_ALERT_WEBHOOK_URL="https://<where alerts should go>"   # optional
    ```

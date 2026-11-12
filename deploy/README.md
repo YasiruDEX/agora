@@ -36,7 +36,7 @@ environment come from [`evaluation/setup/targets.yaml`](../evaluation/setup/targ
 3. Export credentials:
 
    ```bash
-   export AMP_API_URL="https://<agent-manager-host>/api/v1"
+   export AMP_API_URL="https://<agent-manager-host>/api/v1"   # local install: http://localhost:9000/api/v1 (3000 is the console)
    export AMP_TOKEN="<bearer token>"
    export OPENAI_API_KEY="<key the agents will use>"
    ```
