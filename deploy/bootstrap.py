@@ -317,7 +317,7 @@ def step_api_keys(run: Run) -> None:
             continue
         created = run.api.write(
             "POST",
-            f"{run.agent_path(name)}/environments/{evaluation._seg(env_id)}/api-keys",
+            f"{run.agent_path(name)}/environments/{evaluation._seg(run.env)}/api-keys",  # path takes the environment name, not its id,
             {"displayName": "Agora demo portal and traffic"},
         )
         if created.get("apiKey"):
