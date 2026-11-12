@@ -511,9 +511,9 @@ function resolveRecordsFoia(message, lang) {
 // ---------------------------------------------------------------------------
 const RESOLVERS = {
   'citizen-inquiry-contact-center': (msg, lang) => resolveCitizenInquiry(msg, lang),
-  'citizen-inquiry-social-services': (msg, lang) => resolveBenefitsEligibility(msg, lang),
+  'inquiry-social-services': (msg, lang) => resolveBenefitsEligibility(msg, lang),
   'citizen-inquiry-permits-licensing': (msg, lang) => resolveCitizenInquiry(msg, lang),
-  'citizen-inquiry-tax-revenue': (msg, lang) => resolveTaxAssistance(msg, lang),
+  'inquiry-tax-revenue': (msg, lang) => resolveTaxAssistance(msg, lang),
   'citizen-inquiry-records-compliance': (msg, lang) => resolveRecordsFoia(msg, lang),
   'case-management': (msg, lang, context) => resolveCaseManagement(msg, lang, context),
   'permit-licensing-building': (msg, lang) => resolvePermits(msg, lang, 'building'),
@@ -526,7 +526,7 @@ function fallbackFor(agentKey, lang) {
     case 'citizen-inquiry-contact-center':
     case 'citizen-inquiry-permits-licensing':
       return T.citizen.fallback
-    case 'citizen-inquiry-social-services':
+    case 'inquiry-social-services':
       return T.benefits.fallback
     case 'case-management':
       return T.case.fallback
@@ -534,7 +534,7 @@ function fallbackFor(agentKey, lang) {
       return T.permits.fallbackBuilding
     case 'permit-licensing-business':
       return T.permits.fallbackBusiness
-    case 'citizen-inquiry-tax-revenue':
+    case 'inquiry-tax-revenue':
       return T.tax.fallback
     case 'citizen-inquiry-records-compliance':
       return T.records.fallback
@@ -569,7 +569,7 @@ export async function runMockAgent({ agentKey, message, context = {}, lang = 'en
  * Handle a card action (e.g. clicking "Pay Online" on the tax payment card).
  */
 export async function runMockCardAction({ agentKey, actionId, lang = 'en', onStep }) {
-  if (agentKey === 'citizen-inquiry-tax-revenue' && actionId === 'PAY_ONLINE') {
+  if (agentKey === 'inquiry-tax-revenue' && actionId === 'PAY_ONLINE') {
     const result = resolveTaxPaymentSettlement(lang)
     for (const step of result.steps) {
       onStep?.(step)

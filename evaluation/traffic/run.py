@@ -2,7 +2,7 @@
 
     python evaluation/traffic/run.py --list
     python evaluation/traffic/run.py                         # every agent, one pass
-    python evaluation/traffic/run.py --agent citizen-inquiry-social-services --rounds 3
+    python evaluation/traffic/run.py --agent inquiry-social-services --rounds 3
     python evaluation/traffic/run.py --category out-of-scope --delay 2
     python evaluation/traffic/run.py --id ss-pii-echo         # one scenario, for a live demo
 

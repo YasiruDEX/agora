@@ -27,7 +27,7 @@ VITE_AGENT_<KEY>_API_KEY=<API Key from the same page>
 ```
 
 `<KEY>` is the agentKey with dashes replaced by underscores, uppercased — e.g.
-`citizen-inquiry-social-services` → `VITE_AGENT_CITIZEN_INQUIRY_SOCIAL_SERVICES_URL`.
+`inquiry-social-services` → `VITE_AGENT_CITIZEN_INQUIRY_SOCIAL_SERVICES_URL`.
 
 Copy `.env.example` to `.env` and fill in real values as agents get deployed. A value left
 blank, or starting with `REPLACE_WITH_`, is treated as unconfigured and uses the mock engine —

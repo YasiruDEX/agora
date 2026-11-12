@@ -71,7 +71,7 @@ export default function SocialServices() {
             ))}
           </div>
           <div className="lg:col-span-2">
-            <ChatWidget agentKey="citizen-inquiry-social-services" mode="embedded" seal={dept.seal} />
+            <ChatWidget agentKey="inquiry-social-services" mode="embedded" seal={dept.seal} />
           </div>
         </div>
       ) : (

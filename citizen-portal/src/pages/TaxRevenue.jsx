@@ -29,7 +29,7 @@ export default function TaxRevenue() {
           ))}
         </div>
         <div className="lg:col-span-2">
-          <ChatWidget agentKey="citizen-inquiry-tax-revenue" mode="embedded" seal={dept.seal} />
+          <ChatWidget agentKey="inquiry-tax-revenue" mode="embedded" seal={dept.seal} />
         </div>
       </div>
     </div>

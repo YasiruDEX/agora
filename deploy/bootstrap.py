@@ -275,7 +275,7 @@ def step_mcp_proxies(run: Run) -> None:
             "PUT",
             f"{path}/environments/{evaluation._seg(run.env)}",
             {
-                "security": {"enabled": True, "identity": {"enabled": True}},
+                "security": {"enabled": True},  # identity security is rejected on project MCP proxies
                 "upstreamAuth": {
                     "type": "api-key",
                     "header": STACK["upstreamKeyHeader"],

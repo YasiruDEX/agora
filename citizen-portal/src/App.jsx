@@ -18,9 +18,9 @@ import RecordsCompliance from './pages/RecordsCompliance'
 const ROUTE_AGENT = {
   '/': { agentKey: 'citizen-inquiry-contact-center', brandI18nKey: 'citizenInquiry' },
   '/contact-center': { agentKey: 'citizen-inquiry-contact-center', brandI18nKey: 'citizenInquiry' },
-  '/social-services': { agentKey: 'citizen-inquiry-social-services', brandI18nKey: 'welfareEligibility' },
+  '/social-services': { agentKey: 'inquiry-social-services', brandI18nKey: 'welfareEligibility' },
   '/permits': { agentKey: 'citizen-inquiry-permits-licensing', brandI18nKey: 'planningPermits' },
-  '/tax-revenue': { agentKey: 'citizen-inquiry-tax-revenue', brandI18nKey: 'taxRevenueAssistant' },
+  '/tax-revenue': { agentKey: 'inquiry-tax-revenue', brandI18nKey: 'taxRevenueAssistant' },
   '/records': { agentKey: 'citizen-inquiry-records-compliance', brandI18nKey: 'recordsFoiaBrand' },
 }
 

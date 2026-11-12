@@ -60,7 +60,7 @@ Do this at least 30 minutes ahead, because monitors run on a 5 and 15 minute cyc
 
 4. Open these in browser tabs:
    - Agent Manager → organization level → **Evaluation → Evaluators**
-   - Project → `citizen-inquiry-social-services` → **Evaluation → Monitors**
+   - Project → `inquiry-social-services` → **Evaluation → Monitors**
    - Same agent → **Observability → Traces**
    - Same agent → **Configure** (environment variables), for Act 4
    - The alert destination (the channel or webhook inbox behind `AMP_ALERT_WEBHOOK_URL`)
@@ -175,7 +175,7 @@ In the agent's **Configure** page, change two environment variables and redeploy
 Then send traffic to that agent:
 
 ```bash
-python evaluation/traffic/run.py --agent citizen-inquiry-social-services --rounds 2
+python evaluation/traffic/run.py --agent inquiry-social-services --rounds 2
 ```
 
 While the monitor runs, show one answer in the terminal: short, confident, with a figure and
@@ -218,7 +218,7 @@ and present Act 4 from the already-recorded drop.
 2. Send traffic again:
 
    ```bash
-   python evaluation/traffic/run.py --agent citizen-inquiry-social-services --rounds 2
+   python evaluation/traffic/run.py --agent inquiry-social-services --rounds 2
    ```
 
 3. After the next runs, show the lines returning above their thresholds and the second
@@ -228,7 +228,7 @@ and present Act 4 from the already-recorded drop.
 whole session and use **Compare** on the monitor page:
 
 ```bash
-python evaluation/setup/apply.py backfill --hours 2 --agent citizen-inquiry-social-services
+python evaluation/setup/apply.py backfill --hours 2 --agent inquiry-social-services
 ```
 
 > The same evaluators that watch production can be pointed at any past window: after an

@@ -85,7 +85,7 @@ upstreamKeyHeader: x-mcp-api-key
 #   mcp        proxy id -> the env var that receives the proxy's URL
 #   portalKey  the agent's key in citizen-portal/src/mock/departmentData.js
 agents:
-  - name: citizen-inquiry-social-services
+  - name: inquiry-social-services
     displayName: Citizen Inquiry Agent — Social Services
     description: Answers resident questions from the Social Services knowledge base
     appPath: /agents/citizen-inquiry-agent
@@ -94,7 +94,7 @@ agents:
     runCommand: python main.py
     port: 8000
     mcp: { kb-social-services: MCP_SERVER_URL }
-    portalKey: citizen-inquiry-social-services
+    portalKey: inquiry-social-services
     env:
       COUNTY_NAME: Riverside County
       DEPARTMENT_NAME: Social Services
@@ -103,7 +103,7 @@ agents:
       PORT: "8000"
       OPENAI_API_KEY: { env: OPENAI_API_KEY }
 
-  - name: citizen-inquiry-tax-revenue
+  - name: inquiry-tax-revenue
     displayName: Citizen Inquiry Agent — Tax & Revenue
     description: Answers resident questions from the Tax & Revenue knowledge base
     appPath: /agents/citizen-inquiry-agent
@@ -112,7 +112,7 @@ agents:
     runCommand: python main.py
     port: 8000
     mcp: { kb-tax-revenue: MCP_SERVER_URL }
-    portalKey: citizen-inquiry-tax-revenue
+    portalKey: inquiry-tax-revenue
     env:
       COUNTY_NAME: Riverside County
       DEPARTMENT_NAME: Tax & Revenue
@@ -121,7 +121,7 @@ agents:
       PORT: "8000"
       OPENAI_API_KEY: { env: OPENAI_API_KEY }
 
-  - name: permit-licensing-building-permits
+  - name: permits-building
     displayName: Permit & Licensing Agent — Building Permits
     description: Checks permit status, quotes fees and starts applications after an ID check
     appPath: /agents/permit-licensing-agent
@@ -142,7 +142,7 @@ agents:
       OPENAI_API_KEY: { env: OPENAI_API_KEY }
 
   # Ballerina build with the case database embedded, so it needs no MCP server.
-  - name: case-management-social-services
+  - name: casemgmt-social-services
     displayName: Case Management Agent — Social Services
     description: Summarizes cases and drafts next steps for caseworkers
     appPath: /agents/case-management-db-agent

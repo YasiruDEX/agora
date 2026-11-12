@@ -35,8 +35,8 @@ export const AGENTS = {
       'How do I request a birth certificate extract?',
     ],
   },
-  'citizen-inquiry-social-services': {
-    key: 'citizen-inquiry-social-services',
+  'inquiry-social-services': {
+    key: 'inquiry-social-services',
     i18nKey: 'benefitsEligibility',
     name: 'Citizen Inquiry Agent',
     department: 'Riverside County Department of Social Services',
@@ -59,8 +59,8 @@ export const AGENTS = {
       'How long does a plan check take?',
     ],
   },
-  'citizen-inquiry-tax-revenue': {
-    key: 'citizen-inquiry-tax-revenue',
+  'inquiry-tax-revenue': {
+    key: 'inquiry-tax-revenue',
     i18nKey: 'taxAssistance',
     name: 'Citizen Inquiry Agent',
     department: 'Riverside County Tax & Revenue',
@@ -131,7 +131,7 @@ export const DEPARTMENTS = [
     description: 'CalFresh, CalWORKs, Medi-Cal, IHSS, General Relief, and caseworker case management.',
     hotline: '311',
     seal: '/images/department_seals/social_services_seal.svg',
-    agentKey: 'citizen-inquiry-social-services',
+    agentKey: 'inquiry-social-services',
     caseworkerAgentKey: 'case-management',
     services: [
       { id: 'senior-allowance', title: 'IHSS (In-Home Supportive Services)', description: 'In-home caregiving support for aged, blind, or disabled residents.' },
@@ -168,7 +168,7 @@ export const DEPARTMENTS = [
     description: 'Property assessment rates, trade tax tiers, and online rate payments.',
     hotline: '311',
     seal: '/images/department_seals/tax_revenue_seal.svg',
-    agentKey: 'citizen-inquiry-tax-revenue',
+    agentKey: 'inquiry-tax-revenue',
     services: [
       { id: 'assessment-rates', title: 'Assessment Rates Payment', description: 'Pay quarterly property assessment rates online.' },
       { id: 'non-arrears', title: 'Non-Arrears Certificate', description: 'Confirm your property has no outstanding balance.' },

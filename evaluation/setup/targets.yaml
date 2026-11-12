@@ -29,28 +29,28 @@ alertDestination:
 #              instance's invoke URL from its Overview page)
 #   apiKeyEnv  env var holding that instance's API key, if the endpoint needs one
 agents:
-  - name: citizen-inquiry-social-services
+  - name: inquiry-social-services
     kind: citizen-inquiry
     vars: { department: Social Services }
     scenarios: social-services
     invokeUrl: http://127.0.0.1:8000/chat
     apiKeyEnv: AGORA_KEY_SOCIAL_SERVICES
 
-  - name: citizen-inquiry-tax-revenue
+  - name: inquiry-tax-revenue
     kind: citizen-inquiry
     vars: { department: Tax & Revenue }
     scenarios: tax-revenue
     invokeUrl: http://127.0.0.1:8003/chat
     apiKeyEnv: AGORA_KEY_TAX_REVENUE
 
-  - name: permit-licensing-building-permits
+  - name: permits-building
     kind: permit-licensing
     vars: { focus: Building Permits }
     scenarios: building-permits
     invokeUrl: http://127.0.0.1:8011/chat
     apiKeyEnv: AGORA_KEY_BUILDING_PERMITS
 
-  - name: case-management-social-services
+  - name: casemgmt-social-services
     kind: case-management
     vars: {}
     # No scripted traffic: this agent needs a caseworker's on-behalf-of token per request.
