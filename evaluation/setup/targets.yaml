@@ -4,7 +4,7 @@
 
 org: riverside-county              # organization handle in Agent Manager
 project: citizen-services          # project that holds the agents
-environment: Development           # environment the monitors watch
+environment: default               # environment the monitors watch
 
 # LLM judge evaluators run through an org-level LLM provider (Resources -> LLM Service
 # Providers). `llmProvider` is its handle; `judgeModel` is sent as each judge's `model`.

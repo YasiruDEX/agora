@@ -298,7 +298,9 @@ def step_agents(run: Run) -> None:
 
 
 def step_api_keys(run: Run) -> None:
-    environments = (run.api.read(f"/orgs/{evaluation._seg(run.org)}/environments") or {}).get("environments") or []
+    listed = run.api.read(f"/orgs/{evaluation._seg(run.org)}/environments") or []
+    # The API returns a bare list; older builds wrapped it as {"environments": [...]}.
+    environments = listed.get("environments") or [] if isinstance(listed, dict) else listed
     env_id = next((e.get("id") or e.get("uuid") for e in environments if e.get("name") == run.env), None)
     if env_id is None:
         if not run.dry_run:
