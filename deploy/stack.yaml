@@ -4,7 +4,7 @@
 
 repository:
   url: https://github.com/YasiruDEX/agora
-  branch: main                 # the branch Agent Manager builds; must contain what you want deployed
+  branch: fix/revise           # the branch Agent Manager builds; must contain what you want deployed
 
 project:
   displayName: Riverside County — Citizen Services

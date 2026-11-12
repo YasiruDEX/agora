@@ -28,7 +28,7 @@ environment come from [`evaluation/setup/targets.yaml`](../evaluation/setup/targ
 ## Before the first real run
 
 1. **Push first.** Agent Manager builds from GitHub (`repository.branch` in `stack.yaml`,
-   default `main`), not from your checkout. Anything uncommitted or on another branch is not
+   currently `fix/revise`), not from your checkout. Anything uncommitted or on another branch is not
    deployed. That includes the two new `openapi.yaml` files under `mcp-servers/`, which the
    MCP server components need.
 2. Set `org`, `project`, `environment` and `llmProvider` in `targets.yaml`, and
